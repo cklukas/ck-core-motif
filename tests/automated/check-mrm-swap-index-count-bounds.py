@@ -14,7 +14,7 @@ for record, header, entry in (
     count = f"{record}->{record.removesuffix('_rec')}_header.index_count"
     swap = f"swapbytes( {count} );"
     guard = f"if ({count} < 0 ||"
-    loop = f"for( ndx=0 ; ndx < {count} ; ndx++ )"
+    loop = f"for( ndx=0 ; {count} > 0 && ndx < (Cardinal){count} ; ndx++ )"
     assert swap in source
     assert guard in source
     assert "IDBRecordSize - sizeof(" + header + ")" in source

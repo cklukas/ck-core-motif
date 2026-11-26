@@ -478,6 +478,7 @@ static XmBaseClassExtRec       toggleBBaseClassExtRec = {
     FALSE,                                    /* use_sub_resources    */
     XmInheritWidgetNavigable,                 /* widgetNavigable      */
     XmInheritFocusChange,                     /* focusChange          */
+    NULL
   };
 
 

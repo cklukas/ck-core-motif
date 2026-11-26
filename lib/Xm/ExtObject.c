@@ -119,7 +119,8 @@ static XmBaseClassExtRec myBaseClassExtRec = {
   NULL,				/* compiled_ext_resources */   
   NULL,				/* ext_resources       	  */   
   0,				/* resource_count     	  */   
-  FALSE				/* use_sub_resources	  */
+  FALSE,				/* use_sub_resources	  */
+  NULL, NULL, NULL
 };
 
 externaldef(xmextclassrec)
@@ -160,7 +161,8 @@ XmExtClassRec xmExtClassRec = {
   },	
   {
     NULL,			  /* synthetic resources */
-    0				  /* num syn resources	 */
+    0,				  /* num syn resources	 */
+    NULL
   }
 };
 

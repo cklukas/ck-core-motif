@@ -344,6 +344,7 @@ static XmBaseClassExtRec       drawnBBaseClassExtRec = {
     FALSE,                                    /* use_sub_resources    */
     XmInheritWidgetNavigable,                 /* widgetNavigable      */
     XmInheritFocusChange,                     /* focusChange          */
+    NULL
 };
 
 
@@ -536,7 +537,7 @@ MultiActivate(
     * new/separate activate.
     */
   if (db->drawnbutton.multiClick == XmMULTICLICK_KEEP)  
-  { if ((buttonEvent->xbutton.time - db->drawnbutton.armTimeStamp) >
+  { if ((buttonEvent->xbutton.time - db->drawnbutton.armTimeStamp) > (Time)
 	   XtGetMultiClickTime(XtDisplay(db)))
      db->drawnbutton.click_count = 1;
    else

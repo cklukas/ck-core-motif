@@ -1,3 +1,21 @@
+Eliminate -Wsign-compare and -Wmissing-field-initializers and promote Phase 2 hardening ratchet (2026-11-26)
+============================================================================================================
+
+- `ck_hardening.m4`, `scripts/warning-baseline.py`, `lib/Xm/*`, `lib/Mrm/*`,
+  `clients/mwm/*`, `clients/uil/*`, `tools/wml/Uil.y`,
+  `tests/automated/check-hardening-defect-ratchet.py`,
+  `tests/automated/check-*.py`, `docs/hardening.md`,
+  `docs/hardening-baseline-validation.json`:
+  - Eliminate all `-Wmissing-field-initializers` and `-Wsign-compare` warnings
+    across `lib/Xm`, `lib/Mrm`, `clients/mwm`, `clients/uil`, and `tools/wml`
+    (plus array-decay `-Waddress` checks in `Appearance.c`), preserving signed
+    negative sentinel checks and capacity bounds under both GCC 15 and Clang 21.
+  - Promote `-Werror=missing-field-initializers` and `-Werror=sign-compare` in
+    `ck_hardening.m4` under `--enable-hardening`, add both classes to
+    `scripts/warning-baseline.py` and `check-hardening-defect-ratchet.py`, and
+    update `docs/hardening-baseline-validation.json` (`1,653` -> `502` unique
+    warnings, `0` defect/ratchet-class warnings).
+
 Add historical-widget live DPI reflow, multi-head RandR qualification, and sub-paragraph shaping (2026-11-26)
 =============================================================================================================
 

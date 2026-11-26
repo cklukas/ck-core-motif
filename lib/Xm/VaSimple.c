@@ -279,7 +279,7 @@ _XmTypedArgToArg(
        
     /* again we assume that the XtResourceList is un-compiled */
 
-    for (i = 0; i < num_resources; i++) {
+    for (i = 0; (Cardinal)i < num_resources; i++) {
         if (StringToName(typed_arg->name) ==
             StringToName(resources[i].resource_name)) {
             to_type = resources[i].resource_type;
@@ -297,7 +297,7 @@ _XmTypedArgToArg(
     to_val.addr = NULL;
     from_val.size = typed_arg->size;
     if ((strcmp(typed_arg->type, XtRString) == 0) ||
-            (typed_arg->size > sizeof(XtArgVal))) {
+            (typed_arg->size > (int)sizeof(XtArgVal))) {
         from_val.addr = (XPointer)typed_arg->value;
     } else {
             from_val.addr = (XPointer)&typed_arg->value;

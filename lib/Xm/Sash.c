@@ -136,6 +136,7 @@ static XmBaseClassExtRec SashBaseClassExtRec = {
     FALSE,                              /* use_sub_resources    */
     WidgetNavigable,                    /* widgetNavigable      */
     XmInheritFocusChange,               /* focusChange          */
+    NULL
 };
 
 externaldef(xmsashclassrec) XmSashClassRec xmSashClassRec = {

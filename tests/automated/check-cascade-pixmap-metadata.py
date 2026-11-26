@@ -11,14 +11,14 @@ required = [
     "if (!XmeGetPixmapData(XtScreen(cb),",
     "&depth,",
     ")\n\t  return;",
-    "if (depth == cb->core.depth)",
+    "if ((Cardinal)depth == cb->core.depth)",
 ]
 missing = [fragment for fragment in required if fragment not in body]
 if missing:
     raise SystemExit("CascadeButton metadata guard missing: " + ", ".join(missing))
 
 lookup = body.index("if (!XmeGetPixmapData")
-copy = body.index("if (depth == cb->core.depth)")
+copy = body.index("if ((Cardinal)depth == cb->core.depth)")
 if body[lookup:copy].find("return;") < 0:
     raise SystemExit("CascadeButton can use depth after a failed metadata lookup")
 

@@ -41,6 +41,7 @@ DEFECT_CLASSES = [
     "-Wint-to-pointer-cast", "-Wsizeof-pointer-memaccess", "-Wfree-nonheap-object",
     "-Wmismatched-dealloc", "-Walloc-size-larger-than", "-Wmisleading-indentation",
     "-Wimplicit-fallthrough", "-Wcast-function-type", "-Waddress",
+    "-Wmissing-field-initializers", "-Wsign-compare",
 ]
 
 ENTER = re.compile(r"make(?:\[\d+\])?: (Entering|Leaving) directory '([^']+)'")

@@ -8,5 +8,5 @@ end = source.index("/* Compare ASN.1 form of strings. */", start)
 body = source[start:end]
 assert "len = XmCvtXmStringToByteStream(str, &tmp);" in body
 assert "if (len == 0 && tmp == NULL)" in body
-assert body.index("if (len == 0 && tmp == NULL)") < body.index("if (n >= len)")
+assert body.index("if (len == 0 && tmp == NULL)") < body.index("if (n >= 0 && (unsigned int)n >= len)")
 print("PASS XmStringNCopy conversion failure guard")

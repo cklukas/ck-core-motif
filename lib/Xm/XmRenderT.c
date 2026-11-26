@@ -509,7 +509,7 @@ GetResources(XmRendition rend,
       quarks = new_quarks;
       num_quarks = argcount;
     }
-  for (i = 0; i < argcount; i++)
+  for (i = 0; (Cardinal)i < argcount; i++)
     quarks[i] = XrmStringToQuark(arglist[i].name);
 
   /* Compile resource description into XrmResourceList if not already done. */
@@ -530,11 +530,11 @@ GetResources(XmRendition rend,
     }
   
   /* Set resources from arglist. */
-  for (arg = arglist, i = 0; i < argcount; arg++, i++)
+  for (arg = arglist, i = 0; (Cardinal)i < argcount; arg++, i++)
     {
       argName = quarks[i];
       
-      for (j = 0, res = table; j < _XmNumRenditionResources; j++, res++)
+      for (j = 0, res = table; (Cardinal)j < _XmNumRenditionResources; j++, res++)
 	{
 	  if (res->xrm_name == argName)
 	    {
@@ -581,7 +581,7 @@ GetResources(XmRendition rend,
     }
   
   /* Loop over table */
-  for (j = 0, res = table; j < _XmNumRenditionResources; j++, res++)
+  for (j = 0, res = table; (Cardinal)j < _XmNumRenditionResources; j++, res++)
     {
       if (!found[j])
 	{
@@ -1392,7 +1392,7 @@ _XmRenditionCopy(XmRendition rend,
 	FreeHandle(toRend);
 	return(NULL);
       }
-      for (i = 0; i < _XmRendTagCount(rend); i++)
+      for (i = 0; (unsigned int)i < _XmRendTagCount(rend); i++)
 	_XmRendTags(toRend)[i] = _XmRendTags(rend)[i];
     }
   
@@ -1421,7 +1421,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       (rendition_count > INT_MAX))
     return(oldtable);
 
-  for (i = 0; i < rendition_count; i++)
+  for (i = 0; (Cardinal)i < rendition_count; i++)
     if (renditions[i] == NULL)
       return(oldtable);
 
@@ -1464,7 +1464,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       _XmRTRefcount(oldtable) = 1;
       
       /* Copy renditions */
-      for (i = 0; i < rendition_count; i++)
+      for (i = 0; (Cardinal)i < rendition_count; i++)
 	{
 	  _XmRTRenditions(oldtable)[i] = CopyRendition(renditions[i]);
 	  if (_XmRTRenditions(oldtable)[i] == NULL)
@@ -1537,7 +1537,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 	}
       
       /* Merge matching renditions */
-      for (i = 0; i < rendition_count; i++)
+      for (i = 0; (Cardinal)i < rendition_count; i++)
 	{
 	  rend = renditions[i];
 	  
@@ -1631,7 +1631,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 	  /* Copy new renditions. */
 	  next = _XmRTCount(oldtable);
       
-	  for (i = 0; i < rendition_count; i++)
+	  for (i = 0; (Cardinal)i < rendition_count; i++)
 	    {
 	      if (!matches[i])
 		{
@@ -2776,11 +2776,11 @@ XmRenditionRetrieve(XmRendition rendition,
 
   _XmProcessLock();
   /* Get resources */
-  for (i = 0; i < argcount; i++)
+  for (i = 0; (Cardinal)i < argcount; i++)
     {
       arg = &(arglist[i]);
       
-      for (j = 0; j < _XmNumRenditionResources; j++)
+      for (j = 0; (Cardinal)j < _XmNumRenditionResources; j++)
 	{
 	  res = &(_XmRenditionResources[j]);
 
@@ -2888,11 +2888,11 @@ XmRenditionUpdate(XmRendition rendition,
   old_xft = _XmRendXftFont(rendition);
   old_xft_owned = _XmRendOwnsXftFont(rendition);
 #endif
-  for (i = 0; i < argcount; i++)
+  for (i = 0; (Cardinal)i < argcount; i++)
     {
       arg = &(arglist[i]);
       
-      for (j = 0; j < _XmNumRenditionResources; j++)
+      for (j = 0; (Cardinal)j < _XmNumRenditionResources; j++)
 	{
 	  res = &(_XmRenditionResources[j]);
 
@@ -3555,7 +3555,7 @@ _XmXftDrawCreate(Display *display, Window window)
 		else {
 			/* This helper accepts both windows and pixmaps; root is not a
 			 * reliable discriminator, so never issue a window-only query here. */
-			if (geometry_ok && depth != DefaultDepth(display, drawable_screen)) {
+			if (geometry_ok && depth != (unsigned int)DefaultDepth(display, drawable_screen)) {
 				vtemplate.depth = (int)depth;
 				vtemplate.screen = drawable_screen;
 				visuals = XGetVisualInfo(display,

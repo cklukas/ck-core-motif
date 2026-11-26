@@ -99,7 +99,7 @@ void _XmInitModifiers (void);
 
 #define XmStackAlloc(size, stack_cache_array)	\
     ((((char*)(stack_cache_array) != NULL) &&	\
-     ((size) <= sizeof(stack_cache_array)))	\
+     ((size_t)(size) <= sizeof(stack_cache_array)))	\
      ?  (char *)(stack_cache_array)		\
      :  XtMalloc((unsigned)(size)))
 

@@ -651,7 +651,8 @@ static XmBaseClassExtRec labelBaseClassExtRec =
     0,                                            /* num_ext_resources      */
     FALSE,                                        /* use_sub_resources      */
     XmInheritWidgetNavigable,                     /* widgetNavigable        */
-    XmInheritFocusChange                          /* focusChange            */
+    XmInheritFocusChange,                          /* focusChange            */
+    NULL
 };
 
 externaldef (xmlabelgcacheobjclassrec)
@@ -696,7 +697,8 @@ XmLabelGCacheObjClassRec xmLabelGCacheObjClassRec =
         cache_syn_resources,                      /* synthetic resources */
         XtNumber(cache_syn_resources),            /* num_syn_resources   */
         NULL                                      /* extension           */
-    }
+    },
+    { 0 }
 };
 
 /* This is the class record that gets set at compile/link time  */
@@ -2517,7 +2519,7 @@ LRectangle *background_box)
                 if (LabelGGetPixmapData(XtScreen(lw), Pix(lw), &depth,
                     NULL, NULL))
                 {
-                if (depth == XtParent(lw)->core.depth)
+                if ((Cardinal)depth == XtParent(lw)->core.depth)
                     XCopyArea (XtDisplay(lw), Pix(lw), XtWindow(lw), gc, 0, 0,
                         LabG_PixmapRect(lw).width, LabG_PixmapRect(lw).height,
                         lw->rectangle.x + LabG_TextRect(lw).x +
@@ -2553,7 +2555,7 @@ LRectangle *background_box)
                 if (LabelGGetPixmapData(XtScreen(lw), pix_use, &depth,
                     NULL, NULL))
                 {
-                if (depth == XtParent(lw)->core.depth)
+                if ((Cardinal)depth == XtParent(lw)->core.depth)
                     XCopyArea (XtDisplay(lw), pix_use, XtWindow(lw), gc, 0, 0,
                         LabG_PixmapRect(lw).width, LabG_PixmapRect(lw).height,
                         lw->rectangle.x + LabG_TextRect(lw).x +

@@ -521,7 +521,8 @@ XmIconGCacheObjClassRec xmIconGCacheObjClassRec =
     /* synthetic resources */   cache_syn_resources,
     /* num_syn_resources   */   XtNumber(cache_syn_resources),
     /* extension           */   NULL,
-  }
+  },
+  { NULL }
 };
 
 static XmBaseClassExtRec   iconGBaseClassExtRec = {
@@ -547,6 +548,7 @@ static XmBaseClassExtRec   iconGBaseClassExtRec = {
     FALSE,                                      /* use_sub_resources    */
     XmInheritWidgetNavigable,                   /* widgetNavigable      */
     XmInheritFocusChange,                       /* focusChange          */
+    NULL
 };
 
 static XmCacheClassPart IconGClassCachePart = {
@@ -649,7 +651,8 @@ static XmConst XmCareVisualTraitRec iconCVT = {
 
 static XmConst XmAccessColorsTraitRec iconACT = {
   0,			/* version */
-  GetColors
+  GetColors,
+  NULL
 };
 
 /* Point In Trait record for IconGadget */
@@ -2206,7 +2209,7 @@ Redisplay(
 	    XSetClipMask(XtDisplay(wid), IG_NormalGC(wid),None);
 	}
 
-	if (depth == XtParent(wid)->core.depth)
+	if ((Cardinal)depth == XtParent(wid)->core.depth)
 	    XCopyArea(XtDisplay(wid),IG_LargeIconPixmap(wid),
 		      XtWindow(wid), IG_NormalGC(wid), 0,0,
 		      pm_width, pm_height,
@@ -2277,7 +2280,7 @@ Redisplay(
 	    XSetClipMask(XtDisplay(wid), IG_NormalGC(wid),None);
 	}
 
-	if (depth == XtParent(wid)->core.depth)
+	if ((Cardinal)depth == XtParent(wid)->core.depth)
 	    XCopyArea(XtDisplay(wid),IG_SmallIconPixmap(wid),
 		      XtWindow(wid), IG_NormalGC(wid),0,0,
 		      pm_width,pm_height,

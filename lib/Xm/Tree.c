@@ -1783,7 +1783,7 @@ LayoutChildren(Widget w, Widget assign_child)
      * that will be visible on the screen and unmapping all others.
      */
 
-    for (i = 0; i < num_nodes; i++, node_table++) {
+    for (i = 0; (Cardinal)i < num_nodes; i++, node_table++) {
 	TreeConstraints t_node = (TreeConstraints) *node_table;
 	Widget child = XmHierarchyC_widget(t_node);
 	Widget open_close = XmHierarchyC_open_close_button(t_node);

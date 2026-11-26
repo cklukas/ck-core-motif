@@ -1709,7 +1709,7 @@ set_values(Widget w,
 #endif
       if (XmIsDialogShell(p)) {
 	for (i = 0; 
-	     i < ((CompositeWidget)p)->composite.num_children; 
+	     (Cardinal)i < ((CompositeWidget)p)->composite.num_children; 
 	     i++)
 	  if (XtIsManaged(((CompositeWidget)p)->composite.children[i])) {
 	    ImGeoReq(p);
@@ -2101,13 +2101,13 @@ get_real_callback(Widget w,
 
   refs = icp->widget_refs;
   target = refs.num_refs;
-  for (i = 0; i < refs.num_refs; i++){
+  for (i = 0; (Cardinal)i < refs.num_refs; i++){
     if (refs.refs[i] == *real_widget){
       target = i;
       break;
     }
   }
-  if (target == refs.num_refs)
+  if (target >= 0 && (Cardinal)target == refs.num_refs)
     return (XICProc)NULL;
 
   if (refs.callbacks[target])
@@ -2125,7 +2125,7 @@ regist_real_callback(Widget w,
   register XmImXICInfo icp;
   XmImDisplayInfo xim_info;
   XmImRefRec refs;
-  int i, target = 0;
+  Cardinal i, target = 0;
 
   if (call == NULL || swc < 0 || swc >= 4)
     return;

@@ -109,7 +109,7 @@ Idb__INX_StringTerminated (char *base, MrmOffset offset, MrmCount capacity)
   available = capacity - offset;
   if (available > IDBMaxIndexLength1)
     available = IDBMaxIndexLength1;
-  return strnlen (base + offset, available) < available;
+  return strnlen (base + offset, (size_t)available) < (size_t)available;
 }
 
 
@@ -548,7 +548,7 @@ Idb__INX_GetBtreeRecord ( IDBFile		file_id,
    */
   recptr = (IDBIndexNodeRecordPtr) (*buffer_return)->IDB_record ;
   hdrptr = (IDBIndexNodeHdrPtr) &recptr->node_header ;
-  if (hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+  if (hdrptr->index_count < 0 || (size_t)hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
       hdrptr->heap_start > IDBIndexNodeFreeMax ||
       entry_index >= hdrptr->index_count)
     return MrmBAD_RECORD;
@@ -672,7 +672,7 @@ Idb__INX_FindResources (IDBFile			file_id,
       leaf_ndxvec = leafrec->index ;
       ndxcnt = leafhdr->index_count ;
       stgbase = (char *) leafrec->index ;
-      if (ndxcnt > IDBIndexLeafFreeMax / IDBIndexLeafEntrySize ||
+      if (ndxcnt < 0 || (size_t)ndxcnt > IDBIndexLeafFreeMax / IDBIndexLeafEntrySize ||
           leafhdr->heap_start > IDBIndexLeafFreeMax)
         return MrmBAD_RECORD;
 
@@ -713,7 +713,7 @@ Idb__INX_FindResources (IDBFile			file_id,
       ndxcnt = nodehdr->index_count ;
       stgbase = (char *) noderec->index ;
       if (ndxcnt == 0 ||
-          ndxcnt > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+          ndxcnt < 0 || (size_t)ndxcnt > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
           nodehdr->heap_start > IDBIndexNodeFreeMax ||
           node_ndxvec[0].LT_record <= 0)
         return MrmBAD_RECORD;
@@ -733,7 +733,7 @@ Idb__INX_FindResources (IDBFile			file_id,
 	  node_ndxvec = noderec->index ;
 	  stgbase = (char *) noderec->index ;
 	  if (nodehdr->index_count == 0 ||
-	      nodehdr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+	      nodehdr->index_count < 0 || (size_t)nodehdr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
 	      nodehdr->heap_start > IDBIndexNodeFreeMax ||
 	      entndx >= nodehdr->index_count)
 	    return MrmBAD_RECORD;

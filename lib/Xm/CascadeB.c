@@ -365,6 +365,7 @@ static XmBaseClassExtRec       cascadeBBaseClassExtRec = {
     FALSE,                                    /* use_sub_resources    */
     XmInheritWidgetNavigable,                 /* widgetNavigable      */
     XmInheritFocusChange,                     /* focusChange          */
+    NULL
 };
 
 
@@ -624,7 +625,7 @@ DrawCascade(
       if (depth <= 0)
 	  return;
 
-      if (depth == cb->core.depth)
+      if ((Cardinal)depth == cb->core.depth)
 	  XCopyArea (XtDisplay(cb), 
 		     pixmap, 
 		     XtWindow(cb),

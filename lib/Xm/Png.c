@@ -418,7 +418,7 @@ png_process_image(Screen *screen,
             }
         }
     } else if (screen->root_depth == 16) {
-        for (row = 0; row < ximage->height; ++row) {
+        for (row = 0; row < (size_t)ximage->height; ++row) {
             src = image_data + row * image_rowbytes;
             dest = ximage->data + row * ximage_rowbytes;
             if (image_channels == 3) {

@@ -139,7 +139,8 @@ static XmBaseClassExtRec baseClassExtRec = {
     0,                                  /* num_ext_resources    */
     FALSE,                              /* use_sub_resources    */
     WidgetNavigable,                    /* widgetNavigable      */
-    NULL                                /* focusChange          */
+    NULL,                                /* focusChange          */
+    NULL
 };
 
 externaldef( xmclipwindowclassrec) XmClipWindowClassRec xmClipWindowClassRec =
@@ -308,7 +309,7 @@ GetRealTranslations(
   static size_t capacity = 0;
   size_t used = 0;
   char *keystring;
-  Cardinal i;
+  int i;
   int num_vkeys;
   XmKeyBinding vkeys;
   KeySym    keysym;

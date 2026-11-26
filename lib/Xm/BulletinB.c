@@ -1089,7 +1089,7 @@ SetValuesHook(
     if (!shell)
       return (False);
     
-    for (i=0; i<*num_args; i++)
+    for (i=0; (Cardinal)i<*num_args; i++)
       {
 	  if (strcmp (args[i].name, XmNx) == 0)
 	    {

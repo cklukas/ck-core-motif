@@ -841,6 +841,7 @@ static XmBaseClassExtRec BaseClassExtRec = {
   FALSE,			/* use_sub_resources     */
   XmInheritWidgetNavigable,	/* widgetNavigable       */
   XmInheritFocusChange,		/* focusChange           */
+  NULL
 };
 
 externaldef(xmlistclassrec) XmListClassRec xmListClassRec = {

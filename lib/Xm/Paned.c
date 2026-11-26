@@ -2643,7 +2643,7 @@ ReManageChildren(XmPanedWidget pw)
 	    if ((XmPaned_num_panes(pw) + 1) > XmPaned_num_slots(pw)) {
 		Cardinal new_slots;
 		WidgetList new_children;
-		if (XmPaned_num_slots(pw) > (Cardinal)~0 - BLOCK)
+		if ((Cardinal)XmPaned_num_slots(pw) > (Cardinal)~0 - BLOCK)
 		    return;
 		new_slots = XmPaned_num_slots(pw) + BLOCK;
 		if ((size_t)new_slots > SIZE_MAX / sizeof(Widget) ||

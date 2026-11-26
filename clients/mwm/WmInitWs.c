@@ -283,7 +283,7 @@ BuildLockMaskSequence(void)
 				   bits in */
 	bit_on = False;		/* are we setting bits or not? */
 
-	for (j=0, k=run-1; j<num_masks; j++, k--)
+	for (j=0, k=run-1; (unsigned int)j<num_masks; j++, k--)
 	{
 	    if (k < 1)
 	    {
@@ -343,7 +343,7 @@ SetupLockingModifierMask(void)
 
     int kcq, kc;
 
-    for (i=0; i<NUM_LOCKING_MODS; i++)
+    for (i=0; (size_t)i<NUM_LOCKING_MODS; i++)
     {
 	pkcLockingMods[i] = XKeysymToKeycode(dpy, pksLockingMods[i]);
     }
@@ -375,7 +375,7 @@ SetupLockingModifierMask(void)
         kc = modifier_map->modifiermap[i];
         if (kc)
 	{
-	    for (j=0; j<NUM_LOCKING_MODS; j++)
+	    for (j=0; (size_t)j<NUM_LOCKING_MODS; j++)
 	    {
 		if (pkcLockingMods[j] == kc)
 		{

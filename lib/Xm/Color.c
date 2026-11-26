@@ -1415,7 +1415,7 @@ _XmConvertToBW(Widget w, Pixmap pm)
 			   }
 		   }
 	   } else {
-		   for (i = 0; i < im.ncolors; i++) {
+		   for (i = 0; (unsigned int)i < im.ncolors; i++) {
 			   col = im.colorTable[i].c_color;
                if (HasExpandedHexColor(col)) {
 				   if (have_bg) {

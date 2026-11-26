@@ -10,7 +10,7 @@ start = text.index("static void \nClassInitialize")
 end = text.index("\nstatic ", start + 1)
 region = text[start:end]
 for needle in (
-    "SIZE_MAX - (size_t)sc_num_res",
+    "SIZE_MAX - sc_res_sz",
     "SIZE_MAX / sizeof(XtResource)",
     "if (merged_list == NULL)",
     "return;",

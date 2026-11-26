@@ -304,6 +304,7 @@ static XmBaseClassExtRec baseClassExtRec = {
     FALSE,                              /* use_sub_resources    */
     WidgetNavigable,                    /* widgetNavigable      */
     FocusChange,                        /* focusChange          */
+    NULL
 };
 
 static XmGadgetClassExtRec  _XmGadClassExtRec = {
@@ -376,7 +377,8 @@ externaldef(xmgadgetclass) WidgetClass xmGadgetClass =
 
 static XmConst XmAccessColorsTraitRec gadACT = {
   0,			/* version */
-  GetColors
+  GetColors,
+  NULL
 };
 
 /* Unit Type Trait record for Gadget */

@@ -146,7 +146,7 @@ void InitEventHandling (void)
     /* handle entry of root window */
     base_mask |= EnterWindowMask | LeaveWindowMask;
 
-    for (scr=0; scr<wmGD.numScreens; scr++)
+    for (scr=0; wmGD.numScreens > 0 && scr<(unsigned int)wmGD.numScreens; scr++)
     {
 	pSD = &(wmGD.Screens[scr]);
 
@@ -1535,7 +1535,7 @@ Boolean CheckForButtonAction (XButtonEvent *buttonEvent, Context context, Contex
 	     * See if the event context matches the binding context.
 	     */
 
-	    if ((buttonEvent->type == buttonSpec->eventType) &&
+	    if (((unsigned int)buttonEvent->type == buttonSpec->eventType) &&
 	        (context & buttonSpec->context) &&
 		(subContext & buttonSpec->subContext))
 	    {

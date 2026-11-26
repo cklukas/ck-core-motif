@@ -128,7 +128,7 @@ static Boolean composite_circle(Widget widget, Drawable target, Pixmap face,
     GC gc;
     Picture source, destination, coverage;
     if (diameter <= 0 || diameter > 2048 ||
-        widget->core.depth != DefaultDepthOfScreen(screen) ||
+        widget->core.depth != (Cardinal)DefaultDepthOfScreen(screen) ||
         !XRenderQueryExtension(display, &event, &error)) return False;
     format = XRenderFindVisualFormat(display, DefaultVisualOfScreen(screen));
     alpha = XRenderFindStandardFormat(display, PictStandardA8);

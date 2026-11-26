@@ -148,14 +148,14 @@ XmScaleSetTicks(
     XtSetArg(args[1], XmNorientation, orient); 
 
     sep_num = 0 ;
-    for (i=0; i < real_num_big; i++) {
+    for (i=0; (int)i < real_num_big; i++) {
 	n = 2 ;
 	XtSetArg(args[n], dim_res, size_big); n++ ;
 	sep[sep_num] = XmCreateSeparatorGadget(scale, "BigTic", args, n); 
 	if (sep[sep_num] != (Widget) NULL)
 	    sep_num++;
 
-	if (i == real_num_big - 1) break ;
+	if ((int)i == real_num_big - 1) break ;
 
 	for (k=0; k < num_small; k++) {
 	    n = 2 ;

@@ -8,7 +8,7 @@ start = source.index("XmRenderTableAddRenditions(")
 end = source.index("\n/* Remove matching renditions.", start)
 region = source[start:end]
 
-assert "for (i = 0; i < rendition_count; i++)" in region
+assert "for (i = 0; (Cardinal)i < rendition_count; i++)" in region
 guard = "if (renditions[i] == NULL)"
 assert guard in region
 assert region.index(guard) < region.index("#ifdef XTHREADS")

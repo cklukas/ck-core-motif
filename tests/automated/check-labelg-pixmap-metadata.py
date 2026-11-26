@@ -10,7 +10,7 @@ body = text[start:] if end < 0 else text[start:end]
 required = [
     "if (LabelGGetPixmapData(XtScreen(lw), Pix(lw), &depth",
     "if (LabelGGetPixmapData(XtScreen(lw), pix_use, &depth",
-    "if (depth == XtParent(lw)->core.depth)",
+    "if ((Cardinal)depth == XtParent(lw)->core.depth)",
     "XSetFillStyle(XtDisplay(lw), gc, FillStippled)",
 ]
 missing = [fragment for fragment in required if fragment not in body]

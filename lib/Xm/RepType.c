@@ -678,486 +678,486 @@ static XmConst unsigned char PixmapPlacementMap[] =
 static XmRepTypeEntryRec StandardRepTypes[] = {   
   {
     XmRAlignment, (String*)AlignmentNames, NULL, 
-    XtNumber(AlignmentNames), FALSE,
+    XtNumber(AlignmentNames), FALSE, 0,
   },
   {
     XmRAnimationStyle, (String*)AnimationStyleNames, NULL, 
-    XtNumber(AnimationStyleNames), FALSE,
+    XtNumber(AnimationStyleNames), FALSE, 0,
   },
   {
     XmRArrowDirection, (String*)ArrowDirectionNames, NULL, 
-    XtNumber(ArrowDirectionNames), FALSE,
+    XtNumber(ArrowDirectionNames), FALSE, 0,
   },
   {
     XmRArrowLayout, (String*)ArrowLayoutNames, NULL,
-    XtNumber(ArrowLayoutNames),  FALSE,
+    XtNumber(ArrowLayoutNames),  FALSE, 0,
   },
   {
     XmRArrowOrientation, (String*)ArrowOrientationNames, NULL,
-    XtNumber(ArrowOrientationNames),  FALSE,
+    XtNumber(ArrowOrientationNames),  FALSE, 0,
   },
   {
     XmRArrowSensitivity, (String*)ArrowSensitivityNames, NULL,
-    XtNumber(ArrowSensitivityNames),  FALSE,
+    XtNumber(ArrowSensitivityNames),  FALSE, 0,
   },
   {
     XmRAttachment, (String*)AttachmentNames, NULL, 
-    XtNumber(AttachmentNames), FALSE,
+    XtNumber(AttachmentNames), FALSE, 0,
   },
   {
     XmRAudibleWarning, (String*)AudibleWarningNames, NULL, 
-    XtNumber(AudibleWarningNames), FALSE,
+    XtNumber(AudibleWarningNames), FALSE, 0,
   },
   {
     XmRAutoDragModel, (String*)AutoDragModelNames, NULL, 
-    XtNumber(AutoDragModelNames), FALSE,
+    XtNumber(AutoDragModelNames), FALSE, 0,
   },
   {
     XmRAutomaticSelection, (String*)AutomaticSelectionNames, 
     (unsigned char *)AutomaticSelectionMap, 
-    XtNumber(AutomaticSelectionNames), FALSE,
+    XtNumber(AutomaticSelectionNames), FALSE, 0,
   },
   {
     XmRBindingType, (String*)BindingTypeNames, NULL, 
-    XtNumber(BindingTypeNames), FALSE,
+    XtNumber(BindingTypeNames), FALSE, 0,
   },
   {
     XmRBitmapConversionModel, (String*)BitmapConversionModelNames, NULL, 
-    XtNumber(BitmapConversionModelNames), FALSE,
+    XtNumber(BitmapConversionModelNames), FALSE, 0,
   },
   {
     XmRBlendModel, (String*)BlendModelNames, NULL, 
-    XtNumber(BlendModelNames), FALSE,
+    XtNumber(BlendModelNames), FALSE, 0,
   },
   {
     XmRChildHorizontalAlignment, (String*)ChildHorizontalAlignmentNames, NULL, 
-    XtNumber(ChildHorizontalAlignmentNames), FALSE,
+    XtNumber(ChildHorizontalAlignmentNames), FALSE, 0,
   },
   {
     XmRChildPlacement, (String*)ChildPlacementNames, NULL, 
-    XtNumber(ChildPlacementNames), FALSE,
+    XtNumber(ChildPlacementNames), FALSE, 0,
   },
   {
     XmRChildType, (String*)ChildTypeNames, NULL, 
-    XtNumber(ChildTypeNames), FALSE,
+    XtNumber(ChildTypeNames), FALSE, 0,
   },
   {
     XmRChildVerticalAlignment, (String*)ChildVerticalAlignmentNames, 
     (unsigned char *)ChildVerticalAlignmentMap, 
-    XtNumber(ChildVerticalAlignmentNames), FALSE,
+    XtNumber(ChildVerticalAlignmentNames), FALSE, 0,
   },
   {
     "ComboBoxListActionActionParam", /* See instructions above. */
     (String*)ComboBoxListActionActionParamNames, NULL, 
-    XtNumber(ComboBoxListActionActionParamNames), TRUE,
+    XtNumber(ComboBoxListActionActionParamNames), TRUE, 0,
   },
   {
     XmRComboBoxType, (String*)ComboBoxTypeNames, NULL, 
-    XtNumber(ComboBoxTypeNames), FALSE,
+    XtNumber(ComboBoxTypeNames), FALSE, 0,
   },
   {	
     "CommandSelectionBoxUpOrDownActionParam",
     (String*)CommandSelectionBoxUpOrDownActionParamNames, NULL,
-    XtNumber(CommandSelectionBoxUpOrDownActionParamNames), TRUE,
+    XtNumber(CommandSelectionBoxUpOrDownActionParamNames), TRUE, 0,
   },
   {
     XmRCommandWindowLocation, (String*)CommandWindowLocationNames, NULL, 
-    XtNumber(CommandWindowLocationNames), FALSE,
+    XtNumber(CommandWindowLocationNames), FALSE, 0,
   },
   {
     "ContainerCursorActionParam", /* See instructions above. */
     (String*)ContainerCursorActionParamNames,
-    NULL, XtNumber(ContainerCursorActionParamNames), TRUE,
+    NULL, XtNumber(ContainerCursorActionParamNames), TRUE, 0,
   },
   {
     "ContainerExpandCollapseActionParamName", /* See instructions above. */
     (String*)ContainerExpandCollapseActionParamNames,
-    NULL, XtNumber(ContainerExpandCollapseActionParamNames), TRUE,
+    NULL, XtNumber(ContainerExpandCollapseActionParamNames), TRUE, 0,
   },
   {
     "ContainerStartTransferActionParam", /* See instructions above. */
     (String*)ContainerStartTransferActionParamNames,
-    NULL, XtNumber(ContainerStartTransferActionParamNames), TRUE,
+    NULL, XtNumber(ContainerStartTransferActionParamNames), TRUE, 0,
   },
   {
     XmRDefaultButtonEmphasis, (String*)DefaultButtonEmphasisNames, NULL,
-    XtNumber(DefaultButtonEmphasisNames), FALSE,
+    XtNumber(DefaultButtonEmphasisNames), FALSE, 0,
   },
   {
     XmRDefaultButtonType, (String*)DefaultButtonTypeNames, 
     (unsigned char *)DefaultButtonTypeMap,
-    XtNumber(DefaultButtonTypeNames), FALSE,
+    XtNumber(DefaultButtonTypeNames), FALSE, 0,
   },
   {
     XmRDeleteResponse, (String*)DeleteResponseNames, NULL,
-    XtNumber(DeleteResponseNames),  FALSE,
+    XtNumber(DeleteResponseNames),  FALSE, 0,
   },
   {
     XmRDialogStyle, (String*)DialogStyleNames, (unsigned char *)DialogStyleMap,
-    XtNumber(DialogStyleNames), FALSE,
+    XtNumber(DialogStyleNames), FALSE, 0,
   },
   {
     XmRDialogType, (String*)DialogTypeNames, NULL, 
-    XtNumber(DialogTypeNames), FALSE,
+    XtNumber(DialogTypeNames), FALSE, 0,
   },
   {
     XmRDirection, (String*)DirectionNames, (unsigned char *)DirectionMap,
-    XtNumber(DirectionNames), FALSE,
+    XtNumber(DirectionNames), FALSE, 0,
   },
   {
     XmRDragInitiatorProtocolStyle, (String*)DragInitiatorProtocolStyleNames, NULL, 
-    XtNumber(DragInitiatorProtocolStyleNames), FALSE,
+    XtNumber(DragInitiatorProtocolStyleNames), FALSE, 0,
   },
   {
     XmRDragReceiverProtocolStyle, (String*)DragReceiverProtocolStyleNames, NULL, 
-    XtNumber(DragReceiverProtocolStyleNames), FALSE,
+    XtNumber(DragReceiverProtocolStyleNames), FALSE, 0,
   },
   {
     XmRDropSiteActivity, (String*)DropSiteActivityNames, NULL, 
-    XtNumber(DropSiteActivityNames), FALSE,
+    XtNumber(DropSiteActivityNames), FALSE, 0,
   },
   {
     XmRDropSiteType, (String*)DropSiteTypeNames, NULL, 
-    XtNumber(DropSiteTypeNames), FALSE,
+    XtNumber(DropSiteTypeNames), FALSE, 0,
   },
   {
     XmREditMode, (String*)EditModeNames, NULL, 
-    XtNumber(EditModeNames), FALSE,
+    XtNumber(EditModeNames), FALSE, 0,
   },
   {
     XmREnableBtn1Transfer, (String*)EnableBtn1Names, 
     (unsigned char *) EnableBtn1Map, 
-    XtNumber(EnableBtn1Names), FALSE
+    XtNumber(EnableBtn1Names), FALSE, 0
   },
   {
     XmREnableWarp, (String*)EnableWarpNames, NULL, 
-    XtNumber(EnableWarpNames), FALSE,
+    XtNumber(EnableWarpNames), FALSE, 0,
   },
   {
     XmREntryViewType, (String*)EntryViewTypeNames, NULL, 
-    XtNumber(EntryViewTypeNames), FALSE,
+    XtNumber(EntryViewTypeNames), FALSE, 0,
   },
   {
     XmRFileFilterStyle, (String*)FileFilterStyleNames, NULL,
-    XtNumber(FileFilterStyleNames), FALSE,
+    XtNumber(FileFilterStyleNames), FALSE, 0,
   },
   {
     "FileSelectionBoxUpOrDownActionParam", /* See instructions above. */
     (String*)FileSelectionBoxUpOrDownActionParamNames,
-    NULL, XtNumber(FileSelectionBoxUpOrDownActionParamNames), TRUE,
+    NULL, XtNumber(FileSelectionBoxUpOrDownActionParamNames), TRUE, 0,
   },
   {
     XmRFileTypeMask, (String*)FileTypeMaskNames, 
     (unsigned char *)FileTypeMaskMap,
-    XtNumber(FileTypeMaskNames), FALSE,
+    XtNumber(FileTypeMaskNames), FALSE, 0,
   },
   {
     XmRFontType, (String*)FontTypeNames, (unsigned char *)FontTypeMap,
-    XtNumber(FontTypeNames), FALSE,
+    XtNumber(FontTypeNames), FALSE, 0,
   },
   {
     XmRIconAttachment, (String*)IconAttachmentNames, NULL, 
-    XtNumber(IconAttachmentNames), FALSE,
+    XtNumber(IconAttachmentNames), FALSE, 0,
   },
   {
     XmRIndicatorOn, (String*)IndicatorOnNames, (unsigned char *)IndicatorOnMap,
-    XtNumber(IndicatorOnNames), FALSE,
+    XtNumber(IndicatorOnNames), FALSE, 0,
   },
   {
     XmRIndicatorType, (String*)IndicatorTypeNames, 
     (unsigned char *)IndicatorTypeMap,
-    XtNumber(IndicatorTypeNames), FALSE,
+    XtNumber(IndicatorTypeNames), FALSE, 0,
   },
   {
     XmRInputPolicy, (String*)InputPolicyNames, NULL, 
-    XtNumber(InputPolicyNames), FALSE,
+    XtNumber(InputPolicyNames), FALSE, 0,
   },
   {
     XmRKeyboardFocusPolicy, (String*)KeyboardFocusPolicyNames, NULL,
-    XtNumber(KeyboardFocusPolicyNames),  FALSE,
+    XtNumber(KeyboardFocusPolicyNames),  FALSE, 0,
   },
   {
     XmRLabelType, (String*)LabelTypeNames, (unsigned char *)LabelTypeMap,
-    XtNumber(LabelTypeNames), FALSE,
+    XtNumber(LabelTypeNames), FALSE, 0,
   },
   {
     XmRLayoutType, (String*)LayoutTypeNames, NULL, 
-    XtNumber(LayoutTypeNames), FALSE,
+    XtNumber(LayoutTypeNames), FALSE, 0,
   },
   {
     XmRLineStyle, (String*)LineStyleNames, NULL, 
-    XtNumber(LineStyleNames), FALSE,
+    XtNumber(LineStyleNames), FALSE, 0,
   },
   {
     XmRLineType, (String*)LineTypeNames, (unsigned char *)LineTypeMap,
-    XtNumber(LineTypeNames), FALSE,
+    XtNumber(LineTypeNames), FALSE, 0,
   },
   {
     XmRListSizePolicy, (String*)ListSizePolicyNames, NULL, 
-    XtNumber(ListSizePolicyNames), FALSE,
+    XtNumber(ListSizePolicyNames), FALSE, 0,
   },
   {
     XmRLoadModel, (String*)LoadModelNames, (unsigned char *)LoadModelMap,
-    XtNumber(LoadModelNames), FALSE,
+    XtNumber(LoadModelNames), FALSE, 0,
   },
   {
     XmRMatchBehavior, (String*)MatchBehaviorNames, NULL, 
-    XtNumber(MatchBehaviorNames), FALSE,
+    XtNumber(MatchBehaviorNames), FALSE, 0,
   },
   {
     XmRMultiClick, (String*)MultiClickNames, NULL, 
-    XtNumber(MultiClickNames), FALSE,
+    XtNumber(MultiClickNames), FALSE, 0,
   },
   {
     XmRNavigationType, (String*)NavigationTypeNames, NULL, 
-    XtNumber(NavigationTypeNames), FALSE,
+    XtNumber(NavigationTypeNames), FALSE, 0,
   },
   {
     XmRNotebookChildType, (String*)NotebookChildTypeNames, NULL, 
-    XtNumber(NotebookChildTypeNames), FALSE,
+    XtNumber(NotebookChildTypeNames), FALSE, 0,
   },
   {
     "NotebookTraverseTabActionParam", /* See instructions above. */
     (String*)NotebookTraverseTabActionParamNames, NULL, 
-    XtNumber(NotebookTraverseTabActionParamNames ), TRUE,
+    XtNumber(NotebookTraverseTabActionParamNames ), TRUE, 0,
   },
   {
     XmROrientation, (String*)OrientationNames, (unsigned char *)OrientationMap,
-    XtNumber(OrientationNames), FALSE,
+    XtNumber(OrientationNames), FALSE, 0,
   },
   {
     XmROutlineButtonPolicy, (String*)OutlineButtonPolicyNames, NULL, 
-    XtNumber(OutlineButtonPolicyNames), FALSE,
+    XtNumber(OutlineButtonPolicyNames), FALSE, 0,
   },
   {
     XmROutlineState, (String*)OutlineStateNames, NULL, 
-    XtNumber(OutlineStateNames), FALSE,
+    XtNumber(OutlineStateNames), FALSE, 0,
   },
   {
     XmRPacking, (String*)PackingNames, (unsigned char *)PackingMap,
-    XtNumber(PackingNames), FALSE,
+    XtNumber(PackingNames), FALSE, 0,
   },
   {
     "PanedWindowSashActionParam", /* See instructions above. */
     (String*)PanedWindowSashActionParamNames, NULL,
-    XtNumber(PanedWindowSashActionParamNames ), TRUE,
+    XtNumber(PanedWindowSashActionParamNames ), TRUE, 0,
   },
   {
     "PanedWindowSashDirectionActionParam", /* See instructions above. */
     (String*)PanedWindowSashDirectionActionParamNames, NULL,
-    XtNumber(PanedWindowSashDirectionActionParamNames ), TRUE,
+    XtNumber(PanedWindowSashDirectionActionParamNames ), TRUE, 0,
   },
   {
     "PanedWindowSashIncrementActionParam", /* See instructions above. */
     (String*)PanedWindowSashIncrementActionParamNames, NULL,
-    XtNumber(PanedWindowSashIncrementActionParamNames ), TRUE,
+    XtNumber(PanedWindowSashIncrementActionParamNames ), TRUE, 0,
   },
   {
     XmRPathMode, (String*)PathModeNames, NULL,
-    XtNumber(PathModeNames), FALSE,
+    XtNumber(PathModeNames), FALSE, 0,
   },
   {
     XmRPositionMode, (String*)PositionModeNames, NULL,
-    XtNumber(PositionModeNames), FALSE,
+    XtNumber(PositionModeNames), FALSE, 0,
   },
   {
     XmRPositionType, (String*)PositionTypeNames, NULL,
-    XtNumber(PositionTypeNames), FALSE,
+    XtNumber(PositionTypeNames), FALSE, 0,
   },
   {
     XmRPrimaryOwnership, (String*)PrimaryOwnershipNames, NULL, 
-    XtNumber(PrimaryOwnershipNames), FALSE,
+    XtNumber(PrimaryOwnershipNames), FALSE, 0,
   },
   {
     XmRProcessingDirection, (String*)ProcessingDirectionNames, NULL, 
-    XtNumber(ProcessingDirectionNames), FALSE,
+    XtNumber(ProcessingDirectionNames), FALSE, 0,
   },
   {
     XmRResizePolicy, (String*)ResizePolicyNames, NULL, 
-    XtNumber(ResizePolicyNames), FALSE,
+    XtNumber(ResizePolicyNames), FALSE, 0,
   },
   {
     XmRRowColumnType, (String*)RowColumnTypeNames, NULL, 
-    XtNumber(RowColumnTypeNames), FALSE,
+    XtNumber(RowColumnTypeNames), FALSE, 0,
   },
   {
     XmRScrollBarDisplayPolicy, (String*)ScrollBarDisplayPolicyNames, NULL, 
-    XtNumber(ScrollBarDisplayPolicyNames), FALSE,
+    XtNumber(ScrollBarDisplayPolicyNames), FALSE, 0,
   },
   {
     "ScrollBarIncrementDownOrRightActionParam", /* See instructions above. */
     (String*)ScrollBarIncrementDownOrRightActionParamNames,
-    NULL, XtNumber(ScrollBarIncrementDownOrRightActionParamNames), TRUE,
+    NULL, XtNumber(ScrollBarIncrementDownOrRightActionParamNames), TRUE, 0,
   },
   {
     "ScrollBarIncrementUpOrLeftActionParam", /* See instructions above. */
     (String*)ScrollBarIncrementUpOrLeftActionParamNames,
-    NULL, XtNumber(ScrollBarIncrementUpOrLeftActionParamNames), TRUE,
+    NULL, XtNumber(ScrollBarIncrementUpOrLeftActionParamNames), TRUE, 0,
   },
   {
     "ScrollBarPageDownOrRightActionParam", /* See instructions above. */
     (String*)ScrollBarPageDownOrRightActionParamNames,
-    NULL, XtNumber(ScrollBarPageDownOrRightActionParamNames), TRUE,
+    NULL, XtNumber(ScrollBarPageDownOrRightActionParamNames), TRUE, 0,
   },
   {
     "ScrollBarPageUpOrLeftActionParam", /* See instructions above. */
     (String*)ScrollBarPageUpOrLeftActionParamNames,
-    NULL, XtNumber(ScrollBarPageUpOrLeftActionParamNames), TRUE,
+    NULL, XtNumber(ScrollBarPageUpOrLeftActionParamNames), TRUE, 0,
   },
   {
     XmRScrollBarPlacement, (String*)ScrollBarPlacementNames, NULL, 
-    XtNumber(ScrollBarPlacementNames), FALSE,
+    XtNumber(ScrollBarPlacementNames), FALSE, 0,
   },
   {
     XmRScrolledWindowChildType, (String*)ScrolledWindowChildTypeNames, NULL, 
-    XtNumber(ScrolledWindowChildTypeNames), FALSE,
+    XtNumber(ScrolledWindowChildTypeNames), FALSE, 0,
   },
   {
     XmRScrollingPolicy, (String*)ScrollingPolicyNames, NULL, 
-    XtNumber(ScrollingPolicyNames), FALSE,
+    XtNumber(ScrollingPolicyNames), FALSE, 0,
   },
   {
     "SelectionBoxUpOrDownActionParam", /* See instructions above. */
     (String*)SelectionBoxUpOrDownActionParamNames,
-    NULL, XtNumber(SelectionBoxUpOrDownActionParamNames), TRUE,
+    NULL, XtNumber(SelectionBoxUpOrDownActionParamNames), TRUE, 0,
   },
   {
     XmRSelectionMode, (String*)SelectionModeNames, NULL, 
-    XtNumber(SelectionModeNames), FALSE,
+    XtNumber(SelectionModeNames), FALSE, 0,
   },
   {
     XmRSelectionPolicy, (String*)SelectionPolicyNames, NULL, 
-    XtNumber(SelectionPolicyNames), FALSE,
+    XtNumber(SelectionPolicyNames), FALSE, 0,
   },
   {
     XmRSelectionTechnique, (String*)SelectionTechniqueNames, NULL, 
-    XtNumber(SelectionTechniqueNames), FALSE,
+    XtNumber(SelectionTechniqueNames), FALSE, 0,
   },
   {
     XmRSelectionType, (String*)SelectionTypeNames, NULL, 
-    XtNumber(SelectionTypeNames), FALSE,
+    XtNumber(SelectionTypeNames), FALSE, 0,
   },
   {
     XmRSeparatorType, (String*)SeparatorTypeNames, NULL, 
-    XtNumber(SeparatorTypeNames), FALSE,
+    XtNumber(SeparatorTypeNames), FALSE, 0,
   },
   {
     XmRSet, (String*)SetNames, (unsigned char *)SetMap, 
-    XtNumber(SetNames), FALSE,
+    XtNumber(SetNames), FALSE, 0,
   },
   {
     XmRShadowType, (String*)ShadowTypeNames, (unsigned char *)ShadowTypeMap,
-    XtNumber(ShadowTypeNames), FALSE,
+    XtNumber(ShadowTypeNames), FALSE, 0,
   },
   {
     XmRShowArrows, (String*)ShowArrowsNames, (unsigned char *)ShowArrowsMap,
-    XtNumber(ShowArrowsNames), FALSE,
+    XtNumber(ShowArrowsNames), FALSE, 0,
   },
   {
     XmRShowValue, (String*)ShowValueNames, (unsigned char *)ShowValueMap,
-    XtNumber(ShowValueNames), FALSE,
+    XtNumber(ShowValueNames), FALSE, 0,
   },
   {
     XmRSliderMark, (String*)SliderMarkNames, NULL, 
-    XtNumber(SliderMarkNames), FALSE,
+    XtNumber(SliderMarkNames), FALSE, 0,
   },
   {
     XmRSliderVisual, (String*)SliderVisualNames, NULL, 
-    XtNumber(SliderVisualNames), FALSE,
+    XtNumber(SliderVisualNames), FALSE, 0,
   },
   {
     XmRSlidingMode, (String*)SlidingModeNames, NULL, 
-    XtNumber(SlidingModeNames), FALSE,
+    XtNumber(SlidingModeNames), FALSE, 0,
   },
   {
     XmRSpatialIncludeModel, (String*)SpatialIncludeModelNames, NULL, 
-    XtNumber(SpatialIncludeModelNames), FALSE,
+    XtNumber(SpatialIncludeModelNames), FALSE, 0,
   },
   {
     XmRSpatialResizeModel, (String*)SpatialResizeModelNames, NULL, 
-    XtNumber(SpatialResizeModelNames), FALSE,
+    XtNumber(SpatialResizeModelNames), FALSE, 0,
   },
   {
     XmRSpatialSnapModel, (String*)SpatialSnapModelNames, NULL, 
-    XtNumber(SpatialSnapModelNames), FALSE,
+    XtNumber(SpatialSnapModelNames), FALSE, 0,
   },
   {
     XmRSpatialStyle, (String*)SpatialStyleNames, NULL, 
-    XtNumber(SpatialStyleNames), FALSE,
+    XtNumber(SpatialStyleNames), FALSE, 0,
   },
   {
     XmRSpinBoxChildType, (String*)SpinBoxChildTypeNames, 
     (unsigned char *)SpinBoxChildTypeMap,
-    XtNumber(SpinBoxChildTypeNames),  FALSE,
+    XtNumber(SpinBoxChildTypeNames),  FALSE, 0,
   },
   {
     XmRStringDirection, (String*)StringDirectionNames, NULL, 
-    XtNumber(StringDirectionNames), FALSE,
+    XtNumber(StringDirectionNames), FALSE, 0,
   },
   {
     XmRTearOffModel, (String*)TearOffModelNames, NULL, 
-    XtNumber(TearOffModelNames), FALSE,
+    XtNumber(TearOffModelNames), FALSE, 0,
   },
   {
     "TextExtendMovementActionParam", /* See instructions above. */
     (String*)TextExtendMovementActionParamNames, NULL,
-    XtNumber(TextExtendMovementActionParamNames ), TRUE,
+    XtNumber(TextExtendMovementActionParamNames ), TRUE, 0,
   },
   {
     "TextFieldDirectionActionParam", /* See instructions above. */
     (String*)TextFieldDirectionActionParamNames, NULL,
-    XtNumber(TextFieldDirectionActionParamNames ), TRUE,
+    XtNumber(TextFieldDirectionActionParamNames ), TRUE, 0,
   },
   {
     "TextFieldExtendMovementActionParam", /* See instructions above. */
     (String*)TextFieldExtendMovementActionParamNames, NULL,
-    XtNumber(TextFieldExtendMovementActionParamNames ), FALSE,
+    XtNumber(TextFieldExtendMovementActionParamNames ), FALSE, 0,
   },
   {
     "TextHorizontalDirectionActionParam", /* See instructions above. */
     (String*)TextHorizontalDirectionActionParamNames, NULL,
-    XtNumber(TextHorizontalDirectionActionParamNames ), TRUE,
+    XtNumber(TextHorizontalDirectionActionParamNames ), TRUE, 0,
   },
   {
     "TextVerticalDirectionActionParam", /* See instructions above. */
     (String*)TextVerticalDirectionActionParamNames, NULL,
-    XtNumber(TextVerticalDirectionActionParamNames ), TRUE,
+    XtNumber(TextVerticalDirectionActionParamNames ), TRUE, 0,
   },
   {
     XmRToggleMode, (String*)ToggleModeNames, NULL, 
-    XtNumber(ToggleModeNames), FALSE,
+    XtNumber(ToggleModeNames), FALSE, 0,
   },
   {
     XmRUnitType, (String*)UnitTypeNames, NULL, 
-    XtNumber(UnitTypeNames), FALSE,
+    XtNumber(UnitTypeNames), FALSE, 0,
   },
   {
     XmRUnpostBehavior, (String*)UnpostBehaviorNames, NULL, 
-    XtNumber(UnpostBehaviorNames), FALSE,
+    XtNumber(UnpostBehaviorNames), FALSE, 0,
   },
   {
     XmRVerticalAlignment, (String*)VerticalAlignmentNames, NULL, 
-    XtNumber(VerticalAlignmentNames), FALSE,
+    XtNumber(VerticalAlignmentNames), FALSE, 0,
   },
   {
     XmRViewType, (String*)ViewTypeNames, NULL, 
-    XtNumber(ViewTypeNames), FALSE,
+    XtNumber(ViewTypeNames), FALSE, 0,
   },
   {
     XmRVisualEmphasis, (String*)VisualEmphasisNames, NULL, 
-    XtNumber(VisualEmphasisNames), FALSE,
+    XtNumber(VisualEmphasisNames), FALSE, 0,
   },
   {
     XmRVisualPolicy, (String*)VisualPolicyNames, NULL, 
-    XtNumber(VisualPolicyNames), FALSE,
+    XtNumber(VisualPolicyNames), FALSE, 0,
   },
   {
     XmRWhichButton, (String*)WhichButtonNames, (unsigned char *)WhichButtonMap,
-    XtNumber(WhichButtonNames),  FALSE,
+    XtNumber(WhichButtonNames),  FALSE, 0,
   },    
   {
     XmRPixmapPlacement, (String*)PixmapPlacementNames, (unsigned char *)PixmapPlacementMap,
-    XtNumber(PixmapPlacementNames), FALSE,
+    XtNumber(PixmapPlacementNames), FALSE, 0,
   }
 } ;
 

@@ -1644,7 +1644,7 @@ XmGetVisibility(
   windowptr = children;
 
   /* walk through those which are under the window of interest */
-  for ( i = 0; i < numchildren; i++ )
+  for ( i = 0; (unsigned int)i < numchildren; i++ )
   {
         if ( *windowptr == XtWindow(wid))
         {
@@ -1656,7 +1656,7 @@ XmGetVisibility(
   windowptr++;
 
   /* process windows above the window of interest */
-  if(i < numchildren) {
+  if ((unsigned int)i < numchildren) {
       XRectangle parent_rect, srcRectB, intersect_rect;
       XWindowAttributes window_attributes_return;
       Region region = XCreateRegion();
@@ -1675,7 +1675,7 @@ XmGetVisibility(
         }
 
       XUnionRectWithRegion(&rect, region, region);
-      while(i < numchildren) { 
+      while ((unsigned int)i < numchildren) { 
         /* A sibling the server no longer knows covers nothing. */
         if(XGetWindowAttributes(XtDisplay(wid), *windowptr, 
 				&window_attributes_return) &&

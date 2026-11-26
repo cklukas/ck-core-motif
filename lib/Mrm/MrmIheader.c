@@ -1044,7 +1044,7 @@ Idb__HDR_PutDataEntry (IDBFile			file_id,
   recptr = (IDBHeaderRecordPtr) bufptr->IDB_record;
 
   if (recptr->free_ptr > IDBHeaderFreeMax ||
-      recptr->free_count > IDBHeaderFreeMax ||
+      recptr->free_count < 0 || (size_t)recptr->free_count > IDBHeaderFreeMax ||
       !IDBDataEntryOffsetAligned(IDBHeaderRecord, recptr->free_ptr) ||
       UrmRCSize(context_id) > IDBHeaderFreeMax - IDBSimpleDataHdrSize)
     return MrmFAILURE;
@@ -1055,8 +1055,8 @@ Idb__HDR_PutDataEntry (IDBFile			file_id,
    */
   entsiz = IDBSimpleDataHdrSize + UrmRCSize(context_id);
   entsiz = _FULLWORD (entsiz);
-  if ( entsiz > recptr->free_count ||
-       entsiz > IDBHeaderFreeMax - recptr->free_ptr )
+  if ( (size_t)entsiz > (size_t)recptr->free_count ||
+       (size_t)entsiz > IDBHeaderFreeMax - recptr->free_ptr )
     return MrmFAILURE;
 
   /*

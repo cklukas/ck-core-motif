@@ -394,6 +394,7 @@ static XmBaseClassExtRec myBaseClassExtRec = {
     NULL,	 			/* ext_resources       	  */   
     0,					/* resource_count     	  */   
     TRUE,				/* use_sub_resources	  */
+    NULL, NULL, NULL
 };
 
 externaldef(xmvendorshellextclassrec)

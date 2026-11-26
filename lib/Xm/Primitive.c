@@ -427,6 +427,7 @@ static XmBaseClassExtRec baseClassExtRec = {
     FALSE,                              /* use_sub_resources    */
     WidgetNavigable,                    /* widgetNavigable      */
     FocusChange,                        /* focusChange          */
+    NULL
 };
 
 static XmPrimitiveClassExtRec primClassExtRec = {
@@ -514,7 +515,8 @@ static XmConst XmCareVisualTraitRec primCVT = {
 
 static XmConst XmAccessColorsTraitRec primACT = {
   0,			/* version */
-  GetColors
+  GetColors,
+  NULL
 };
 
 /* Unit Type Trait record for Primitive */

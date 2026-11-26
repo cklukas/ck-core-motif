@@ -1732,10 +1732,10 @@ _XmHeapAlloc(
 	return NULL;
     bytes = (bytes + 3) & (~3);
 #endif /* WORD64 */
-    if (heap->bytes_remaining < bytes) {
+    if (heap->bytes_remaining < 0 || (Cardinal)heap->bytes_remaining < bytes) {
 	if (bytes > UINT_MAX - sizeof(char*))
 	    return NULL;
-	if ((bytes + sizeof(char*)) >= (heap->segment_size>>1)) {
+	if ((bytes + sizeof(char*)) >= (size_t)(heap->segment_size >> 1)) {
 	    /* preserve current segment; insert this one in front */
 	    heap_loc = XtMalloc(bytes + sizeof(char*));
 	    if (heap_loc == NULL)

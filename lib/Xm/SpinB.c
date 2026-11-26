@@ -366,7 +366,8 @@ static XmBaseClassExtRec spinBoxBaseClassExtRec = {
   0,                            /* num_ext_resources    */
   FALSE,                        /* use_sub_resources    */
   XmInheritWidgetNavigable,     /* widgetNavigable      */
-  NULL                          /* focusChange          */
+  NULL,                          /* focusChange          */
+  NULL
   };
 
 /*  The Spin class record definition  */
@@ -882,7 +883,7 @@ ChangeManaged(Widget w)
    * not be used to confirm the child to be text or text_field as this trait 
    * is held by other widgets such as label as well.
    */
-  for (i = 0; i < SB_ChildCount(spinW); i++) {
+  for (i = 0; (Cardinal)i < SB_ChildCount(spinW); i++) {
     if (XtIsManaged(spinW->composite.children[i])) {
       if (XmIsTextField(spinW->composite.children[i]) ||
 	  XmIsText(spinW->composite.children[i])) {
@@ -979,7 +980,7 @@ ConstraintInitialize(Widget req,
       {
   /* buffer the values XmStringTable */
       if ((size_t)reqC->num_values > SIZE_MAX / sizeof(XmString) ||
-          reqC->num_values > UINT_MAX / sizeof(XmString))
+          (size_t)reqC->num_values > UINT_MAX / sizeof(XmString))
 	newC->values = NULL;
       else
 	newC->values = (XmString *)XtMalloc(reqC->num_values * sizeof(XmString));
@@ -1134,7 +1135,7 @@ ConstraintSetValues(Widget   old,
 	{
 	  if (reqC->num_values > 0 &&
 	      ((size_t)reqC->num_values > SIZE_MAX / sizeof(XmString) ||
-	       reqC->num_values > UINT_MAX / sizeof(XmString)))
+	       (size_t)reqC->num_values > UINT_MAX / sizeof(XmString)))
 	    newC->values = NULL;
 	  else
 	    newC->values = (reqC->num_values > 0) ?
@@ -1611,7 +1612,7 @@ NumericChildCount(XmSpinBoxWidget spinW)
   childCount = 0;
   
   if (SB_WithChild(spinW))
-    for (i = 0; i < SB_ChildCount(spinW); i++)
+    for (i = 0; (Cardinal)i < SB_ChildCount(spinW); i++)
       {
 	spinC = SB_GetConstraintRec(spinW->composite.children[i]);
 	
@@ -1635,7 +1636,7 @@ WidgetIsChild(XmSpinBoxWidget spinW, Widget child)
   childFlag = False;
   
   if (SB_WithChild(spinW))
-    for (i = 0; i < SB_ChildCount(spinW); i++)
+    for (i = 0; (Cardinal)i < SB_ChildCount(spinW); i++)
       if (spinW->composite.children[i] == child)
 	{
 	  childFlag = True;
@@ -1844,7 +1845,7 @@ LayoutSpinBox(Widget w,
   /*
    * Now position the managed children of the SpinBox.
    */
-  for (i = 0; i < SB_ChildCount(spinW); i++)
+  for (i = 0; (Cardinal)i < SB_ChildCount(spinW); i++)
     {
       Widget	childW = spinW->composite.children[i];
       
@@ -2606,7 +2607,7 @@ SpinNSetValue(Widget nav, XmNavigatorData nav_data, Boolean notify)
   mask = spinW->spinBox.dim_mask ;
 
   for (numericCount = 0, i = 0;
-       i < SB_ChildCount(spinW) && numericCount < 2 && mask;
+       (Cardinal)i < SB_ChildCount(spinW) && numericCount < 2 && mask;
        i++)
     {
       spinC = SB_GetConstraintRec(spinW->composite.children[i]);
@@ -2708,7 +2709,7 @@ SpinNGetValue(Widget nav, XmNavigatorData nav_data)
   if (nav_data->valueMask & (NavValue|NavMinimum|NavMaximum|NavIncrement)) {
       /* get the value out of the numeric children, in order  */
       for (numericCount = 0, i = 0; 
-	   i < SB_ChildCount(spinW) && numericCount < 2 && mask;
+	   (Cardinal)i < SB_ChildCount(spinW) && numericCount < 2 && mask;
 	   i++)
 	{
 	  spinC = SB_GetConstraintRec(spinW->composite.children[i]);

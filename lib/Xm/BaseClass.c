@@ -1472,6 +1472,7 @@ BaseClassPartInitialize(
 	  NULLQUARK,                                /* record type XmQmotif */
 	  XmBaseClassExtVersion,                    /* version              */
 	  sizeof(XmBaseClassExtRec),                /* size                 */
+	  NULL, NULL, NULL, NULL, NULL, NULL, NULL, {0}, NULL, NULL, NULL, NULL, NULL, NULL, 0, FALSE, NULL, NULL, NULL
 	};
 	
 	if (xmExtExtensionRec.record_type == NULLQUARK)

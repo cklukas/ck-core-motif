@@ -238,8 +238,8 @@ UrmCallbackRecordValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset,
   size_t available;
 
   if (widgetrec == NULL ||
-      offset < RGMWidgetRecordHdrSize || offset >= widgetrec->size ||
-      widgetrec->size - offset < header_size)
+      (size_t)offset < RGMWidgetRecordHdrSize || offset >= widgetrec->size ||
+      (size_t)(widgetrec->size - offset) < header_size)
     return False;
   if (old_format)
     {
@@ -461,7 +461,7 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 				      NULL, NULL,
 				      result == MrmSUCCESS ? MrmFAILURE : result);
       if ( (size_t)widgetrec->children_offs > widgetrec->size ||
-	   widgetrec->size - widgetrec->children_offs <
+	   (size_t)(widgetrec->size - widgetrec->children_offs) <
 	     sizeof(RGMChildrenDesc) - sizeof(RGMChildDesc) )
 	{
 	UrmFreeResourceContext (child_ctx) ;
@@ -492,7 +492,7 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 	  switch ( childptr->type )
 	    {
 	    case URMrIndex:
-	      if ( childptr->key.index_offs < RGMWidgetRecordHdrSize ||
+	      if ( (size_t)childptr->key.index_offs < RGMWidgetRecordHdrSize ||
 		   childptr->key.index_offs >= widgetrec->size ||
 		   memchr ((char *)widgetrec + childptr->key.index_offs, '\0',
 			  widgetrec->size - childptr->key.index_offs) == NULL )
@@ -826,9 +826,9 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
    */
   if ( widgetrec->arglist_offs != 0)
     {
-      if (widgetrec->arglist_offs < RGMWidgetRecordHdrSize ||
+      if ((size_t)widgetrec->arglist_offs < RGMWidgetRecordHdrSize ||
           widgetrec->arglist_offs >= widgetrec->size ||
-          widgetrec->size - widgetrec->arglist_offs <
+          (size_t)(widgetrec->size - widgetrec->arglist_offs) <
               sizeof(RGMArgListDesc) - sizeof(RGMArgument))
         return MrmFAILURE;
       argdesc = (RGMArgListDescPtr) 
@@ -1179,9 +1179,9 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
    */
   if ( widgetrec->arglist_offs != 0)
     {
-      if (widgetrec->arglist_offs < RGMWidgetRecordHdrSize ||
+      if ((size_t)widgetrec->arglist_offs < RGMWidgetRecordHdrSize ||
           widgetrec->arglist_offs >= widgetrec->size ||
-          widgetrec->size - widgetrec->arglist_offs <
+          (size_t)(widgetrec->size - widgetrec->arglist_offs) <
               sizeof(RGMArgListDesc) - sizeof(RGMArgument))
         return MrmFAILURE;
       argdesc = (RGMArgListDescPtr) 
@@ -2008,7 +2008,7 @@ Urm__CW_CreateArglist (Widget			parent,
   if ( pixargs_cnt > 0 )
     {
       Urm__CW_GetPixmapParms (parent, &screen, &display, &fgint, &bgint) ;
-      for ( ndx=0,savepix=pixargs ; ndx<pixargs_cnt ; ndx++,savepix++ )
+      for ( ndx=0,savepix=pixargs ; (Cardinal)ndx<pixargs_cnt ; ndx++,savepix++ )
         {
 	  if ( savepix->pixtype == MrmRtypeXBitmapFile ) {
 	    result = Urm__CW_ReadBitmapFile
@@ -2442,7 +2442,7 @@ Urm__CW_DisplayToString (char                       *val,
       return (return_val);
     }
 
-  for (ndx=0 ; ndx<dpysize ; ndx++)
+  for (ndx=0 ; (unsigned int)ndx<dpysize ; ndx++)
     {
       /* SUPPRESS 112 */
       if (val[ndx] != '\0')
@@ -3870,7 +3870,7 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
     return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
 			  NULL, NULL, MrmNOT_VALID) ;
 
-  for ( ndx=URMColorTableUserMin ; ndx<ctable->count ; ndx++ )
+  for ( ndx=URMColorTableUserMin ; ctable->count > 0 && ndx<(Cardinal)ctable->count ; ndx++ )
     {
       citem = &ctable->item[ndx] ;
       if ( swap_needed )
@@ -4359,12 +4359,12 @@ Urm__CW_GetPixmapParms (Widget			w ,
    * widget. Fallback to Black/WhitePixelOfScreen if the widget
    * doesn't have these values.
    */
-  if ( *fgint == -1 )
+  if ( *fgint == (Pixel)-1 )
     {
       XtSetArg (pixarg[pcnt], XmNforeground, fgint) ;
       pcnt += 1 ;
     }
-  if ( *bgint == -1 )
+  if ( *bgint == (Pixel)-1 )
     {
       XtSetArg (pixarg[pcnt], XmNbackground, bgint) ;
       pcnt += 1 ;
@@ -4375,9 +4375,9 @@ Urm__CW_GetPixmapParms (Widget			w ,
   /*
    * Fall back on ...PixelOfScreen
    */
-  if ( *fgint == -1 )
+  if ( *fgint == (Pixel)-1 )
     *fgint = BlackPixelOfScreen (*screen) ;
-  if ( *bgint == -1 )
+  if ( *bgint == (Pixel)-1 )
     *bgint = WhitePixelOfScreen (*screen) ;
 
   /*

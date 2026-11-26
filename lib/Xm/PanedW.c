@@ -816,7 +816,7 @@ ReManageChildren(
             {
 	       Cardinal new_slots;
 	       WidgetList new_children;
-	       if (pw->paned_window.num_slots >
+	       if ((Cardinal)pw->paned_window.num_slots >
 		   (Cardinal)~0 - XmBLOCK ||
 		   SIZE_MAX / sizeof(Widget) < XmBLOCK ||
 		   (size_t)pw->paned_window.num_slots >
@@ -1609,7 +1609,7 @@ GeometryManager(
        int i ;
 
        /* first reset the value of positionIndex to its real value */
-       for (i = 0 ; i < pw->composite.num_children; i++)
+       for (i = 0 ; (Cardinal)i < pw->composite.num_children; i++)
          if (pw->composite.children[i] == w) {
              PanePosIndex(w) = i ;
              break ; 
@@ -1951,7 +1951,7 @@ InsertOrder(
       for sash and separator, since we tracked that in constraint init -
       and if it's a correct value, use it */
    if (PanePosIndex(w) != XmLAST_POSITION) {
-       if ((PanePosIndex(w) >= 0) && (PanePosIndex(w) < i)) {
+       if ((PanePosIndex(w) >= 0) && ((Cardinal)PanePosIndex(w) < i)) {
 	   return PanePosIndex(w) ;
        }
    } /* all PanePosIndex will be res-et in InsertChild proc */
@@ -2053,9 +2053,9 @@ InsertChild(
     /* re-set the correct positionIndex values for everybody if 
      * the new kid has been inserted in the list instead of put at the end 
      */
-    if (PanePosIndex(w) != pw->composite.num_children)
+    if (PanePosIndex(w) < 0 || (Cardinal)PanePosIndex(w) != pw->composite.num_children)
 	for (i = 0, p = pw->composite.children; 
-	     i < pw->composite.num_children; i++, p++) {
+	     (Cardinal)i < pw->composite.num_children; i++, p++) {
             PanePosIndex(*p) = i ;
         }
 
@@ -2476,7 +2476,7 @@ PaneSetValues(
       /* first check for a valid value */
        /* count the number of pane children : not sash and separator */
        i = 0 ;
-       while ((i < pw->composite.num_children) &&
+       while (((Cardinal)i < pw->composite.num_children) &&
 		IsPane(pw->composite.children[i])) 
 		i++;
 

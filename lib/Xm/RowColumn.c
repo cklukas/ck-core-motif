@@ -806,6 +806,7 @@ static XmBaseClassExtRec       baseClassExtRec = {
     FALSE,                                    /* use_sub_resources    */
     WidgetNavigable,                          /* widgetNavigable      */
     XmInheritFocusChange,                     /* focusChange          */
+    NULL
 };
 
 static XmManagerClassExtRec managerClassExtRec = {
@@ -1107,7 +1108,7 @@ InsertPosition(Widget w)
      * use it as the new position for this child
      */
     if (RCIndex(w) != XmLAST_POSITION) {
-      if ((RCIndex(w) >= 0) && (RCIndex(w) <= rc->composite.num_children)) {
+      if ((RCIndex(w) >= 0) && ((Cardinal)RCIndex(w) <= rc->composite.num_children)) {
           return RCIndex(w) ;
       }
     }
@@ -1209,11 +1210,11 @@ InsertChild(
       {   
         RCIndex( w) = m->composite.num_children - 1 ;
       } 
-    if (RCIndex(w) != (m->composite.num_children - 1))
+    if (RCIndex(w) < 0 || (Cardinal)RCIndex(w) != (m->composite.num_children - 1))
       {   
         i = RCIndex( w) ;
         p = m->composite.children + i ;
-        while(    ++i < m->composite.num_children    )
+        while(    (Cardinal)(++i) < m->composite.num_children    )
           {   
             ++p ;
             RCIndex(*p) = i ;
@@ -1329,7 +1330,7 @@ DeleteChild(
     * the new kid was not deleted from the end of the list.
     * Composite class delete_child has already decremented num_chidren!
     */
-   if (RCIndex(child) != m->composite.num_children)
+   if (RCIndex(child) < 0 || (Cardinal)RCIndex(child) != m->composite.num_children)
      ForAllChildren (m, i, p)
        {
 	 RCIndex(*p) = i ;
@@ -2265,7 +2266,7 @@ GeometryManager(
        int i ;
 
        /* first reset the value of positionIndex to its real value */
-       for (i = 0 ; i < m->composite.num_children; i++)
+       for (i = 0 ; (Cardinal)i < m->composite.num_children; i++)
          if (m->composite.children[i] == instigator) {
              RCIndex(instigator) = i ;
              break ; 
@@ -3203,7 +3204,7 @@ ConstraintSetValues(
           RCIndex(new_w) = rc->composite.num_children - 1 ;
 
       if ((RCIndex(new_w) < 0) || 
-          (RCIndex(new_w) >= rc->composite.num_children)) {
+          ((Cardinal)RCIndex(new_w) >= rc->composite.num_children)) {
           RCIndex(new_w) = RCIndex(old) ; 
       } else {
           int inc ;       /* change the configuration of the children list:
@@ -3596,7 +3597,7 @@ XmOptionLabelGadget(
          return NULL;
       }
 
-      for (i = 0; i < rowcol->composite.num_children; i++)
+      for (i = 0; (Cardinal)i < rowcol->composite.num_children; i++)
       {
 	 child = rowcol->composite.children[i];
 
@@ -3633,7 +3634,7 @@ XmOptionButtonGadget(
 	 return NULL;
       }
 
-      for (i = 0; i < rowcol->composite.num_children; i++)
+      for (i = 0; (Cardinal)i < rowcol->composite.num_children; i++)
       {
 	 child = rowcol->composite.children[i];
 

@@ -9,6 +9,6 @@ start = source.rindex("XmGetXmScreen(")
 end = source.index("\n}\n", start)
 region = source[start:end]
 assert "num_children != 0 && children == NULL" in region
-assert "if (i == ScreenCount(XtDisplay(xmDisplay)))" in region
-assert region.index("XtCreateWidget") > region.index("if (i == ScreenCount")
+assert "if ((int)i == ScreenCount(XtDisplay(xmDisplay)))" in region
+assert region.index("XtCreateWidget") > region.index("if ((int)i == ScreenCount")
 print("PASS XmGetXmScreen validates child and screen state")

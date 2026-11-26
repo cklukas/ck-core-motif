@@ -109,7 +109,7 @@ XmDrawBevel(dpy, d, top_gc, bottom_gc, x, y, size, option)
      */
     if( option == XmBEVEL_TOP )
     {
-	for( i = 0; i < size; ++i )
+	for( i = 0; (unsigned int)i < size; ++i )
 	{
 	    rt[i].x = x;
 	    rt[i].y = y + i;
@@ -128,7 +128,7 @@ XmDrawBevel(dpy, d, top_gc, bottom_gc, x, y, size, option)
      */
     if( option == XmBEVEL_BOTH || option == XmBEVEL_BOTTOM )
     {
-	for( i = 0; i < size; ++i )
+	for( i = 0; (unsigned int)i < size; ++i )
 	{
 	    rt[i].x = x + size - i;
 	    rt[i].y = y + i;

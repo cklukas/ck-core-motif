@@ -558,7 +558,8 @@ XmToggleButtonGCacheObjClassRec xmToggleButtonGCacheObjClassRec =
       /* synthetic resources */   cache_syn_resources,
       /* num_syn_resources   */   XtNumber(cache_syn_resources),
       /* extension           */   NULL,
-  }
+  },
+  { 0 }, { 0 }
 };
 
 /*************************************<->*************************************
@@ -712,12 +713,12 @@ ClassInitialize( void )
   _XmTransformSubResources(xmLabelGCacheObjClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
   
-  for (i = 0; i < num; i++)
+  for (i = 0; (Cardinal)i < num; i++)
     merged_list[i] = uncompiled[i];
 
   XtFree((char *)uncompiled);
   
-  for (i = 0, j = num; i < wc_num_res; i++, j++)
+  for (i = 0, j = num; (Cardinal)i < wc_num_res; i++, j++)
     merged_list[j] = xmToggleButtonGCacheObjClassRec.object_class.resources[i];
   
   xmToggleButtonGCacheObjClassRec.object_class.resources = merged_list;

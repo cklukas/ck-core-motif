@@ -1266,7 +1266,7 @@ PutImagePixels(
 	for (y = 0; y < height; y++) /* how can we trust height */
 	    for (x = 0; x < width; x++, iptr++) { /* how can we trust width */
 		pixel = pixels[*iptr];
-		for (i = 0, px = pixel; i < sizeof(unsigned long);
+		for (i = 0, px = pixel; (size_t)i < sizeof(unsigned long);
 		     i++, px >>= 8)
 		    ((unsigned char *) &pixel)[i] = px;
 		src = &data[XYINDEX(x, y, image)];
@@ -1290,7 +1290,7 @@ PutImagePixels(
 		pixel = pixels[*iptr];
 		if (depth == 4)
 		    pixel &= 0xf;
-		for (i = 0, px = pixel; i < sizeof(unsigned long); i++,
+		for (i = 0, px = pixel; (size_t)i < sizeof(unsigned long); i++,
 		     px >>= 8)
 		    ((unsigned char *) &pixel)[i] = px;
 		src = &data[ZINDEX(x, y, image)];
@@ -1809,7 +1809,7 @@ PutPixel1(
     if(x < 0 || y < 0)
     	return 0;
 
-    for (i=0, px=pixel; i<sizeof(unsigned long); i++, px>>=8)
+    for (i=0, px=pixel; (size_t)i < sizeof(unsigned long); i++, px>>=8)
 	((unsigned char *)&pixel)[i] = px;
     src = &ximage->data[XYINDEX(x, y, ximage)];
     dst = (char *)&px;
@@ -1847,7 +1847,7 @@ PutPixel(
     ibpp = ximage->bits_per_pixel;
     if (ximage->depth == 4)
 	pixel &= 0xf;
-    for (i = 0, px = pixel; i < sizeof(unsigned long); i++, px >>= 8)
+    for (i = 0, px = pixel; (size_t)i < sizeof(unsigned long); i++, px >>= 8)
 	((unsigned char *) &pixel)[i] = px;
     src = &ximage->data[ZINDEX(x, y, ximage)];
     dst = (char *) &px;

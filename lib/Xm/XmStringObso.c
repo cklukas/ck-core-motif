@@ -192,7 +192,7 @@ XmStringNCopy(
   if (len == 0 && tmp == NULL)
     return (NULL);
   
-  if (n >= len) /* No need to truncate */
+  if (n >= 0 && (unsigned int)n >= len) /* No need to truncate */
     {
       ret_val = XmStringCopy(str);
     }

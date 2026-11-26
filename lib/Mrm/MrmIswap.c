@@ -72,7 +72,7 @@ UrmSwapWidgetSpanValid (RGMWidgetRecordPtr widget_rec, MrmOffset offset,
   return widget_rec != NULL &&
     widget_rec->size >= RGMWidgetRecordHdrSize &&
     offset >= RGMWidgetRecordHdrSize && offset <= widget_rec->size &&
-    widget_rec->size - offset >= prefix_size;
+    (size_t)(widget_rec->size - offset) >= prefix_size;
 }
 
 static Boolean
@@ -198,7 +198,7 @@ Idb__BM_SwapRecordBytes (IDBRecordBufferPtr		buffer)
           (IDBRecordSize - sizeof(IDBIndexLeafHdr)) /
             sizeof(IDBIndexLeafEntry))
         return MrmFAILURE;
-      for( ndx=0 ; ndx < leaf_rec->leaf_header.index_count ; ndx++ ) 
+      for( ndx=0 ; leaf_rec->leaf_header.index_count > 0 && ndx < (Cardinal)leaf_rec->leaf_header.index_count ; ndx++ ) 
 	{
 	  swapbytes( leaf_rec->index[ndx].index_stg );	
 	  swap2bytes( leaf_rec->index[ndx].data.internal_id.rec_no );	
@@ -217,7 +217,7 @@ Idb__BM_SwapRecordBytes (IDBRecordBufferPtr		buffer)
           (IDBRecordSize - sizeof(IDBIndexNodeHdr)) /
             sizeof(IDBIndexNodeEntry))
         return MrmFAILURE;
-      for( ndx=0 ; ndx < node_rec->node_header.index_count ; ndx++ ) 
+      for( ndx=0 ; node_rec->node_header.index_count > 0 && ndx < (Cardinal)node_rec->node_header.index_count ; ndx++ ) 
 	{
 	  swapbytes( node_rec->index[ndx].index_stg );	
 	  swap2bytes( node_rec->index[ndx].data.internal_id.rec_no );	
@@ -313,7 +313,7 @@ Urm__SwapRGMCallbackDesc (RGMCallbackDescPtr	callb_desc,
 	 (sizeof(RGMCallbackDesc) - sizeof(RGMCallbackItem))) /
 	sizeof(RGMCallbackItem))
     return MrmFAILURE;
-  for (ndx=0 ; ndx < callb_desc->count ; ndx++)
+  for (ndx=0 ; callb_desc->count > 0 && ndx < (Cardinal)callb_desc->count ; ndx++)
     {
 #ifdef WORD64
       swap4bytes( callb_desc->item[ndx].cb_item.routine );
@@ -432,7 +432,7 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
 				  sizeof(RGMArgument), arg_list->count,
 				  sizeof(RGMArgument)))
 	return MrmFAILURE;
-      for ( ndx=0 ; ndx<arg_list->count ; ndx++ )
+      for ( ndx=0 ; arg_list->count > 0 && ndx<(Cardinal)arg_list->count ; ndx++ )
 	{
 	  swapbytes( arg_list->args[ndx].tag_code );
 	  swapbytes( arg_list->args[ndx].stg_or_relcode.tag_offs );
@@ -537,7 +537,7 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
 				  sizeof(RGMChildDesc), child_list->count,
 				  sizeof(RGMChildDesc)))
 	return MrmFAILURE;
-      for ( ndx=0 ; ndx<child_list->count ; ndx++ )
+      for ( ndx=0 ; child_list->count > 0 && ndx<(Cardinal)child_list->count ; ndx++ )
 	{	
 	  swapbytes( child_list->child[ndx].annex1 );
 	  if (child_list->child[ndx].type ==  URMrRID ) 

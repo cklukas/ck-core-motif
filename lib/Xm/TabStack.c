@@ -3278,7 +3278,7 @@ Layout(tab)
     /*
      * ... And now place the kiddies.
      */
-    for( i = 0, kid = tab->composite.children; i < tab->composite.num_children;
+    for( i = 0, kid = tab->composite.children; (Cardinal)i < tab->composite.num_children;
 	 ++i, ++kid )
     {
 	if( *kid == XmTabStack_tab_box(tab) || !XtIsManaged(*kid) ) continue;
@@ -3350,7 +3350,7 @@ TabSelectedCallback(widget, client, cbdata)
     {
 	if( !XtIsManaged(*kid) || IsTabBox(tab, *kid) ) continue;
 
-	if( idx == info->tab_index )
+	if( info->tab_index >= 0 && idx == (Cardinal)info->tab_index )
 	{
 	    active = *kid;
 	    break;
@@ -4355,7 +4355,7 @@ XmTabStackIndexToWidget(widget, idx)
 	 i < tab->composite.num_children; ++i, ++kid )
     {
 	if( IsTabBox(tab, *kid) || !XtIsManaged(*kid) ) continue;
-	if( cnt++ == idx ) 
+	if( cnt++ == (Cardinal)idx ) 
 	  {
 	    _XmAppUnlock(app); 
 	    return( *kid );

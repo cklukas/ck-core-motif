@@ -890,10 +890,10 @@ GetMinCells(Widget w, Cardinal * min_x, Cardinal * min_y)
 	x = (info->cell_x < 0) ? 0 : info->cell_x;
 	y = (info->cell_y < 0) ? 0 : info->cell_y;
 
-	if (x > *min_x)
+	if ((Cardinal)x > *min_x)
 	    *min_x = x;
 
-	if (y > *min_y)
+	if ((Cardinal)y > *min_y)
 	    *min_y = y;
     }
 }
@@ -963,8 +963,8 @@ SetToEmptyCell(Widget child)
     cur_x = cur_y = XmIconBoxAnyCell;
     cur_square = max_x * max_x + max_y * max_y;
 
-    for (y = 0; y <= max_y; y++) 
-	for (x = 0; x <= max_x; x++) {
+    for (y = 0; (Cardinal)y <= max_y; y++) 
+	for (x = 0; (Cardinal)x <= max_x; x++) {
 	    square = x * x + y * y;
 
 	    if (square <= cur_square &&

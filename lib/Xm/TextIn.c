@@ -1641,7 +1641,7 @@ SelectOutLine(XmTextWidget tw,
       line = steps > UINT_MAX - line ? UINT_MAX : line + steps;
     }
   }
-  if (line < tw->text.total_lines)
+  if (tw->text.total_lines > 0 && line < (unsigned int)tw->text.total_lines)
     return tw->text.line_table[line].start_pos;
   else {
     XmTextSource source = GetSrc(tw);
@@ -3791,7 +3791,7 @@ SetScanType(Widget w,
   multi_click_time = XtGetMultiClickTime(XtDisplay(w));
   
   if (event_time > data->lasttime &&
-      event_time - data->lasttime < multi_click_time) {
+      multi_click_time > 0 && event_time - data->lasttime < (Time)multi_click_time) {
     
     i = 0;
     while (i < data->sarraycount && data->sarray[i] != data->stype) i++;
@@ -4020,7 +4020,7 @@ ProcessBSelect(Widget w,
     case ButtonPress:
       if (!InSelection(w, event) ||
 	  (event_time > data->lasttime &&
-	   event_time - data->lasttime < XtGetMultiClickTime(XtDisplay(w)))) {
+	   event_time - data->lasttime < (Time)XtGetMultiClickTime(XtDisplay(w)))) {
 	if (*num_params > 0)
 	  XtCallActionProc(w, params[0], event, NULL, 0);
       } else {

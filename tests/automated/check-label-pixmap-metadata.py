@@ -16,6 +16,6 @@ if "LabelGetPixmapData(XtScreen(lw), pix_use, &depth" not in body:
     raise SystemExit("Label insensitive pixmap lookup guard missing")
 lookup = body.index("if (LabelGetPixmapData(XtScreen(lw), pix_use")
 following = body[lookup:]
-if "if (depth == lw->core.depth)" not in following or "XSetFillStyle" not in following:
+if "if ((Cardinal)depth == lw->core.depth)" not in following or "XSetFillStyle" not in following:
     raise SystemExit("Label insensitive draw/stipple path is incomplete")
 print("Label pixmap metadata guards are present")

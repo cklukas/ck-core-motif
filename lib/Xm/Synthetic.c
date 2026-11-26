@@ -257,7 +257,7 @@ GetValuesHook(Widget w,
   /*  Loop through each argument, quarkifing the name.  Then loop  */
   /*  through each synthetic resource to see if there is a match.  */
   
-  for (i = 0; i < num_args; i++) 
+  for (i = 0; (Cardinal)i < num_args; i++) 
     {
       quark = XrmStringToQuark (args[i].name);
       
@@ -532,7 +532,7 @@ ImportArgs(Widget w,
   /*  Loop through each argument, quarkifing the name.  Then loop  */
   /*  through each synthetic resource to see if there is a match.  */
   
-  for (i = 0; i < num_args; i++) 
+  for (i = 0; (Cardinal)i < num_args; i++) 
     {
       quark = XrmStringToQuark (args[i].name);
       

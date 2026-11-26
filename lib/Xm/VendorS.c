@@ -457,6 +457,7 @@ static CompositeClassExtensionRec compositeClassExtRec = {
     XtCompositeExtensionVersion,
     sizeof(CompositeClassExtensionRec),
     TRUE,
+    FALSE
 };
 
 static ShellClassExtensionRec shellClassExtRec = {
@@ -482,6 +483,7 @@ static XmBaseClassExtRec baseClassExtRec = {
     {0},					/* class flags		*/
     GetValuesPrehook,				/* get_values_prehook	*/
     GetValuesPosthook,				/* get_values_posthook  */
+    NULL, NULL, NULL, NULL, 0, FALSE, NULL, NULL, NULL
 };
 
 externaldef(vendorshellclassrec)
@@ -563,7 +565,8 @@ static XmConst XmSpecifyLayoutDirectionTraitRec vsLDT = {
 
 static XmConst XmAccessColorsTraitRec vsACT = {
   0,			/* version */
-  GetColors
+  GetColors,
+  NULL
 };
 
 /* Unit Type Trait record for VendorShell */
@@ -690,7 +693,7 @@ ClassInitialize( void )
   _XmTransformSubResources(xmShellExtClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
 
-  for (i = 0; i < num; i++)
+  for (i = 0; (Cardinal)i < num; i++)
   {
 
   merged_list[i] = uncompiled[i];
@@ -699,7 +702,7 @@ ClassInitialize( void )
   _XmProcessUnlock();
 
   _XmProcessLock();
-  for (i = 0, j = num; i < wc_num_res; i++, j++)
+  for (i = 0, j = num; (Cardinal)i < wc_num_res; i++, j++)
   {
    merged_list[j] =
         xmVendorShellExtClassRec.object_class.resources[i];

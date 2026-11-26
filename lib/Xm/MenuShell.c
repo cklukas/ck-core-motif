@@ -284,6 +284,7 @@ static XmBaseClassExtRec baseClassExtRec = {
     (XtArgsProc)NULL,			/* get_values_posthook	*/
 
 	/* ... */
+    NULL, NULL, NULL, NULL, 0, FALSE, NULL, NULL, NULL
 };
 
 
@@ -874,7 +875,7 @@ InsertChild(
 	* because the menu being destroyed was still counted as a child.
 	*/
        for (i = 0, num_real_children = 0;
-	    i < parent->composite.num_children; i++)
+	    (Cardinal)i < parent->composite.num_children; i++)
 	 if (!parent->composite.children[i]->core.being_destroyed)
 	   num_real_children++;
 
@@ -2074,7 +2075,7 @@ PopdownDone(
      if (RC_popupMenuClick(rowcol) &&
 	 event &&
 	 ((event->type == ButtonPress) || (event->type == ButtonRelease)) &&
-	 ((event->xbutton.time - mst->MS_LastManagedMenuTime) < 
+	 ((event->xbutton.time - mst->MS_LastManagedMenuTime) < (Time) 
 	  XtGetMultiClickTime(XtDisplay(ms))))	/* or 150 ms? */
      {
 	if (RC_Type(rowcol) == XmMENU_OPTION)

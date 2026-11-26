@@ -247,7 +247,8 @@ static XmBaseClassExtRec baseClassExtRec = {
     0,                  /* num_ext_resources    */
     FALSE,              /* use_sub_resources    */
     NULL,               /* widgetNavigable      */
-    NULL                /* focusChange          */
+    NULL,                /* focusChange          */
+    NULL
 };
 
 
@@ -1620,13 +1621,13 @@ XmGetXmScreen(
 	 * leaves i at num_children, which is unrelated to the display's
 	 * screen indexes. */
 	i = 0;
-	for (; i < ScreenCount(XtDisplay(xmDisplay)); i++)
+	for (; (int)i < ScreenCount(XtDisplay(xmDisplay)); i++)
 	{
 		scr = ScreenOfDisplay(XtDisplay(xmDisplay), i);
 		if (scr == screen)
 			break;
 	}
-	if (i == ScreenCount(XtDisplay(xmDisplay)))
+	if ((int)i == ScreenCount(XtDisplay(xmDisplay)))
 	{
 	    _XmAppUnlock(app);
 	    return(NULL);

@@ -2668,8 +2668,7 @@ initialize_appearance_state(XmAppearanceWidgetState *state,
         if (co != NULL && co->color_obj.colorIsRunning &&
             co->color_obj.useColorObj && co->color_obj.colors != NULL) {
             int scr_num = XScreenNumberOfScreen(XtScreenOfObject(state->widget));
-            if (scr_num >= 0 && scr_num < co->color_obj.numScreens &&
-                co->color_obj.colors[scr_num] != NULL) {
+            if (scr_num >= 0 && scr_num < co->color_obj.numScreens) {
                 const XmPixelSet *pset = co->color_obj.colors[scr_num];
                 Pixel cur_bg = (Pixel)state->original[AP_BACKGROUND];
                 Boolean matches_raw = False;
@@ -2946,8 +2945,7 @@ appearance_pixel_in_colorobj(Widget widget, Pixel px, Boolean include_fg)
         !co->color_obj.useColorObj || co->color_obj.colors == NULL)
         return False;
     scr_num = XScreenNumberOfScreen(XtScreenOfObject(widget));
-    if (scr_num < 0 || scr_num >= co->color_obj.numScreens ||
-        co->color_obj.colors[scr_num] == NULL)
+    if (scr_num < 0 || scr_num >= co->color_obj.numScreens)
         return False;
     pset = co->color_obj.colors[scr_num];
     for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
@@ -4304,7 +4302,7 @@ appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
     scr = XtScreenOfObject(w);
     scr_num = XScreenNumberOfScreen(scr);
     if (scr_num < 0 || scr_num >= co->color_obj.numScreens ||
-        co->color_obj.colors[scr_num] == NULL)
+        co->color_obj.colors == NULL)
         return False;
     pset = co->color_obj.colors[scr_num];
 

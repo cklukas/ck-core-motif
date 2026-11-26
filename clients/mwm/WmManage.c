@@ -718,7 +718,7 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
 	    int n;
 
 	    iconAccelSpec = 0;
-	    for (n= 0; n < pSD->acceleratorMenuCount; n++)
+	    for (n= 0; (unsigned int)n < pSD->acceleratorMenuCount; n++)
 	    {
 #ifdef WSM
 	        iconAccelSpec += SetupKeyBindings (

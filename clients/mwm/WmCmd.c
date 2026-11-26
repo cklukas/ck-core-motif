@@ -1223,7 +1223,7 @@ RemoveCommandsForClient (
   /*
    * Remove any matching commands on the root menu.
    */
-  for (i = 0;  i < cmdKillListIndex;  i++)
+  for (i = 0;  (size_t)i < cmdKillListIndex;  i++)
     {
       CmdTree *tPtr, *pNext;
       MenuSpec *pMS;
@@ -1363,7 +1363,7 @@ GetMinimizeInfo(ClientData *pcd, XtPointer reply)
    frameWin = pcd->clientFrameWin;
       
 	
-   for (i=0; i < filledCount; i++)
+   for (i=0; (CARD32)i < filledCount; i++)
  	if (pcd->pTitleGadgets[i].id == FRAME_MINIMIZE)
 	   {
 	        CopyMwmGadget (&(pcd->pTitleGadgets[i]), &minimize_button); 
@@ -1410,7 +1410,7 @@ GetMaximizeInfo(ClientData *pcd, XtPointer reply)
       frameWin = pcd->clientFrameWin;
 
 
-      for (i=0; i < filledCount; i++)
+      for (i=0; (CARD32)i < filledCount; i++)
 	{
      
         if (pcd->pTitleGadgets[i].id == FRAME_MAXIMIZE)
@@ -1627,7 +1627,7 @@ GetMoveInfo(ClientData *pcd, XtPointer reply)
       windowY = pcd->clientY;
       frameWin = pcd->clientFrameWin;
 
-      for (i=0; i < filledCount; i++)
+      for (i=0; (CARD32)i < filledCount; i++)
 	{
 	  if (pcd->pTitleGadgets[i].id == FRAME_TITLE)
 	    {
@@ -1798,7 +1798,7 @@ GetFocusInfo(ClientData *pcd, XtPointer reply)
       filledCount = pcd->cTitleGadgets;
       frameWin = pcd->clientFrameWin;
 
-      for (i=0; i < filledCount; i++)
+      for (i=0; (CARD32)i < filledCount; i++)
         {
           if (pcd->pTitleGadgets[i].id == FRAME_TITLE)
             {
@@ -1845,7 +1845,7 @@ GetWindowMenuPostInfo(ClientData *pcd, XtPointer reply)
       filledCount = pcd->cTitleGadgets;
       frameWin = pcd->clientFrameWin;
 
-      for (i=0; i < filledCount; i++)
+      for (i=0; (CARD32)i < filledCount; i++)
         {
           if (pcd->pTitleGadgets[i].id == FRAME_TITLE)
             {
@@ -2235,7 +2235,7 @@ GetItemCheckInfo(ClientData *pcd, XtPointer reply)
 
       filledCount = pcd->cTitleGadgets;
 
-      for (i=0; i < filledCount; i++)
+      for (i=0; filledCount > 0 && i < (unsigned int)filledCount; i++)
         {
           if (pcd->pTitleGadgets[i].id == FRAME_TITLE)
 	      { 

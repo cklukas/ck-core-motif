@@ -1136,7 +1136,7 @@ ReadTargetsTable(
 	}
 	scanptr = (unsigned char *)propertyRecPtr +
 	    sizeof(xmMotifTargetsPropertyRec);
-	for (i = 0; ret && i < (int)propertyRecPtr->info.num_target_lists; i++) {
+	for (i = 0; ret && i < (Cardinal)propertyRecPtr->info.num_target_lists; i++) {
 	    if (remaining < 2) {
 		ret = False;
 		break;

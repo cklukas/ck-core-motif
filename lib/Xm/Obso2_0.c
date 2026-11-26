@@ -105,21 +105,25 @@ XmPrimitiveClassExtRec _XmTextFPrimClassExtRec = {
 
 
 XmGadgetClassExtRec _XmGadClassExtRec = {
-  NULL, NULLQUARK, 1L, sizeof(XmGadgetClassExtRec), NULL, NULL
+  NULL, NULLQUARK, 1L, sizeof(XmGadgetClassExtRec), NULL, NULL,
+  NULL
 };
 
 XmGadgetClassExtRec _XmLabelGadClassExtRec = {
-  NULL, NULLQUARK, 1L, sizeof(XmGadgetClassExtRec), NULL, NULL
+  NULL, NULLQUARK, 1L, sizeof(XmGadgetClassExtRec), NULL, NULL,
+  NULL
 };
 
 XmGadgetClassExtRec _XmPushBGadClassExtRec = {
   NULL, NULLQUARK, 1L, sizeof(XmGadgetClassExtRec),
-  XmInheritBaselineProc, XmInheritDisplayRectProc
+  XmInheritBaselineProc, XmInheritDisplayRectProc,
+  NULL
 };
 
 XmGadgetClassExtRec _XmToggleBGadClassExtRec = {
   NULL, NULLQUARK, 1L, sizeof(XmGadgetClassExtRec),
-  XmInheritBaselineProc, XmInheritDisplayRectProc
+  XmInheritBaselineProc, XmInheritDisplayRectProc,
+  NULL
 };
 
 /* XmWorld is defunct. */
@@ -192,7 +196,8 @@ externaldef(worldobjectclass) XmWorldClassRec xmWorldClassRec =
     XtInheritInsertChild,	/* insert_child		*/
     XtInheritDeleteChild,	/* delete_child		*/
     NULL,			/* extension		*/
-  }
+  },
+  { NULL }
 };
 
 externaldef(worldobjectclass) WidgetClass 
@@ -346,14 +351,14 @@ _XmSortResourceList(
 		first_time = FALSE;
 	}
 
-	for (n=0; n < len; n++)
+	for (n=0; (Cardinal)n < len; n++)
 		if (list[n]->xrm_name == unitQ)
 		{
 			p = list[n];
 			break;
 		}
 	
-	if (n == len)
+	if ((Cardinal)n == len)
 		return; /* No unit type resource found in this list. */
 	else
 	{

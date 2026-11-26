@@ -100,7 +100,7 @@ GetNthTab(XmTabList tl, int pos, XmTab cur_tab, int cur_pos)
 
   /* Is start or cur_tab closer? */
   if ((cur_tab != NULL) &&
-      ((pos > cur_pos/2) || (pos < (count + cur_pos)/2)))
+      ((pos > (int)(cur_pos/2)) || (pos < (int)((count + cur_pos)/2))))
     {
       prev_tab = cur_tab;
       i = pos - cur_pos;
@@ -108,7 +108,7 @@ GetNthTab(XmTabList tl, int pos, XmTab cur_tab, int cur_pos)
   else
     {
       prev_tab = _XmTabLStart(tl);
-      i = (pos < count/2) ? pos : pos - count;
+      i = (pos < (int)(count/2)) ? pos : pos - (int)count;
     }
   
   switch (i/abs(i))

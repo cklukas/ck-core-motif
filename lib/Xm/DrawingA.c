@@ -193,7 +193,8 @@ static XmBaseClassExtRec baseClassExtRec = {
     0,                                  /* num_ext_resources    */
     FALSE,                              /* use_sub_resources    */
     WidgetNavigable,                    /* widgetNavigable      */
-    NULL                                /* focusChange          */
+    NULL,                                /* focusChange          */
+    NULL
 };
 
 externaldef( xmdrawingareaclassrec) XmDrawingAreaClassRec

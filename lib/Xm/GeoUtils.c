@@ -861,9 +861,10 @@ _XmGeoMatrixAlloc(
     layoutSize = ((size_t)numRows + 1) * layoutRecSize ;
     /* Extra boxes are used to mark the end of each row.
     */
-    if ((size_t)numRows > SIZE_MAX - (size_t)numBoxes ||
+    { size_t rows_sz = (size_t)numRows, boxes_sz = (size_t)numBoxes;
+    if (rows_sz > SIZE_MAX - boxes_sz ||
         (size_t)numBoxes + (size_t)numRows > SIZE_MAX / kidGeoRecSize)
-        return NULL;
+        return NULL; }
     boxesSize = ((size_t)numBoxes + (size_t)numRows) * kidGeoRecSize ;
     if (matrixRecSize > SIZE_MAX - layoutSize ||
         matrixRecSize + layoutSize > SIZE_MAX - boxesSize ||
@@ -1841,7 +1842,7 @@ FitBoxesProportional(
         } 
     else /* boxWidth < numBoxes */
     {   
-        if(    (-amtOffset) > numBoxes    )
+        if(    amtOffset < 0 && (unsigned int)(-amtOffset) > numBoxes    )
         {   
             boxWidth = (-amtOffset) / numBoxes ;
             } 
@@ -2495,7 +2496,7 @@ _XmGeoCount_kids(
         (c->composite.num_children != 0 &&
          c->composite.children == NULL))
         return 0;
-    for(    i = 0 ; i < c->composite.num_children ; i++    )
+    for(    i = 0 ; (Cardinal)i < c->composite.num_children ; i++    )
     {   
         if(    c->composite.children[i] != NULL &&
                c->composite.children[i]->core.managed    )
@@ -2552,7 +2553,7 @@ _XmGetKidGeo(
     if (geo == NULL)
         return NULL;
     /* load all managed kids */
-    for(    i = 0 ; i < c->composite.num_children ; i++    )
+    for(    i = 0 ; (Cardinal)i < c->composite.num_children ; i++    )
     {   
         kidWid = c->composite.children[i] ;
         if(    XtIsManaged( kidWid)    )

@@ -502,7 +502,8 @@ static XmBaseClassExtRec labelBaseClassExtRec = {
   0,				/* num_ext_resources      */
   FALSE,			/* use_sub_resources      */
   XmInheritWidgetNavigable,	/* widgetNavigable        */
-  XmInheritFocusChange		/* focusChange            */
+  XmInheritFocusChange,		/* focusChange            */
+  NULL
 };
 
 static XmPrimitiveClassExtRec _XmLabelPrimClassExtRec = {
@@ -1585,7 +1586,7 @@ _XmRedisplayLabel(Widget wid, XEvent *event, Region region,
 	      
 	      if (LabelGetPixmapData(XtScreen(lw), Pix(lw), &depth, NULL, NULL))
 	      {
-		if (depth == lw->core.depth)
+		if ((Cardinal)depth == lw->core.depth)
 		  XCopyArea (XtDisplay(lw), Pix(lw), XtWindow(lw), gc, 0, 0,
 			     lp->PixmapRect.width,
 			     lp->PixmapRect.height,
@@ -1618,7 +1619,7 @@ _XmRedisplayLabel(Widget wid, XEvent *event, Region region,
 	      
 	      if (LabelGetPixmapData(XtScreen(lw), pix_use, &depth, NULL, NULL))
 	      {
-	      if (depth == lw->core.depth)
+	      if ((Cardinal)depth == lw->core.depth)
 		XCopyArea (XtDisplay(lw), pix_use, XtWindow(lw), 
 			   gc, 0, 0, 
 			   lp->PixmapRect.width,

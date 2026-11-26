@@ -893,7 +893,7 @@ XmStringTableProposeTablist(XmStringTable strings,
 
   XmTabFree(tab);
   
-  for (i = 0; i < num_strings; i++)
+  for (i = 0; (Cardinal)i < num_strings; i++)
     {
       if (!strings[i])
 	{

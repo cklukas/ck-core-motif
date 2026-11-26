@@ -467,7 +467,7 @@ FillBindingsFromDB(Display       *dpy,
 	      }
 	      *keys = resized;
 
-	      for (tmp = 0; tmp < new_num; tmp++)
+	      for (tmp = 0; (Cardinal)tmp < new_num; tmp++)
 		{
 		  (*keys)[*num_keys + tmp].keysym = new_keys[tmp].keysym;
 		  (*keys)[*num_keys + tmp].modifiers = new_keys[tmp].modifiers;
@@ -1194,7 +1194,7 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
   if (*binding == NULL) 
     {
       for (i = 0, currDefault = fallbackBindingStrings;
-	   i < XtNumber(fallbackBindingStrings);
+	   (Cardinal)i < XtNumber(fallbackBindingStrings);
 	   i++, currDefault++) 
 	{
 	  if (strcmp(currDefault->vendorName, ServerVendor(display)) == 0) 

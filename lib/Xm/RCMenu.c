@@ -2221,7 +2221,7 @@ static void DismissTearOffSubMenu (XmRowColumnWidget menu)
         (menu->core.being_destroyed) )                  
        return;                                          
                                                         
-   for (i = 0; i < menu->composite.num_children; i++)   
+   for (i = 0; (Cardinal)i < menu->composite.num_children; i++)   
    {                                                    
       Widget child = menu->composite.children[i];              
       if (XmIsCascadeButtonGadget(child))               

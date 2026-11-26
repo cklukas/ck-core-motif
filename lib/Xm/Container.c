@@ -1336,7 +1336,7 @@ Initialize(
 	if (ncw->container.detail_order == NULL) {
 	    ncw->container.detail_order_count = 0;
 	} else {
-	    for (i=0; i < ncw->container.detail_order_count; i++)
+	    for (i=0; (Cardinal)i < ncw->container.detail_order_count; i++)
 		ncw->container.detail_order[i] =
 		    rcw->container.detail_order[i] ;
 	}
@@ -1949,7 +1949,7 @@ SetValues(
      */
     if (CtrLayoutIsSPATIAL(ncw) && !CtrLayoutIsSPATIAL(ccw))
 	{
-	for (i = 0; i < ncw->composite.num_children; i++)
+	for (i = 0; (Cardinal)i < ncw->composite.num_children; i++)
 	    {
 	    cwid = ncw->composite.children[i];
 	    c = GetContainerConstraint(cwid);
@@ -2053,7 +2053,7 @@ SetValues(
 		    ncw->container.detail_order = NULL;
 		    ncw->container.detail_order_count = 0;
 		} else {
-		    for (i=0; i < ncw->container.detail_order_count; i++)
+		    for (i=0; (Cardinal)i < ncw->container.detail_order_count; i++)
 			detail_order[i] = ncw->container.detail_order[i] ;
 		    ncw->container.detail_order = detail_order ;
 		}
@@ -2852,7 +2852,7 @@ ChangeManaged(
      */
     if (cw->container.self) return;
 
-    for (i = 0; i < cw->composite.num_children; i++)
+    for (i = 0; (Cardinal)i < cw->composite.num_children; i++)
         {
         cwid = cw->composite.children[i];
         c = GetContainerConstraint(cwid);
@@ -8361,7 +8361,7 @@ SetupDrag(Widget wid,
   multi_click_time = XtGetMultiClickTime(XtDisplay(wid));
   click_time = event->xbutton.time;
   if ((cw->container.anchor_cwid == current_cwid) &&
-      ((click_time - cw->container.last_click_time) < multi_click_time))
+      (multi_click_time > 0 && (click_time - cw->container.last_click_time) < (Time)multi_click_time))
     {
       cw->container.last_click_time = click_time;
       if (cw->container.anchor_cwid) 
@@ -9722,7 +9722,7 @@ ChangeOutlineButtons(
     Widget	wid)
 {
 	XmContainerWidget		cw;
-    int				i;
+    Cardinal			i;
     Widget			cwid;
     XmContainerConstraint	c;
     Pixmap			pm;

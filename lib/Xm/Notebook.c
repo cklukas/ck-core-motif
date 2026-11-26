@@ -2560,7 +2560,7 @@ LayoutPages (
     }
 
     /* resize pages & status */
-    for (i = 0; i < nb->composite.num_children; i++)
+    for (i = 0; (Cardinal)i < nb->composite.num_children; i++)
 	{
 	child = nb->composite.children[i];
 	if (child == NULL || child->core.constraints == NULL)
@@ -2999,7 +2999,7 @@ LayoutMajorTabs (
      * FIX for CDExc23791
      */
     total_major_tabs = 0;
-    for (i = 0; i < nb->composite.num_children; i++)
+    for (i = 0; (Cardinal)i < nb->composite.num_children; i++)
         {
         child = nb->composite.children[i];
 	if (child == NULL || child->core.constraints == NULL)
@@ -3014,7 +3014,7 @@ LayoutMajorTabs (
      * Layout major tabs
      */
     tab_count = 0;
-    for (i = 0; i < nb->composite.num_children; i++)
+    for (i = 0; (Cardinal)i < nb->composite.num_children; i++)
 	{
 	child = nb->composite.children[i];
 	if (child == NULL || child->core.constraints == NULL)
@@ -3626,7 +3626,7 @@ LayoutMinorTabs (
      */
     status = TAB_DRAW;
     tab_count = 0;
-    for (i = 0; i < nb->composite.num_children; i++)
+    for (i = 0; (Cardinal)i < nb->composite.num_children; i++)
 	{
 	child = nb->composite.children[i];
 	if (child == NULL || child->core.constraints == NULL)
@@ -3861,7 +3861,7 @@ ResetTopPointers (
     start_major = top_major = next_major = prev_major = NULL;
     num_major = num_rest_major = num_next_major = num_prev_major = 0;
 
-    for (i=0; i < nb->composite.num_children; i++)
+    for (i=0; (Cardinal)i < nb->composite.num_children; i++)
 	{
 	child = nb->composite.children[i];
         nc = NotebookConstraint(child);
@@ -3912,7 +3912,7 @@ ResetTopPointers (
     start_minor_idx = end_minor_idx = -1;
     start_minor = top_minor = next_minor = prev_minor = NULL;
     num_minor = num_rest_minor = num_next_minor = num_prev_minor = 0;
-    for (i = 0; i < nb->composite.num_children; i++)
+    for (i = 0; (Cardinal)i < nb->composite.num_children; i++)
 	{
 	child = nb->composite.children[i];
         nc = NotebookConstraint(child);
@@ -5414,7 +5414,7 @@ CalcGeoInfo (
     Dimension	real_binding_width,real_back_page_number;
 
     /* get width and height of children */
-    for (i = 0; i < nb->composite.num_children; i++)
+    for (i = 0; (Cardinal)i < nb->composite.num_children; i++)
     {
 	/* ask preferred size */
 	child = nb->composite.children[i];
@@ -6043,7 +6043,7 @@ RepositionChild (
     if (nb->composite.num_children == 1)
         return;
 
-    for (i = 0; i < nb->composite.num_children; i++)
+    for (i = 0; (Cardinal)i < nb->composite.num_children; i++)
         {
         w = nb->composite.children[i];
         nc = NotebookConstraint(w);
@@ -6066,7 +6066,7 @@ RepositionChild (
     /* found no one less than, move others down, and insert at last position */
     if (ins_pos < 0)
         {
-        for (i = cur_pos; i < nb->composite.num_children -1; i++)
+        for (i = cur_pos; nb->composite.num_children > 0 && (Cardinal)i < nb->composite.num_children - 1; i++)
             nb->composite.children[i] = nb->composite.children[i+1];
         nb->composite.children[nb->composite.num_children -1] = child;
         }
@@ -6824,7 +6824,7 @@ GetNextTab (
     target_found = False;
     if (NB_IS_CHILD_MAJOR(target_child_type))
 	{
-	while((!target_found) && (i < nb->composite.num_children))
+	while((!target_found) && ((Cardinal)i < nb->composite.num_children))
 	  {
 	  child = nb->composite.children[i];
 	  nc = NotebookConstraint(child);
@@ -6874,7 +6874,7 @@ GetNextTab (
                 NotebookConstraint(nb->notebook.top_major)->page_number :
                 nb->notebook.first_page_number - 1;
 
-	while((!target_found) && (i < nb->composite.num_children))
+	while((!target_found) && ((Cardinal)i < nb->composite.num_children))
           {
           child = nb->composite.children[i];
           nc = NotebookConstraint(child);
@@ -7252,7 +7252,7 @@ XmNotebookGetPageInfo (
     result = XmPAGE_EMPTY;
 
     /* searching for the page */
-    for (i = 0; i < nb->composite.num_children; i++)
+    for (i = 0; (Cardinal)i < nb->composite.num_children; i++)
     {
         child = nb->composite.children[i];
         if (child == NULL || child->core.constraints == NULL)

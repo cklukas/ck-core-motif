@@ -130,7 +130,7 @@ void BevelRectangle (RList *prTop, RList *prBot, int x, int y, unsigned int widt
 
     /* top side */
 
-    if (((prTop->used + (top_wid + left_wid)) > prTop->allocated) &&
+    if (((int)(prTop->used + (top_wid + left_wid)) > prTop->allocated) &&
 	(!ExtendRList (prTop, MAX (top_wid+left_wid, RLIST_EXTENSION_SIZE))))
     {
 	return;		/* not enough memory */
@@ -176,7 +176,7 @@ void BevelRectangle (RList *prTop, RList *prBot, int x, int y, unsigned int widt
 
     /* bottom side */
 
-    if (((prBot->used + (bot_wid + right_wid)) > prBot->allocated) &&
+    if (((int)(prBot->used + (bot_wid + right_wid)) > prBot->allocated) &&
 	(!ExtendRList(prBot, MAX (bot_wid+right_wid, RLIST_EXTENSION_SIZE))))
     {
 	return;
@@ -294,13 +294,13 @@ void BevelDepressedRectangle (RList *prTop, RList *prBot, int x, int y, unsigned
      */
 
 
-    if (((prTop->used + (top_wid + left_wid)) > prTop->allocated) &&
+    if (((int)(prTop->used + (top_wid + left_wid)) > prTop->allocated) &&
 	(!ExtendRList (prTop, MAX (top_wid+left_wid, RLIST_EXTENSION_SIZE))))
     {
 	return;		/* not enough memory */
     }
 
-    if (((prBot->used + (bot_wid + right_wid)) > prBot->allocated) &&
+    if (((int)(prBot->used + (bot_wid + right_wid)) > prBot->allocated) &&
 	(!ExtendRList(prBot, MAX (bot_wid+right_wid, RLIST_EXTENSION_SIZE))))
     {
 	return;		/* not enought memory */

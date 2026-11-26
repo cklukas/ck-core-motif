@@ -323,7 +323,7 @@ XmCreateSimplePulldownMenu(
 		}
 		else
 		{
-			for (i = 0; i < num_buttons; i++)
+			for (i = 0; (Cardinal)i < num_buttons; i++)
 			{
 				if (((XmIsCascadeButtonGadget(buttons[i])) ||
 					(XmIsCascadeButton(buttons[i])))
@@ -332,7 +332,7 @@ XmCreateSimplePulldownMenu(
 					break;
 			}
 
-			if ( i < num_buttons)
+			if ((Cardinal)i < num_buttons)
 			{
 				n = 0;
 				XtSetArg(local_args[n], XmNsubMenuId, rc); n++;
@@ -403,7 +403,7 @@ XmCreateSimpleOptionMenu(
 		else
 		{
 			button_count = 0;
-			for (i = 0; i < num_buttons; i++)
+			for (i = 0; (Cardinal)i < num_buttons; i++)
 			{				/* count only PushB */
 				if ((XmIsPushButtonGadget(buttons[i])) ||
 					(XmIsPushButton(buttons[i])))
@@ -414,7 +414,7 @@ XmCreateSimpleOptionMenu(
 				}
 			}
 
-			if ( i < num_buttons)
+			if ((Cardinal)i < num_buttons)
 			{
 				n = 0;
 				XtSetArg(local_args[n], XmNmenuHistory, buttons[i]); n++;

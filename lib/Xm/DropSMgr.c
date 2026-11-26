@@ -3438,7 +3438,7 @@ CreateInfo(
 		int i;
 		XRectangle *rects = fullInfoRec.rectangles;
 
-		for (i=0; i < fullInfoRec.num_rectangles; i++)
+		for (i=0; (Cardinal)i < fullInfoRec.num_rectangles; i++)
 			_XmRegionUnionRectWithRegion(&(rects[i]), region, region);
 
 		fullInfoRec.region = region;
@@ -3709,7 +3709,7 @@ RetrieveInfo(
 	      (ArgList)(args), (Cardinal)(argCount));
 #ifdef FIX_1212
 	freeRects = True;
-	for (i = 0 ; i < argCount; i++) {
+	for (i = 0 ; (Cardinal)i < argCount; i++) {
 	    if (strcmp(args[i].name, "dropRectangles") == 0)
 		freeRects = False;
 	}
@@ -3854,7 +3854,7 @@ UpdateInfo(
 			int i;
 			XmRegion new_region = _XmRegionCreate();
 
-			for (i=0; i < full_info->num_rectangles; i++)
+			for (i=0; (Cardinal)i < full_info->num_rectangles; i++)
 				_XmRegionUnionRectWithRegion(
 					&(full_info->rectangles[i]), new_region,
 					new_region);

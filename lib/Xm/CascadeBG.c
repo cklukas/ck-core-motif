@@ -348,6 +348,7 @@ static XmBaseClassExtRec   CascadeBGClassExtensionRec = {
     FALSE,                                    /* use_sub_resources    */
     XmInheritWidgetNavigable,                 /* widgetNavigable      */
     XmInheritFocusChange,                     /* focusChange          */
+    NULL
 };
 
 /* ext rec static initialization */
@@ -394,6 +395,7 @@ XmCascadeButtonGCacheObjClassRec xmCascadeButtonGCacheObjClassRec =
       /* num_syn_resources   */   0,
       /* extension           */   NULL,
    },
+   { 0 }, { 0 }
 };
 
 
@@ -534,7 +536,8 @@ ClassInitialize( void )
 
   sc_num_res = xmLabelGCacheObjClassRec.object_class.num_resources;
 
-  if ((size_t)wc_num_res > SIZE_MAX - (size_t)sc_num_res ||
+  size_t wc_res_sz = (size_t)wc_num_res, sc_res_sz = (size_t)sc_num_res;
+  if (wc_res_sz > SIZE_MAX - sc_res_sz ||
       (size_t)wc_num_res + (size_t)sc_num_res >
 	  SIZE_MAX / sizeof(XtResource) ||
       (size_t)wc_num_res + (size_t)sc_num_res >
@@ -549,7 +552,7 @@ ClassInitialize( void )
   _XmTransformSubResources(xmLabelGCacheObjClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
 
-  for (i = 0; i < num; i++)
+  for (i = 0; (Cardinal)i < num; i++)
   {
 
   merged_list[i] = uncompiled[i];
@@ -557,7 +560,7 @@ ClassInitialize( void )
   }
   XtFree((char *)uncompiled);
 
-  for (i = 0, j = num; i < wc_num_res; i++, j++)
+  for (i = 0, j = num; (Cardinal)i < wc_num_res; i++, j++)
   {
    merged_list[j] =
         xmCascadeButtonGCacheObjClassRec.object_class.resources[i];
@@ -1164,7 +1167,7 @@ DrawCascade(
 	  if (depth <= 0)
 	      return;
 
-	  if (depth == XtParent(cb)->core.depth)
+	  if ((Cardinal)depth == XtParent(cb)->core.depth)
 	      XCopyArea (XtDisplay(cb), pixmap, 
 			 XtWindow(XtParent(cb)),
 			 LabG_NormalGC(cb), 0, 0, 

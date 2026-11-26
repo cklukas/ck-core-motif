@@ -448,6 +448,7 @@ static XmBaseClassExtRec       pushBBaseClassExtRec = {
     FALSE,                                    /* use_sub_resources    */
     XmInheritWidgetNavigable,                 /* widgetNavigable      */
     XmInheritFocusChange,                     /* focusChange          */
+    NULL
 };
 
 externaldef(xmpushbuttonclassrec) XmPushButtonClassRec xmPushButtonClassRec = 
@@ -2236,7 +2237,7 @@ MultiActivate(
    */
   if (pb->pushbutton.multiClick == XmMULTICLICK_KEEP)
     {
-      if ((buttonEvent->xbutton.time - pb->pushbutton.armTimeStamp) >
+      if ((buttonEvent->xbutton.time - pb->pushbutton.armTimeStamp) > (Time)
 	  XtGetMultiClickTime(XtDisplay(pb)))
 	pb->pushbutton.click_count = 1;
       else

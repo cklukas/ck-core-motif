@@ -71,6 +71,8 @@ AC_DEFUN([CK_HARDENING_INIT],
    _CK_HARDENING_FLAG([-Werror=maybe-uninitialized], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-Werror=uninitialized], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-Werror=address], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=missing-field-initializers], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=sign-compare], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-fstack-protector-strong], [ck_hardening_flags])
    AS_CASE([" $CFLAGS "],
      [*" -O1 "*|*" -O2 "*|*" -O3 "*|*" -Os "*|*" -Og "*|*" -Ofast "*],

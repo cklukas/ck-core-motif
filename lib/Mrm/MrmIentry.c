@@ -208,7 +208,7 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
       remaining = datahdr->entry_size;
       for ( cur_rec=1 ; cur_rec<=num_recs ; cur_rec++ )
 	{
-	  if (ofl_data->segment_num != cur_rec ||
+	  if (ofl_data->segment_num < 0 || (Cardinal)ofl_data->segment_num != cur_rec ||
 	      ofl_data->segment_size > remaining)
 	    return MrmNOT_VALID;
 	  UrmBCopy (ofl_data->data, buff_ptr, ofl_data->segment_size) ;
@@ -236,7 +236,7 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
 				      NULL, context_id, MrmNOT_VALID) ;
 	      ofl_data = (IDBOverflowDataPtr) datahdr ;
 	      if ( file_id->byte_swapped ) SwapIDBOverflowData(ofl_data);
-	      if (ofl_data->segment_num != cur_rec ||
+	      if (ofl_data->segment_num < 0 || (Cardinal)ofl_data->segment_num != cur_rec ||
 		  ofl_data->segment_size > IDBDataOverflowMax ||
 		  ofl_data->segment_size > remaining)
 		return MrmNOT_VALID;
@@ -370,18 +370,18 @@ Idb__DB_PutDataEntry (IDBFile			file_id,
       data_rec = (IDBDataRecord *) curbuf->IDB_record;
       dataheader = (IDBDataHdr *) &data_rec->data_header;
       if (dataheader->free_ptr > IDBDataFreeMax ||
-          dataheader->free_count > IDBDataFreeMax ||
+          dataheader->free_count < 0 || (size_t)dataheader->free_count > IDBDataFreeMax ||
           dataheader->free_ptr > IDBDataFreeMax - dataheader->free_count ||
           !IDBDataEntryOffsetAligned(IDBDataRecord, dataheader->free_ptr))
 	return MrmNOT_VALID;
-      if ( entsiz > dataheader->free_count )
+      if ( entsiz > (Cardinal)dataheader->free_count )
 	{
 	  result = Idb__BM_InitDataRecord (file_id, &curbuf) ;
 	  if ( result != MrmSUCCESS ) return result ;
 	  data_rec = (IDBDataRecord *) curbuf->IDB_record;
 	  dataheader = (IDBDataHdr *) &data_rec->data_header;
 	  if (dataheader->free_ptr > IDBDataFreeMax ||
-	      dataheader->free_count > IDBDataFreeMax ||
+	      dataheader->free_count < 0 || (size_t)dataheader->free_count > IDBDataFreeMax ||
 	      dataheader->free_ptr > IDBDataFreeMax - dataheader->free_count)
 	    return MrmNOT_VALID;
 	}

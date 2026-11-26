@@ -1068,7 +1068,7 @@ void GenerateFrameDisplayLists (ClientData *pcd)
 	}
 	else
 	{
-	    sTitleBevel = (matte_width > 0) ? insideBevel : EXTERNAL_BEVEL(pcd);
+	    sTitleBevel = (matte_width > 0) ? insideBevel : (int)EXTERNAL_BEVEL(pcd);
         }
 	eTitleBevel = (decoration & (MWM_DECOR_MINIMIZE | MWM_DECOR_MAXIMIZE))?
 			  JOIN_BEVEL(pcd) : EXTERNAL_BEVEL(pcd);
@@ -2279,7 +2279,7 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
             if (*py < 0)
             {
                 *py += height + ICON_HEIGHT(pcd);
-                if (*py + height >= DisplayHeight (DISPLAY, 
+                if (*py + (int)height >= DisplayHeight (DISPLAY, 
 						   SCREEN_FOR_CLIENT(pcd)))
                 {
                     wmGD.checkHotspot = FALSE;
@@ -2294,7 +2294,7 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 	    if (*py < 0)
 	    {
 		*py = ICON_Y(pcd) + ICON_HEIGHT(pcd);
-		if (*py + height >= DisplayHeight (DISPLAY, 
+		if (*py + (int)height >= DisplayHeight (DISPLAY, 
 						   SCREEN_FOR_CLIENT(pcd)))
 		{
 		    wmGD.checkHotspot = FALSE;
@@ -2333,7 +2333,7 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 	    *py = pcd->frameInfo.y + pcd->frameInfo.upperBorderWidth + 
 		  pcd->frameInfo.titleBarHeight;
 	}
-	if (*py + height >= DisplayHeight (DISPLAY, 
+	if (*py + (int)height >= DisplayHeight (DISPLAY, 
 		  SCREEN_FOR_CLIENT(pcd)))
 	{
 	    if ((pcd->decor & MWM_DECOR_TITLE) &&

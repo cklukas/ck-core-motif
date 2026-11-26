@@ -4,7 +4,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
 start = source.index("if (b_sc - merged > 0 && _XmStrImplicitLine(a_str))")
-body = source[start:source.index("for (i = 0; i < (b_sc - merged); i++)", start)]
+body = source[start:source.index("for (i = 0; (unsigned int)i < (b_sc - merged); i++)", start)]
 assert "new_segment_count = (size_t)a_sc + (size_t)b_sc" in body
 assert "SIZE_MAX / sizeof(*new_segments)" in body
 assert "UINT_MAX / sizeof(*new_segments)" in body

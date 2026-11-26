@@ -9,8 +9,8 @@ for function, limit in (("Idb__INX_CollapseLeafRecord", "IDBIndexLeafFreeMax"),
     start = source.index("\n" + function + " (")
     end = source.index("\n\n\f", start)
     region = source[start:end]
-    check = region.index("stgsiz > " + limit + " - heap_size")
+    check = region.index("(size_t)stgsiz > " + limit + " - (size_t)heap_size")
     copy = region.index("UrmBCopy (ndxstg, cur_heap, stglen + 1)")
     assert check < copy, function
-    assert "stglen = strnlen" in region
+    assert "stglen = (MrmCount)strnlen" in region
 print("Mrm index collapse checks rounded string capacity before copying")

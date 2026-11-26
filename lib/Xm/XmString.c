@@ -1008,7 +1008,7 @@ XmStringDirectionCreate(
   _XmProcessLock();
   /* Find the static cache index and string for this direction. */
   assert(XtNumber(dir_index) == XtNumber(cache_str));
-  for (index = 0; index < XtNumber(dir_index); index++)
+  for (index = 0; (Cardinal)index < XtNumber(dir_index); index++)
     if (dir_index[index] == direction)
       {
 	opt_str = cache_str[index];
@@ -1016,7 +1016,7 @@ XmStringDirectionCreate(
       }
 
   /* Create the return string if necessary and this is a known direction. */
-  if (!opt_str && (index < XtNumber(dir_index)))
+  if (!opt_str && ((Cardinal)index < XtNumber(dir_index)))
     {
       _XmStrCreate(opt_str, XmSTRING_OPTIMIZED, 0);
       if (opt_str == NULL) {
@@ -1029,7 +1029,7 @@ XmStringDirectionCreate(
     }
 
   /* Try to copy a cached string by incrementing its reference count. */
-  if ((index < XtNumber(dir_index)) &&
+  if (((Cardinal)index < XtNumber(dir_index)) &&
       (_XmStrRefCountInc(opt_str) == 0))
     {
       _XmString old_opt_str = opt_str;
@@ -1792,7 +1792,7 @@ XmStringConcatAndFree(XmString a,
 	    return NULL;
 	  }
 	  _XmStrEntry(a_str) = new_entries;
-      for (i = (segs ? 0 : a_lc); i < lc; i++)
+      for (i = (segs ? 0 : a_lc); (unsigned int)i < lc; i++)
 	_XmStrEntry(a_str)[i] = NULL;
     }
   else if (_XmStrOptimized(a))
@@ -1822,7 +1822,7 @@ XmStringConcatAndFree(XmString a,
 	return NULL;
       }
       _XmStrEntry(a_str) = new_entries;
-      for (i = (segs ? 0 : a_lc); i < lc; i++)
+      for (i = (segs ? 0 : a_lc); (unsigned int)i < lc; i++)
 	_XmStrEntry(a_str)[i] = NULL;
     }
   else {
@@ -1858,7 +1858,7 @@ XmStringConcatAndFree(XmString a,
 	    XmStringFree(b);
 	    return NULL;
 	}
-	for (i = 0; i < a_lc; i++)
+	for (i = 0; (unsigned int)i < a_lc; i++)
 	  segs[i] = _XmStringEntryCopy(_XmStrEntry(a)[i]);
       }
     }
@@ -1946,7 +1946,7 @@ XmStringConcatAndFree(XmString a,
     b_needs_unopt = IsUnopt(b_str, _XmStrEntryCount(b_str));
 
     if (b_needs_unopt) {
-      for (i = 0; i < a_lc; i++) {
+      for (i = 0; (unsigned int)i < a_lc; i++) {
 	_XmStringEntry converted = Unoptimize(_XmStrEntry(a_str)[i], True);
 	if (converted == NULL) {
 	  _XmProcessUnlock();
@@ -2240,7 +2240,7 @@ XmStringConcatAndFree(XmString a,
       _XmStrImplicitLine(a_str) = True;
     }
   
-    for (i = 0; i < (b_sc - merged); i++)
+    for (i = 0; (unsigned int)i < (b_sc - merged); i++)
       {
 	b_seg = _XmEntrySegmentGet(b_line)[i + merged];
 	if (a_needs_unopt && !b_needs_unopt)
@@ -2268,7 +2268,7 @@ XmStringConcatAndFree(XmString a,
       if (b_line != (_XmStringEntry)&array_seg) XtFree((char *)b_line);
     }
   } else if (b_sc - merged > 0 && !_XmStrImplicitLine(a_str)) {
-    for (i = 0; i < (b_sc - merged); i++)
+    for (i = 0; (unsigned int)i < (b_sc - merged); i++)
       {
 	b_line = _XmStrEntry(b_str)[i + merged];
 	if (a_needs_unopt && !b_needs_unopt) {
@@ -2296,7 +2296,7 @@ XmStringConcatAndFree(XmString a,
   }
   
   /* Add rest of b's lines to a */
-  for (i = 0; i < (b_lc - 1); i++)
+  for (i = 0; (unsigned int)i < (b_lc - 1); i++)
     {
       b_line = _XmStrEntry(b_str)[i + 1];
       if (a_needs_unopt && !b_needs_unopt) 
@@ -2313,7 +2313,7 @@ XmStringConcatAndFree(XmString a,
 
       b_sc = _XmEntrySegmentCountGet(b_line);
       
-      for (j = 0; j < b_sc; j++)
+      for (j = 0; (unsigned int)j < b_sc; j++)
 	{
 	  b_seg = _XmEntrySegmentGet(b_line)[j];
       
@@ -3981,7 +3981,7 @@ SubStringPosition(
 	fail = FALSE;
 	begin = i;
 	
-	for (j = 0; j < under_seg_len; j++) {
+	for (j = 0; (unsigned int)j < under_seg_len; j++) {
 	  if (a[i+j] != b[j]) {
 	    fail = TRUE;
 	    break;
@@ -4040,7 +4040,7 @@ SubStringPosition(
 	fail = FALSE;
 	begin = i;
 	
-	for (j = 0; j < under_seg_len; j+=2) {
+	for (j = 0; (unsigned int)j < under_seg_len; j+=2) {
 	  if ((a[i+j] != b[j]) || (a[i+j+1] != b[j+1])) {
 	    fail = TRUE;
 	    break;
@@ -4096,7 +4096,7 @@ SubStringPosition(
       if (type == XmWIDECHAR_TEXT) {
 	len_a = sizeof(wchar_t);
 	
-	for (j = 0; j < under_seg_len; j += sizeof(wchar_t))
+	for (j = 0; (unsigned int)j < under_seg_len; j += sizeof(wchar_t))
 	  if (((wchar_t *)a)[(i+j)/len_a] != ((wchar_t *)b)[j/len_a]) {
 	    fail = TRUE;
 	    break;
@@ -4110,7 +4110,7 @@ SubStringPosition(
 	if (len_a < 1) return;
 	len_a1 = len_a;
 	
-	for (j = 0; j < under_seg_len; j += len_b) {
+	for (j = 0; (unsigned int)j < under_seg_len; j += len_b) {
 #ifndef NO_MULTIBYTE
 	  len_b = mblen(&b[j], MB_CUR_MAX);
 #else
@@ -4512,7 +4512,7 @@ _XmStringDrawSegment(Display *d,
        
 	      q = ltor_text;
 	      p += seg_len; 
-	      for (i = 0; i < seg_len; i += len)
+	      for (i = 0; (unsigned int)i < seg_len; i += len)
 		{
 #ifndef NO_MULTIBYTE
 		  len = mblen(q, MB_CUR_MAX);
@@ -4533,7 +4533,7 @@ _XmStringDrawSegment(Display *d,
 	  else if (!text16)
 	    {
 	      q = (ltor_text + seg_len - 1); 
-	      for (i = 0; i < seg_len; i++) 
+	      for (i = 0; (unsigned int)i < seg_len; i++) 
 		*p++ = *q--;
 	    }
 	  else
@@ -4542,7 +4542,7 @@ _XmStringDrawSegment(Display *d,
 	      char tmp;
           
 	      q = (ltor_text + seg_len - 1); 
-	      for (i = 0; i < Half(seg_len); i++) 
+	      for (i = 0; (unsigned int)i < Half(seg_len); i++) 
 		{
 		  tmp = *q--;
 		  *p++ = *q--;
@@ -6388,7 +6388,7 @@ _XmStringEntry
 _XmStringEntryCopy(_XmStringEntry entry)
 {
   int i;
-  int j;
+  size_t j;
   size_t size;
   size_t allocation_size;
   size_t segment_index;
@@ -8752,7 +8752,7 @@ match_pattern(XtPointer      text,
         return False;
       return !strncmp((char*) text, mb_pattern, char_len);
     }
-  else if (strlen((char*) pattern->pattern) == char_len)
+  else if (char_len >= 0 && strlen((char*) pattern->pattern) == (size_t)char_len)
     {
       /* The normal case: mbs text and pattern. */
       return !strncmp((char*) text, (char*) pattern->pattern, char_len);
@@ -8992,7 +8992,7 @@ XmStringParseText(XtPointer    text,
   while (!halt && (wide_char ? *((wchar_t*) ptr) : *ptr))
     {
 #ifndef NO_MULTIBYTE
-      int len = (wide_char ? sizeof(wchar_t) : mblen(ptr, MB_CUR_MAX));
+      int len = (wide_char ? (int)sizeof(wchar_t) : mblen(ptr, MB_CUR_MAX));
 #else
       int len = (wide_char ? sizeof(wchar_t) : 1);
 #endif
@@ -9365,7 +9365,7 @@ unparse_components(char          **result,
   int n_comp;
 
   /* Compare each pattern component. */
-  for (n_pat = 0; !match && (n_pat < parse_count); n_pat++)
+  for (n_pat = 0; !match && ((Cardinal)n_pat < parse_count); n_pat++)
     {
       pat = parse_table[n_pat];
       if (pat == NULL)

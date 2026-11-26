@@ -51,7 +51,7 @@ int yyerror(const char *s);
 
 /*   Declare and initialize stack entry for epsilon productions.    */
 
-YYSTYPE		gz_yynullval = {NULL,0,0,0,0};
+YYSTYPE		gz_yynullval = {NULL,0,0,0,0,0,0,0,{0}};
 
 /*   Declare token to aid in saving source context	*/
 

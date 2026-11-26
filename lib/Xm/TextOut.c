@@ -1011,9 +1011,9 @@ DrawUnicodeParagraph(XmTextWidget tw, LineNum line, XmTextPosition start)
       }
     }
   }
-  for (i = 0; i < tw->text.highlight.number; ++i) {
+  for (i = 0; (Cardinal)i < tw->text.highlight.number; ++i) {
     XmTextPosition first = tw->text.highlight.list[i].position;
-    XmTextPosition last = i + 1 < tw->text.highlight.number ? tw->text.highlight.list[i + 1].position : tw->text.last_position;
+    XmTextPosition last = (Cardinal)(i + 1) < tw->text.highlight.number ? tw->text.highlight.list[i + 1].position : tw->text.last_position;
     XmHighlightMode mode = tw->text.highlight.list[i].mode;
     Region region;
     if (mode == XmHIGHLIGHT_NORMAL || last <= start || first >= paragraph->end) continue;
@@ -1536,7 +1536,7 @@ _XmTextGetLineCapture(XmTextWidget tw, XmTextPosition position,
       position > tw->text.last_position) return NULL;
   data = tw->text.output->data;
   line = _XmTextPosToLine(tw, position);
-  if (line == NOLINE || line >= data->number_lines) return NULL;
+  if (line == NOLINE || data->number_lines <= 0 || line >= (LineNum)data->number_lines) return NULL;
   _XmTextLineInfo(tw, line, &start, &extra);
   entry = UnicodeParagraph(tw, start);
   if (!entry || !entry->layout || position < start || position > entry->end)
@@ -1568,7 +1568,7 @@ PosToXY(XmTextWidget tw,
     struct _XmTextParagraphCache *paragraph;
     double caret;
     line = _XmTextPosToLine(tw, position);
-    if (line == NOLINE || line >= data->number_lines) return False;
+    if (line == NOLINE || data->number_lines <= 0 || line >= (LineNum)data->number_lines) return False;
     _XmTextLineInfo(tw, line, &linestart, &extra);
     paragraph = UnicodeParagraph(tw, linestart);
     if (!paragraph || !paragraph->layout || position < linestart || position > paragraph->end ||
@@ -1592,7 +1592,7 @@ PosToXY(XmTextWidget tw,
   _XmProcessUnlock();
 
     line = _XmTextPosToLine(tw, position);
-    if (line == NOLINE || line >= data->number_lines) return False;
+    if (line == NOLINE || data->number_lines <= 0 || line >= (LineNum)data->number_lines) return False;
     local_y = data->topmargin;
     local_x = tw->text.inner_widget->core.width -
 	 (data->rightmargin + line * data->linewidth +
@@ -1617,7 +1617,7 @@ PosToXY(XmTextWidget tw,
   _XmProcessUnlock();
 
   line = _XmTextPosToLine(tw, position);
-  if (line == NOLINE || line >= data->number_lines) return False;
+  if (line == NOLINE || data->number_lines <= 0 || line >= (LineNum)data->number_lines) return False;
   local_y = data->topmargin + line * data->lineheight + data->font_ascent;
   local_x = data->leftmargin;
   _XmTextLineInfo(tw, line, &linestart, &extra);
@@ -2188,7 +2188,7 @@ _XmChangeVSB(XmTextWidget tw)
   if (tw->text.top_line > tw->text.total_lines)
     tw->text.top_line = tw->text.total_lines;
   
-  if (tw->text.top_line + tw->text.number_lines >
+  if ((int)(tw->text.top_line + tw->text.number_lines) >
       tw->text.total_lines)
     local_total = tw->text.top_line + tw->text.number_lines;
   else
@@ -2196,7 +2196,7 @@ _XmChangeVSB(XmTextWidget tw)
   
   if (data->vbar) {
     
-    if (local_total >= tw->text.number_lines)
+    if (local_total >= (int)tw->text.number_lines)
       new_size = tw->text.number_lines;
     else
       new_size = local_total;
@@ -2242,7 +2242,7 @@ _XmChangeHSB(XmTextWidget tw)
   if (tw->text.top_line > tw->text.total_lines)
     tw->text.top_line = tw->text.total_lines;
   
-  if (tw->text.top_line + tw->text.number_lines >
+  if ((int)(tw->text.top_line + tw->text.number_lines) >
       tw->text.total_lines)
     local_total = tw->text.top_line + tw->text.number_lines;
   else
@@ -2250,7 +2250,7 @@ _XmChangeHSB(XmTextWidget tw)
   
   if (data->hbar) {
     
-    if (local_total >= tw->text.number_lines)
+    if (local_total >= (int)tw->text.number_lines)
       new_size = tw->text.number_lines;
     else
       new_size = local_total;
@@ -2379,7 +2379,7 @@ TextFindNewWidth(XmTextWidget tw,
     LineNum l;
     LineTableExtra extra;
     
-    for (l = 0; l < data->number_lines; l++) {
+    for (l = 0; data->number_lines > 0 && l < (LineNum)data->number_lines; l++) {
       _XmTextLineInfo(tw, l, &start, &extra);
       if (extra && newwidth < extra->width) newwidth = extra->width;
     }
@@ -2448,7 +2448,7 @@ TextFindNewHeight(XmTextWidget tw,
       LineNum l;
       LineTableExtra extra;
     
-      for (l = 0; l < data->number_lines; l++) {
+      for (l = 0; data->number_lines > 0 && l < (LineNum)data->number_lines; l++) {
 	_XmTextLineInfo(tw, l, &start, &extra);
 	if (extra && newheight < extra->width) newheight = extra->width;
       }
@@ -2687,7 +2687,7 @@ MeasureLine(XmTextWidget tw,
   posToXYCachedWidget = NULL;
   _XmProcessUnlock();
   if (extra) *extra = NULL;
-  if (line >= data->number_lines) {
+  if (data->number_lines <= 0 || line >= (LineNum)data->number_lines) {
     if (data->resizewidth || data->resizeheight ||
 	((data->scrollvertical || data->scrollhorizontal) &&
 	 XmIsScrolledWindow(XtParent(tw)))) {
@@ -4240,7 +4240,7 @@ MakePositionVisible(XmTextWidget tw,
 	} else {
 	  line_num = _XmTextGetTableIndex(tw, position);
 	  if (position == tw->text.bottom_position ||
-	      (line_num < tw->text.total_lines &&
+	      (tw->text.total_lines > 0 && line_num < (LineNum)tw->text.total_lines &&
 	       position == tw->text.line_table[line_num+1].start_pos - 1)) {
 	    line_start = line_num ? tw->text.line_table[line_num].start_pos : 0;
 	    target_position = position > (XmTextPosition)(data->rows / 2) ?
@@ -4269,7 +4269,7 @@ MakePositionVisible(XmTextWidget tw,
       } else {
 	line_num = _XmTextGetTableIndex(tw, position);
 	if (position == tw->text.bottom_position ||
-	    (line_num < tw->text.total_lines &&
+	    (tw->text.total_lines > 0 && line_num < (LineNum)tw->text.total_lines &&
 	     position == tw->text.line_table[line_num+1].start_pos - 1)) {
 	  line_start = line_num ? tw->text.line_table[line_num].start_pos : 0;
 	  target_position = position > (XmTextPosition)(data->columns / 2) ?
@@ -4535,7 +4535,7 @@ SizeFromRowsCols(XmTextWidget tw,
       Boolean past_end = False;
       int i;
       
-      for (i = 0; i < tw->text.number_lines && !past_end; i++) {
+      for (i = 0; (Cardinal)i < tw->text.number_lines && !past_end; i++) {
 	past_end = !MeasureLine(tw, i, tw->text.line[i].start, 
 				&nextpos, &extra);
 	if (extra) {
@@ -4554,7 +4554,7 @@ SizeFromRowsCols(XmTextWidget tw,
     Boolean past_end = False;
     int i;
     
-    for (i = 0; i < tw->text.number_lines && !past_end; i++) {
+    for (i = 0; (Cardinal)i < tw->text.number_lines && !past_end; i++) {
       past_end = !MeasureLine(tw, i, tw->text.line[i].start, 
 			      &nextpos, &extra);
       if (extra) {
@@ -5578,13 +5578,13 @@ NotifyResized(Widget w,
       } else {
       data->ignorevbar = True;
       
-      if (tw->text.top_line + tw->text.number_lines >
+      if ((int)(tw->text.top_line + tw->text.number_lines) >
 	  tw->text.total_lines)
 	local_total = tw->text.top_line + tw->text.number_lines;
       else
 	local_total = tw->text.total_lines;
       
-      if (local_total >= tw->text.number_lines)
+      if (local_total >= (int)tw->text.number_lines)
 	new_size = tw->text.number_lines;
       else
 	new_size = local_total;
@@ -5620,13 +5620,13 @@ NotifyResized(Widget w,
 			  XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
 	data->ignorehbar = True;
       
-	if (tw->text.top_line + tw->text.number_lines >
+	if ((int)(tw->text.top_line + tw->text.number_lines) >
 	    tw->text.total_lines)
 	  local_total = tw->text.top_line + tw->text.number_lines;
 	else
 	  local_total = tw->text.total_lines;
       
-	if (local_total >= tw->text.number_lines)
+	if (local_total >= (int)tw->text.number_lines)
 	  new_size = tw->text.number_lines;
 	else
 	  new_size = local_total;
@@ -6083,13 +6083,13 @@ OutputExpose(Widget w,
       
 	data->ignorehbar = True;
       
-	if (tw->text.top_line + tw->text.number_lines >
+	if ((int)(tw->text.top_line + tw->text.number_lines) >
 	    tw->text.total_lines)
 	  local_total = tw->text.top_line + tw->text.number_lines;
 	else
 	  local_total = tw->text.total_lines;
       
-	if (local_total >= tw->text.number_lines)
+	if (local_total >= (int)tw->text.number_lines)
 	  new_size = tw->text.number_lines;
 	else
 	  new_size = local_total;
@@ -6126,13 +6126,13 @@ OutputExpose(Widget w,
       
       data->ignorevbar = True;
       
-      if (tw->text.top_line + tw->text.number_lines >
+      if ((int)(tw->text.top_line + tw->text.number_lines) >
 	  tw->text.total_lines)
 	local_total = tw->text.top_line + tw->text.number_lines;
       else
 	local_total = tw->text.total_lines;
       
-      if (local_total >= tw->text.number_lines)
+      if (local_total >= (int)tw->text.number_lines)
 	new_size = tw->text.number_lines;
       else
 	new_size = local_total;
@@ -6312,7 +6312,7 @@ SliderMove(Widget w,
 			XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
       data->suspend_voffset = True;
       tw->text.hsbar_scrolling = True;
-      if (tw->text.top_line + tw->text.number_lines > tw->text.total_lines)
+      if ((int)(tw->text.top_line + tw->text.number_lines) > tw->text.total_lines)
 	local_total = tw->text.top_line + tw->text.number_lines;
       else
 	local_total = tw->text.total_lines;
@@ -6831,7 +6831,7 @@ _XmTextChangeHOffset(XmTextWidget tw,
   length += (length < 0 ? (2 * margin_width) : - (2 * margin_width));
   new_offset += length;
   
-  for (i = 0; i < tw->text.number_lines; i++) {
+  for (i = 0; (Cardinal)i < tw->text.number_lines; i++) {
     last_position = (*tw->text.source->Scan) (tw->text.source,
 						  tw->text.line[i].start,
 						  XmSELECT_LINE,
@@ -6887,7 +6887,7 @@ _XmTextChangeVOffset(XmTextWidget tw,
   length += (length < 0 ? (2 * margin_height) : - (2 * margin_height));
   new_offset += length;
   
-  for (i = 0; i < tw->text.number_lines; i++) {
+  for (i = 0; (Cardinal)i < tw->text.number_lines; i++) {
     last_position = (*tw->text.source->Scan) (tw->text.source,
 						  tw->text.line[i].start,
 						  XmSELECT_LINE,

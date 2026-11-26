@@ -284,7 +284,7 @@ _XmFilterArgs(ArgList args, Cardinal num_args, String *filter,
     if (fargs == NULL)
 	return;
     *filtered_args = fargs;
-    for (i = 0; i < num_args; i++) {
+    for (i = 0; (Cardinal)i < num_args; i++) {
 	Boolean match = False;
 	if (filter != NULL) {
 	    for (ptr = filter; *ptr != NULL; ptr++) {
@@ -1116,7 +1116,7 @@ _XiResolveAllPartOffsets(
     for (c = w_class; c != NULL; c = c->core_class.superclass) classcount++;
 
     if (classcount <= 0 || (size_t)classcount > SIZE_MAX / sizeof(XmOffset) ||
-	classcount > UINT_MAX / sizeof(XmOffset)) {
+	(size_t)classcount > UINT_MAX / sizeof(XmOffset)) {
 	_XmProcessUnlock();
 	return;
     }
@@ -1195,7 +1195,7 @@ offsets_ready:
     /*
      *  Update the resource list(s) offsets in place
      */
-    for (i = 0; i < w_class->core_class.num_resources; i++) 
+    for (i = 0; (Cardinal)i < w_class->core_class.num_resources; i++) 
     {
 	pr = (XmPartResource *) &w_class->core_class.resources[i];
 	
@@ -1206,7 +1206,7 @@ offsets_ready:
     }
     
     if (cc)
-	for (i = 0; i < cc->constraint_class.num_resources; i++) 
+	for (i = 0; (Cardinal)i < cc->constraint_class.num_resources; i++) 
 	{
 	    pr = (XmPartResource *) &cc->constraint_class.resources[i];
 	    

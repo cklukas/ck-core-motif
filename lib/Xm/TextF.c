@@ -1200,6 +1200,7 @@ static XmSyntheticResource syn_resources[] =
    sizeof(char *),
    XtOffsetOf(struct _XmTextFieldRec, text.value),
    MakeCopy,
+   NULL
  },
 
  {
@@ -1207,6 +1208,7 @@ static XmSyntheticResource syn_resources[] =
    sizeof(wchar_t *),
    XtOffsetOf(struct _XmTextFieldRec, text.wc_value),
    WcsMakeCopy,
+   NULL
  }
 
 };
@@ -1272,6 +1274,8 @@ externaldef(xmtextfieldclassrec) XmTextFieldClassRec xmTextFieldClassRec =
   
   {                         			/* text class         */
     NULL,                     			/* extension          */
+    NULL,                     			/* decoration_insets  */
+    NULL,                     			/* draw_decoration    */
   }
 };
 
@@ -1663,12 +1667,12 @@ TextFieldSetHighlight(XmTextFieldWidget tf,
   InsertHighlight(tf, right, endmode);
   l = tf->text.highlight.list;
   i = 1;
-  while (i < tf->text.highlight.number) {
+  while ((Cardinal)i < tf->text.highlight.number) {
     if (l[i].position >= left && l[i].position < right)
       l[i].mode = mode;
     if (l[i].mode == l[i-1].mode) {
       tf->text.highlight.number--;
-      for (j=i; j<tf->text.highlight.number; j++)
+      for (j=i; (Cardinal)j < tf->text.highlight.number; j++)
 	l[j] = l[j+1];
     } else i++;
   }
@@ -2466,7 +2470,7 @@ RedisplayText(XmTextFieldWidget tf,
   if (!XtIsSensitive((Widget)tf)) stipple = True;
   
   /* search through the highlight array and draw the text */
-  for (i = 0; i + 1 < tf->text.highlight.number; i++) {
+  for (i = 0; (Cardinal)(i + 1) < tf->text.highlight.number; i++) {
     
     /* make sure start is within current highlight */
     if (l[i].position <= start && start < l[i+1].position &&
@@ -3314,9 +3318,9 @@ RedisplayUnicodeText(XmTextFieldWidget tf)
   SetInvGC(tf, tf->text.gc);
   XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc, viewport.x, viewport.y, viewport.width, viewport.height);
   XmTextLayoutDraw(layout, draw, &foreground, tf->text.h_offset, baseline, 0, tf->text.string_length, &viewport);
-  for (i = 0; i < tf->text.highlight.number; ++i) {
+  for (i = 0; (Cardinal)i < tf->text.highlight.number; ++i) {
     size_t first = (size_t)tf->text.highlight.list[i].position;
-    size_t last = i + 1 < tf->text.highlight.number ? (size_t)tf->text.highlight.list[i + 1].position : (size_t)tf->text.string_length;
+    size_t last = (Cardinal)(i + 1) < tf->text.highlight.number ? (size_t)tf->text.highlight.list[i + 1].position : (size_t)tf->text.string_length;
     XmHighlightMode mode = tf->text.highlight.list[i].mode;
     Region region;
     if (mode == XmHIGHLIGHT_NORMAL || first >= last || last > (size_t)tf->text.string_length) continue;
@@ -3660,7 +3664,7 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
       _XmTextFieldDrawInsertionPoint(tf, True);
       return False;
     }
-    if (new_size_allocd > tf->text.size_allocd) {
+    if (tf->text.size_allocd < 0 || new_size_allocd > (unsigned int)tf->text.size_allocd) {
       new_value = (char *)XtRealloc((char *)TextF_Value(tf),
                                     (unsigned)new_size_allocd);
       if (new_value == NULL) {
@@ -3677,7 +3681,7 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
       _XmTextFieldDrawInsertionPoint(tf, True);
       return False;
     }
-    if (new_size_allocd > tf->text.size_allocd) {
+    if (tf->text.size_allocd < 0 || new_size_allocd > (unsigned int)tf->text.size_allocd) {
       new_wc_value = (wchar_t *)XtRealloc((char *)TextF_WcValue(tf),
                                           (unsigned)new_size_allocd);
       if (new_wc_value == NULL) {
@@ -5425,7 +5429,7 @@ SetScanIndex(XmTextFieldWidget tf,
   
   
   if (sel_time > tf->text.last_time &&
-      sel_time - tf->text.last_time < XtGetMultiClickTime(XtDisplay(tf))) {
+      sel_time - tf->text.last_time < (Time)XtGetMultiClickTime(XtDisplay(tf))) {
     /*
      * Fix for HaL DTS 9841 - Increment the sarray_index first, then check to 
      *			  see if it is greater that the count.  Otherwise,
@@ -6229,7 +6233,7 @@ ProcessBSelect(Widget w,
     case ButtonPress:
       if (!InSelection(w, event) ||
 	  (event_time > tf->text.last_time &&
-	   event_time - tf->text.last_time < 
+	   event_time - tf->text.last_time < (Time) 
 	   XtGetMultiClickTime(XtDisplay(w)))) {
 	if (*num_params > 0)
 	  XtCallActionProc(w, params[0], event, NULL, 0);
@@ -8701,7 +8705,7 @@ SetValues(Widget old,
   } else {
     int ix;
     
-    for (ix = 0; ix < *num_args; ix++)
+    for (ix = 0; (Cardinal)ix < *num_args; ix++)
       if (strcmp(args[ix].name, XmNcursorPosition) == 0) {
 	cursor_pos_set = True;
 	new_position = TextF_CursorPosition(new_tf);
@@ -9378,7 +9382,7 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
     _XmTextFieldDrawInsertionPoint(tf, True);
     return False;
   }
-  if (new_size_allocd > tf->text.size_allocd) {
+  if (tf->text.size_allocd < 0 || new_size_allocd > (unsigned int)tf->text.size_allocd) {
       new_value = (char *)XtRealloc((char *)TextF_Value(tf),
                                     (unsigned)new_size_allocd);
       if (new_value == NULL) {
@@ -9395,7 +9399,7 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
    _XmTextFieldDrawInsertionPoint(tf, True);
    return False;
  }
- if (new_size_allocd > tf->text.size_allocd) {
+ if (tf->text.size_allocd < 0 || new_size_allocd > (unsigned int)tf->text.size_allocd) {
       new_wc_value = (wchar_t *)XtRealloc((char *)TextF_WcValue(tf),
                                           (unsigned)new_size_allocd);
       if (new_wc_value == NULL) {
@@ -10228,7 +10232,7 @@ PreeditDraw(XIC xic,
                recover_mb[converted] = '\0';
                ptr = recover_mb;
 
-               for (i=0; i < tf->text.onthespot->over_maxlen; i++) {
+               for (i=0; tf->text.onthespot->over_maxlen > 0 && i < (size_t)tf->text.onthespot->over_maxlen; i++) {
                    int char_len = mblen(ptr, 4);
                    if (char_len <= 0)
                        break;
@@ -11746,7 +11750,7 @@ TrimHighlights(XmTextFieldWidget tf, int *low, int *high)
  	_XmHighlightRec *l = tf->text.highlight.list;
  	int i;
  
- 	for (i=0; i < tf->text.highlight.number; i++)
+ 	for (i=0; (Cardinal)i < tf->text.highlight.number; i++)
  	{
  		/* iterate through list, resetting spurious back to normal;
  		** unfortunately, we can have has_primary even when there is
@@ -11774,10 +11778,10 @@ TrimHighlights(XmTextFieldWidget tf, int *low, int *high)
   	  int j;
  	  /* coalescing blocks; reduce number only */
  	  i = 1;
- 	  while (i < tf->text.highlight.number) {
+ 	  while ((Cardinal)i < tf->text.highlight.number) {
  	    if (l[i].mode == l[i-1].mode) {
  	      tf->text.highlight.number--;
- 	      for (j=i; j<tf->text.highlight.number; j++)
+ 	      for (j=i; (Cardinal)j < tf->text.highlight.number; j++)
  		l[j] = l[j+1];
  	    } else i++;
  	  }

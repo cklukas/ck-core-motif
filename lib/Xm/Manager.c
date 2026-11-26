@@ -406,7 +406,8 @@ static XmBaseClassExtRec baseClassExtRec = {
     0,                                  /* num_ext_resources    */
     FALSE,                              /* use_sub_resources    */
     WidgetNavigable,                    /* widgetNavigable      */
-    NULL                                /* focusChange          */
+    NULL,                                /* focusChange          */
+    NULL
 };
 
 static CompositeClassExtensionRec compositeClassExtRec = {
@@ -415,6 +416,7 @@ static CompositeClassExtensionRec compositeClassExtRec = {
     XtCompositeExtensionVersion,
     sizeof(CompositeClassExtensionRec),
     TRUE,                               /* accepts_objects */
+    FALSE
 };
 
 static XmManagerClassExtRec managerClassExtRec = {
@@ -509,7 +511,8 @@ static XmConst XmSpecifyLayoutDirectionTraitRec manLDT = {
 
 static XmConst XmAccessColorsTraitRec manACT = {
   0,			/* version */
-  GetColors
+  GetColors,
+  NULL
 };
 
 /* Unit Type Trait record for Manager */
@@ -847,7 +850,7 @@ Initialize(
       /* This indicates that layoutDirection was set in the arglist, but
          stringDirection defaulting overwrote the value */
       int i;
-      for (i=0; i < *num_args; i++)
+      for (i=0; (Cardinal)i < *num_args; i++)
 	if (strcmp(args[i].name, XmNlayoutDirection) == 0)
 	  mw->manager.string_direction = (XmDirection)args[i].value;
     }

@@ -396,7 +396,7 @@ UrmCWRInitArglist (URMResourceContextPtr	context_id,
    */
   argdesc->count = nargs ;
   argdesc->extra = 0 ;
-  for ( ndx=0 ; ndx<nargs ; ndx++ )
+  for ( ndx=0 ; (Cardinal)ndx<nargs ; ndx++ )
     {
       argdesc->args[ndx].tag_code = 0 ;
       argdesc->args[ndx].stg_or_relcode.tag_offs = 0 ;
@@ -1251,7 +1251,7 @@ UrmCWRSetArgCallback (URMResourceContextPtr	context_id ,
   cbdesc->validation = URMCallbackDescriptorValid ;
   cbdesc->count = nitems ;
   cbdesc->unres_ref_count = 0 ;
-  for ( ndx=0 ; ndx<nitems ; ndx++ )
+  for ( ndx=0 ; (Cardinal)ndx<nitems ; ndx++ )
     {
       cbdesc->item[ndx].cb_item.routine = 0 ;
       cbdesc->item[ndx].cb_item.rep_type = 0 ;
@@ -1726,7 +1726,7 @@ UrmCWRInitChildren (URMResourceContextPtr	context_id ,
    */
   listdesc->count = nchildren ;
   listdesc->annex1 = 0 ;
-  for ( ndx=0 ; ndx<nchildren ; ndx++ )
+  for ( ndx=0 ; (Cardinal)ndx<nchildren ; ndx++ )
     {
       listdesc->child[ndx].manage = 0 ;
       listdesc->child[ndx].access = 0 ;
@@ -1813,7 +1813,7 @@ UrmCWRSetChild (URMResourceContextPtr	context_id,
 			  NULL, context_id, MrmNULL_DESC) ;
   listdesc = (RGMChildrenDescPtr) ((char*)widgetrec + widgetrec->children_offs);
 
-  if ( child_ndx >= listdesc->count )
+  if ( listdesc->count <= 0 || child_ndx >= (Cardinal)listdesc->count )
     return Urm__UT_Error ("UrmCWRSetChild", _MrmMMsg_0101,
 			  NULL, context_id, MrmOUT_OF_BOUNDS) ;
   childptr = &listdesc->child[child_ndx] ;
@@ -2012,7 +2012,7 @@ UrmCWRSetCreationCallback (URMResourceContextPtr	context_id ,
   cbdesc->validation = URMCallbackDescriptorValid ;
   cbdesc->count = nitems ;
   cbdesc->unres_ref_count = 0 ;
-  for ( ndx=0 ; ndx<nitems ; ndx++ )
+  for ( ndx=0 ; (Cardinal)ndx<nitems ; ndx++ )
     {
       cbdesc->item[ndx].cb_item.routine = 0 ;
       cbdesc->item[ndx].cb_item.rep_type = 0 ;
@@ -2573,7 +2573,7 @@ UrmCWR__BindArgPtrs (URMResourceContextPtr	context_id ,
   /*
    * Validate argument index and set pointer
    */
-  if ( argndx >= (*descptr)->count )
+  if ( (*descptr)->count <= 0 || argndx >= (Cardinal)(*descptr)->count )
     return Urm__UT_Error (routine, _MrmMMsg_0104,
 			  NULL, context_id, MrmOUT_OF_BOUNDS) ;
   *argptr = &(*descptr)->args[argndx] ;
@@ -2650,7 +2650,7 @@ UrmCWR__BindCallbackPtrs (URMResourceContextPtr		context_id,
   /*
    * validate item index and compute item pointer
    */
-  if ( itemndx >= (*descptr)->count )
+  if ( (*descptr)->count <= 0 || itemndx >= (Cardinal)(*descptr)->count )
     return Urm__UT_Error (routine, _MrmMMsg_0107,
 			  NULL, context_id, MrmOUT_OF_BOUNDS) ;
   *itmptr = &(*descptr)->item[itemndx] ;

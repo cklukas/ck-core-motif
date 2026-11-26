@@ -359,7 +359,7 @@ FindBestMatchWidget(Widget wid, XEvent* event)
       {
 	ctarget = (CompositeRec *) target;
 	found = 0;
-	for(i = 0; i < ctarget -> composite.num_children; i++) {
+	for(i = 0; (Cardinal)i < ctarget -> composite.num_children; i++) {
 	  possible = ctarget -> composite.children[i];
 	  if (XtIsManaged(possible)) {
 	    delx = appx - XtX(possible);
@@ -404,7 +404,7 @@ FindPopupMenu(Widget toplevel, Widget target, XEvent *event, int level)
   if (target == NULL) return(NULL);
 
   if (! XmIsGadget(target)) {
-    for(i = 0; i < thiswid -> core.num_popups; i++) {
+    for(i = 0; (Cardinal)i < thiswid -> core.num_popups; i++) {
       possible = thiswid -> core.popup_list[i];
       if ((possible = MenuMatches(possible, level, event)) != NULL) break;
     }
@@ -418,7 +418,7 @@ FindPopupMenu(Widget toplevel, Widget target, XEvent *event, int level)
       }
       _XmProcessUnlock();
       if (list) {
-	for(i = 0; i < list -> num_popups; i++) {
+	for(i = 0; (Cardinal)i < list -> num_popups; i++) {
 	  possible = list -> popups[i];
 	  if ((possible = MenuMatches(possible, level, event)) != NULL) break;
 	}
@@ -837,7 +837,7 @@ ProcessKey(
    if (! CheckKey (rowcol, event))
    {
       /* not used, try moving down the cascade */
-      for (i=0; (i < rowcol->composite.num_children) && (! found); i++)
+      for (i=0; ((Cardinal)i < rowcol->composite.num_children) && (! found); i++)
       {
 	 child = rowcol->composite.children[i];
 
@@ -1274,10 +1274,10 @@ XmRemoveFromPostFromList(
 	list = (PopupList) _XmGetHashEntry(popup_table, (XmHashKey) widget);
 
 	/* Remove from associated list */
-	for(i = 0; i < list -> num_popups;) {
+	for(i = 0; (Cardinal)i < list -> num_popups;) {
 	  if (list -> popups[i] == XtParent(m)) {
 	    /* First shift all the remaining elements */
-	    for(j = i; j < list -> num_popups - 1; j++) {
+	    for(j = i; list->num_popups > 0 && (Cardinal)j < list->num_popups - 1; j++) {
 	      list -> popups[j] = list -> popups[j + 1];
 	    }
 	    list -> num_popups--;

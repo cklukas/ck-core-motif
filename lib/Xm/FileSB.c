@@ -1916,7 +1916,7 @@ FileSearchProc(
         Index = 0 ;
 	dirLen = strlen( dir) ;
 
-	while(    Index < numFiles    ) {
+	while(    (unsigned int)Index < numFiles    ) {
 	    if(    showDotFiles
 	       || ((fileList[Index])[dirLen] != '.')    ) {   
                   if(    FS_PathMode( fs) ==  XmPATH_MODE_FULL    )
@@ -2310,8 +2310,8 @@ FileSelectionBoxUpdate(
                     {
                         size_t patternLen = strlen( patternString) ;
                         if (patternLen == SIZE_MAX ||
-                            len > SIZE_MAX - patternLen - 1 ||
-                            len + patternLen + 1 > UINT_MAX)
+                            (size_t)len > SIZE_MAX - patternLen - 1 ||
+                            (size_t)len + patternLen + 1 > UINT_MAX)
                             maskString = NULL;
                         else
                             maskString = XtMalloc((Cardinal)(len + patternLen + 1)) ;
@@ -2487,7 +2487,7 @@ DirSearchProc(
 	Index = 0 ;
 	dirLen = strlen( qualifiedDir) ;
     
-	while(    Index < numDirs    ) {
+	while(    (unsigned int)Index < numDirs    ) {
 	    /* Assume first entry is "." and second is "..".
 	     */
 	    if( showDotFiles
@@ -2633,8 +2633,8 @@ ListCallback(
                             {
                                 size_t patternLen = strlen( patternString) ;
                                 if (patternLen == SIZE_MAX ||
-                                    len > SIZE_MAX - patternLen - 1 ||
-                                    len + patternLen + 1 > UINT_MAX)
+                                    (size_t)len > SIZE_MAX - patternLen - 1 ||
+                                    (size_t)len + patternLen + 1 > UINT_MAX)
                                     maskString = NULL;
                                 else
                                     maskString = XtMalloc((Cardinal)

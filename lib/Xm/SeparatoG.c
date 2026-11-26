@@ -165,7 +165,8 @@ static XmConst XmCareVisualTraitRec SeparatoGCVT = {
 
 static XmConst XmAccessColorsTraitRec sepACT = {
   0,			/* version */
-  GetColors
+  GetColors,
+  NULL
 };
 
   
@@ -325,7 +326,8 @@ XmSeparatorGCacheObjClassRec xmSeparatorGCacheObjClassRec =
     /* synthetic resources */   cache_syn_resources,
     /* num_syn_resources   */   XtNumber(cache_syn_resources),
     /* extension           */   NULL,
-  }
+  },
+  { 0 }
 };
 
 static XmBaseClassExtRec   separatorBaseClassExtRec = {
@@ -343,6 +345,7 @@ static XmBaseClassExtRec   separatorBaseClassExtRec = {
     {0},			                /* Other Flags           */
     GetValuesPrehook,				/* getValuesPrehook      */
     GetValuesPosthook,				/* getValuesPosthook     */
+    NULL, NULL, NULL, NULL, 0, FALSE, NULL, NULL, NULL
 };
 
 static XmCacheClassPart SeparatorClassCachePart = {

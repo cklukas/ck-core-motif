@@ -80,7 +80,7 @@ void XmeDrawArrow(Display *display, Drawable d,
       yOffset = (height - width) / 2;
    }
    if (size < 1) { _XmAppUnlock(app); return; }
-   if (allocated < size) {
+   if (allocated < (unsigned int)size) {
       unsigned int new_capacity = (unsigned int)(size / 2 + 6);
       size_t new_bytes = (size_t)new_capacity * sizeof(XRectangle);
       XRectangle *new_top, *new_cent, *new_bot;

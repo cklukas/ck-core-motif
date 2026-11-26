@@ -170,7 +170,7 @@ Idb__RID_EnterItem (IDBFile			file_id,
   /*
    * Set the data item.
    */
-  if ( resndx >= IDBridPtrVecMax )
+  if ( resndx < 0 || (size_t)resndx >= IDBridPtrVecMax )
     return Urm__UT_Error ("Idb__RID_EnterItem", _MrmMMsg_0013,
 			  file_id, NULL, MrmBAD_DATA_INDEX);
   recptr->pointers[resndx].internal_id.rec_no = data_entry.rec_no;
@@ -273,7 +273,7 @@ Idb__RID_ReturnItem (IDBFile			file_id,
   /*
    * Retrieve the data item.
    */
-  if ( resndx >= IDBridPtrVecMax )
+  if ( resndx < 0 || (size_t)resndx >= IDBridPtrVecMax )
     return Urm__UT_Error ("Idb__RID_ReturnItem", _MrmMMsg_0013,
 			  file_id, NULL, MrmBAD_DATA_INDEX);
   if ((recptr->pointers[resndx].internal_id.rec_no == 0) &&
@@ -374,7 +374,7 @@ Idb__RID_NextRID (IDBFile		file_id,
   /*
    * RID comes from a RID record
    */
-  if ( resndx >= IDBridPtrVecMax )
+  if ( resndx < 0 || (size_t)resndx >= IDBridPtrVecMax )
     {
       result = Idb__RID_AddRecord (file_id);
       if ( result != MrmSUCCESS ) return result;
@@ -444,7 +444,7 @@ Idb__RID_AddRecord (IDBFile		file_id)
   /*
    * Initialize the record contents
    */
-  for (ndx=0 ; ndx<IDBridPtrVecMax ; ndx++)
+  for (ndx=0 ; (size_t)ndx<IDBridPtrVecMax ; ndx++)
     {
       recptr->pointers[ndx].internal_id.rec_no = 0;
       recptr->pointers[ndx].internal_id.item_offs = 0;

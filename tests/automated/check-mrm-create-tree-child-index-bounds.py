@@ -9,11 +9,11 @@ start = text.index("\nUrmCreateWidgetTree (")
 end = text.find("\n\n\f", start)
 region = text[start:end]
 required = (
-    "widgetrec->size - widgetrec->children_offs <",
+    "(size_t)(widgetrec->size - widgetrec->children_offs) <",
     "sizeof(RGMChildrenDesc) - sizeof(RGMChildDesc)",
     "childrendesc->count < 0 || childrendesc->count > RGMListSizeMax",
     "UrmFreeResourceContext (child_ctx)",
-    "childptr->key.index_offs < RGMWidgetRecordHdrSize",
+    "(size_t)childptr->key.index_offs < RGMWidgetRecordHdrSize",
     "childptr->key.index_offs >= widgetrec->size",
     "memchr ((char *)widgetrec + childptr->key.index_offs",
 )

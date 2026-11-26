@@ -108,7 +108,8 @@ static XmBaseClassExtRec	myBaseClassExtRec = {
     (WidgetClass)&xmDialogShellExtClassRec,/* secondary class	*/
     XmInheritSecObjectCreate,		/* secondary create	*/
     NULL,				/* getSecRes data	*/
-    {0}				/* fast subclass	*/
+    {0},				/* fast subclass	*/
+    NULL, NULL, NULL, NULL, NULL, NULL, 0, FALSE, NULL, NULL, NULL
 };
 
 
@@ -226,7 +227,7 @@ ClassInitialize( void )
   _XmTransformSubResources(xmVendorShellExtClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
 
-  for (i = 0; i < num; i++)
+  for (i = 0; (Cardinal)i < num; i++)
   {
 
   merged_list[i] = uncompiled[i];
@@ -237,14 +238,14 @@ ClassInitialize( void )
 
   res_list = xmDialogShellExtClassRec.object_class.resources;
 
-  for (i = 0, j = num; i < wc_num_res; i++)
+  for (i = 0, j = num; (Cardinal)i < wc_num_res; i++)
   {
 
    k = 0; 
-   while ((k < sc_num_res) &&
+   while (((Cardinal)k < sc_num_res) &&
 	  (strcmp(merged_list[k].resource_name,res_list[i].resource_name) != 0))
      k++;
-   if ((k < sc_num_res) &&
+   if (((Cardinal)k < sc_num_res) &&
        (strcmp(merged_list[k].resource_name, res_list[i].resource_name) == 0))
      merged_list[k] = res_list[i];
    else

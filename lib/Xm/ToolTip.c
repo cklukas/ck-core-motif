@@ -284,7 +284,7 @@ _XmToolTipEnter (Widget wid,
          unsigned long delay;
 
          if (event &&
-             (event->xcrossing.time - ttp->leave_time < ttp->post_delay))
+             (ttp->post_delay > 0 && event->xcrossing.time - ttp->leave_time < (Time)ttp->post_delay))
          {
             delay = 0;
          }

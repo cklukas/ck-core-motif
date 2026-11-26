@@ -2054,7 +2054,7 @@ _XmRCGetKidGeo(
     }
 
     /* load all managed kids */
-    for( ; i < c->composite.num_children ; i++    )
+    for( ; (Cardinal)i < c->composite.num_children ; i++    )
     {
        kidWid = c->composite.children[i] ;
        if (XtIsManaged( kidWid))

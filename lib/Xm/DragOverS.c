@@ -2180,7 +2180,7 @@ ApplyDragWindowPixmap(XmDragOverShellWidget dos, XmDragIconObject mixedIcon)
                     if (fg_fill != None)
                         XRenderFreePicture(dpy, fg_fill);
                 } else if (mixedIcon->drag.depth == 24 ||
-                           mixedIcon->drag.depth == DefaultDepthOfScreen(XtScreen(dos))) {
+                           mixedIcon->drag.depth == (Cardinal)DefaultDepthOfScreen(XtScreen(dos))) {
                     XRenderPictFormat *src_fmt =
                         (mixedIcon->drag.depth == 24)
                             ? XRenderFindStandardFormat(dpy, PictStandardRGB24)
@@ -2703,7 +2703,7 @@ ChangeDragWindow(XmDragOverShellWidget	dos)
    *  window; 32-bit ARGB drag windows composite directly over the desktop).
    */
   
-  if (dos->core.depth == DefaultDepthOfScreen(XtScreen(dos))) {
+  if (dos->core.depth == (Cardinal)DefaultDepthOfScreen(XtScreen(dos))) {
     if (BackingPixmap(dos) == XmUNSPECIFIED_PIXMAP) {
       BackingPixmap(dos) =
         _XmAllocScratchPixmap (xmScreen, dos->core.depth,
@@ -3050,7 +3050,7 @@ _XmDragOverChange(
     if (sourceIcon == NULL ||
         XtScreenOfObject(XtParent(sourceIcon)) != XtScreen(w) ||
 	((sourceIcon->drag.depth != dos->core.depth) &&
-	 (sourceIcon->drag.depth != DefaultDepthOfScreen(XtScreen(w))) &&
+	 (sourceIcon->drag.depth != (Cardinal)DefaultDepthOfScreen(XtScreen(w))) &&
 	 (sourceIcon->drag.depth != 1))) {
 
 	usedSrcPixIcon = False;

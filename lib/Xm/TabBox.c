@@ -6163,7 +6163,7 @@ DrawLeftToRightTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 		       XiCanvas(tab), gc, 0, 0, pix_width, pix_height,
 		       x, y, 1);
 	}
-	else if( pix_depth == XmTabBox__canvas(tab)->core.depth )
+	else if( pix_depth >= 0 && (Cardinal)pix_depth == XmTabBox__canvas(tab)->core.depth )
 	{
 	    XCopyArea(XtDisplay(tab), info->label_pixmap,
 		      XiCanvas(tab), gc, 0, 0, pix_width, pix_height,

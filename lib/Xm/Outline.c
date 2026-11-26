@@ -952,7 +952,7 @@ CalcLocations(Widget w, Boolean allow_resize)
      * Reset each node to be hidden;
      */
 
-    for( i = 0; i < ow->composite.num_children; ++i )
+    for( i = 0; (Cardinal)i < ow->composite.num_children; ++i )
     {
 	node = GetNodeInfo(ow->composite.children[i]);
 	XmHierarchyC_status(node) |= IS_COMPRESSED;
@@ -1195,7 +1195,7 @@ LayoutChildren(Widget w, Widget assign_child)
      * above that one.
      */
 
-    for (cur_node = 0; cur_node < num_nodes; cur_node++, node_table++) {
+    for (cur_node = 0; (Cardinal)cur_node < num_nodes; cur_node++, node_table++) {
 	if (*node_table == (HierarchyConstraints) disp_top)
 	    break;
 
@@ -1243,7 +1243,7 @@ LayoutChildren(Widget w, Widget assign_child)
      * We have used all the window, unmap all other nodes.
      */
 
-    while(cur_node < num_nodes) {
+    while((Cardinal)cur_node < num_nodes) {
 	UnmapNode(ow, (OutlineConstraints) *node_table);
 
 	cur_node++;

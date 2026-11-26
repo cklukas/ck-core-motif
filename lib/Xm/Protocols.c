@@ -181,6 +181,7 @@ XmProtocolClassRec xmProtocolClassRec = {
     {
 	NULL,				/* synthetic resources	*/
 	0,				/* num syn resources	*/
+	NULL
     },
     {
 	NULL,				/* extension		*/

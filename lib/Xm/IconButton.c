@@ -1217,7 +1217,7 @@ Notify(Widget w, XEvent * event, String * params, Cardinal * num_params)
     Boolean dclick;
 
     if ((event->type == ButtonPress) || (event->type == ButtonRelease))
-	dclick = ((event->xbutton.time - XmIconButton_time(iw)) <=
+	dclick = ((event->xbutton.time - XmIconButton_time(iw)) <= (Time)
 		  XtGetMultiClickTime(XtDisplay(w)));
     else
 	dclick = False;

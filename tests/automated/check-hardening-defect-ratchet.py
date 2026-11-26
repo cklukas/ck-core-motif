@@ -24,6 +24,8 @@ PROMOTED_FLAGS = [
     "-Werror=maybe-uninitialized",
     "-Werror=uninitialized",
     "-Werror=address",
+    "-Werror=missing-field-initializers",
+    "-Werror=sign-compare",
 ]
 
 assert 'CFLAGS="$CFLAGS $$2 -Werror $1"' in M4, (

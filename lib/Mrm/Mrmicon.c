@@ -192,7 +192,7 @@ UrmCreatePixmap (RGMIconImagePtr	icon,
   if ((maxbits == 8) && (srcpix == 8))
     return Urm__MapIconReplace
       (icon, srcpix, ctable, screen, display, pixmap, parent);
-  if ( maxbits > srcpix )
+  if ( srcpix > 0 && maxbits > (unsigned int)srcpix )
     return Urm__MapIconAllocate
       (icon, srcpix, maxbits, ctable, screen, display, pixmap, parent);
 
@@ -1191,7 +1191,7 @@ Urm__RealizeColorTable (Screen			*screen,
   cmap = parent ? parent->core.colormap : DefaultColormapOfScreen(screen);
   depth = parent ? parent->core.depth : DefaultDepthOfScreen(screen);
 
-  for ( ndx=URMColorTableUserMin ; ndx<ctable->count ; ndx++ )
+  for ( ndx=URMColorTableUserMin ; ctable->count > 0 && ndx<(Cardinal)ctable->count ; ndx++ )
     {
       citem = &ctable->item[ndx];
       if ( depth == 1 )

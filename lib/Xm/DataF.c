@@ -1614,7 +1614,7 @@ PictureVerifyCallback(
      */
     ps = XmGetNewPictureState(XmDataField_picture(w));
 
-    for(i=0; i<strlen(newptr); i++) {
+    for(i=0; (size_t)i < strlen(newptr); i++) {
 	changed = XmPictureProcessCharacter(ps, newptr[i], &done);
 	if(changed == NULL || done) break;
     }
@@ -2167,12 +2167,12 @@ DataFieldSetHighlight(
     df_InsertHighlight(tf, right, endmode);
     l = XmTextF_highlight(tf).list;
     i = 1;
-    while (i < XmTextF_highlight(tf).number) {
+    while ((Cardinal)i < XmTextF_highlight(tf).number) {
         if (l[i].position >= left && l[i].position < right)
             l[i].mode = mode;
         if (l[i].mode == l[i-1].mode) {
             XmTextF_highlight(tf).number--;
-            for (j=i ; j<XmTextF_highlight(tf).number ; j++)
+            for (j=i ; (Cardinal)j < XmTextF_highlight(tf).number ; j++)
                 l[j] = l[j+1];
         } else i++;
     }
@@ -3138,7 +3138,7 @@ df_RedisplayText(
   if (!XtIsSensitive((Widget)tf)) stipple = True;
 
   /* search through the highlight array and draw the text */
-  for (i = 0; i + 1 < XmTextF_highlight(tf).number; i++) {
+  for (i = 0; (Cardinal)(i + 1) < XmTextF_highlight(tf).number; i++) {
 #if PWC_DEBUG
       printf("XmTextF_value(\"%s\")::Highlight #%d = pos(%d), start(%d), end(%d)\n",
 	     (char *)XmTextF_value(tf), i, l[i].position, start, end);
@@ -5206,7 +5206,7 @@ PrintableString(XmDataFieldWidget tf,
 	tmp += ret_val;
 	buf_size -= ret_val;
 	tmp_str++;
-      } while ( (ret_val > 0)&& (buf_size >= MB_CUR_MAX) && (count < n) ) ;
+      } while ( (ret_val > 0)&& ((size_t)buf_size >= (size_t)MB_CUR_MAX) && (count < n) ) ;
       if (ret_val == -1)    /* bad character */
 	return (False);
       is_printable = XTextWidth(TextF_Font(tf), cache_ptr, tmp - cache_ptr);
@@ -5372,7 +5372,7 @@ df_InsertString(
      if (XmTextF_verify_bell(tf)) XBell(XtDisplay((Widget)tf), 0);
   }
 
-  for (i = 0; i < *num_params; i++)  {
+  for (i = 0; (Cardinal)i < *num_params; i++)  {
       param_length = strlen(params[i]);
       if (param_length >= sizeof(insert_string))
           return;
@@ -6635,7 +6635,7 @@ df_SetScanIndex(
 	
 	
    if (sel_time > XmTextF_last_time(tf) &&
-	sel_time - XmTextF_last_time(tf) < XtGetMultiClickTime(XtDisplay(tf))) {
+	sel_time - XmTextF_last_time(tf) < (Time)XtGetMultiClickTime(XtDisplay(tf))) {
 /*
  * Fix for HaL DTS 9841 - Increment the sarray_index first, then check to 
  *			  see if it is greater that the count.  Otherwise,
@@ -10400,7 +10400,7 @@ df_DropTransferCallback(
 
       /* if no conversion, num_vals is not changed */
        if (num_vals && (status == Success || status > 0)) {
-          for (i = 0; i < num_vals ; i++) {
+          for (i = 0; i < (Cardinal)num_vals ; i++) {
               size_t item_length = strlen(tmp_value[i]);
               if (item_length > SIZE_MAX - malloc_size) {
                   XFreeStringList(tmp_value);
@@ -10422,7 +10422,7 @@ df_DropTransferCallback(
               return;
           }
           total_tmp_value[0] = '\0';
-          for (i = 0; i < num_vals ; i++)
+          for (i = 0; i < (Cardinal)num_vals ; i++)
              strcat(total_tmp_value, tmp_value[i]);
           total_length = strlen(total_tmp_value);
 	  XFreeStringList(tmp_value);
@@ -11286,7 +11286,7 @@ df_SetValues(
     } else {
       int ix;
       
-      for (ix = 0; ix < *num_args; ix++)
+      for (ix = 0; (Cardinal)ix < *num_args; ix++)
 	if (strcmp(args[ix].name, XmNcursorPosition) == 0) {
 	  cursor_pos_set = True;
 	  new_position = XmTextF_cursor_position(new_tf);

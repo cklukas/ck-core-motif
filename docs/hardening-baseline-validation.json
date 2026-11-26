@@ -1,69 +1,54 @@
 {
  "record": "hardening-baseline",
  "project": "motif",
- "date": "2026-11-15",
- "code_revision": "724fc8b3598ce9638c6516ec97d4f898bbb5580b",
- "motif_revision": "724fc8b3598ce9638c6516ec97d4f898bbb5580b",
+ "date": "2026-11-26",
+ "code_revision": "34d29bb1c",
+ "motif_revision": "34d29bb1c",
  "host_architecture": "aarch64",
- "host": "Debian GNU/Linux 13 (trixie) (Lima ckdev, virtiofs not used for builds)",
+ "host": "Ubuntu 26.04.1 LTS (Lima cde-ubuntu2604, local /var/tmp build)",
  "build": {
-  "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+  "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
   "profile": "--enable-hardening",
-  "hardening_flags": "-Wall -Wextra -Wno-unused-parameter -Wformat=2 -Wnull-dereference -Werror=format-security -Werror=implicit-fallthrough=3 -Werror=null-dereference -Werror=misleading-indentation -Werror=cast-function-type -Wno-cast-function-type-strict -Werror=pointer-to-int-cast -Werror=int-to-pointer-cast -Werror=maybe-uninitialized -Werror=uninitialized -Werror=address -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3",
+  "hardening_flags": "-Wall -Wextra -Wno-unused-parameter -Wformat=2 -Wnull-dereference -Werror=format-security -Werror=implicit-fallthrough=3 -Werror=null-dereference -Werror=misleading-indentation -Werror=cast-function-type -Wno-cast-function-type-strict -Werror=pointer-to-int-cast -Werror=int-to-pointer-cast -Werror=maybe-uninitialized -Werror=uninitialized -Werror=address -Werror=missing-field-initializers -Werror=sign-compare -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3",
   "optimization": "-O2 -g0",
   "jobs": 6,
-  "make": "make -j6 -k",
-  "started": "2026-11-15T21:12:56+01:00",
-  "finished": "2026-11-15T21:13:17+01:00",
-  "elapsed_seconds": 21,
-  "input_fingerprint": "724fc8b3598ce9638c6516ec97d4f898bbb5580b",
-  "fingerprint_method": "git write-tree of the staged worktree streamed with git archive"
+  "make": "for d in bindings bitmaps config localized lib include tools clients doc; do make -j6 -C $d; done",
+  "started": "2026-11-26T15:10:58+01:00",
+  "finished": "2026-11-26T15:12:24+01:00",
+  "elapsed_seconds": 86,
+  "input_fingerprint": "34d29bb1c",
+  "fingerprint_method": "clean out-of-tree build of synced working tree"
  },
  "warnings": {
-  "unique_warnings": 1653,
+  "unique_warnings": 502,
   "defect_class_warnings": 0,
   "defect_classes": {},
   "totals": {
-   "-Wmissing-field-initializers": 671,
-   "-Wsign-compare": 485,
    "-Wformat-nonliteral": 135,
-   "-Wtype-limits": 120,
-   "-Wunused-variable": 106,
+   "-Wtype-limits": 125,
+   "-Wunused-variable": 107,
    "-Wempty-body": 64,
    "-Wunused-but-set-variable": 52,
    "-Wunused-function": 16,
    "-Wunused-label": 2,
-   "-Wunused-local-typedefs": 1,
-   "(unclassified)": 1
+   "-Wunused-local-typedefs": 1
   },
   "components": {
    "lib/Xm": {
-    "-Wsign-compare": 317,
-    "-Wmissing-field-initializers": 164,
-    "-Wtype-limits": 85,
-    "-Wunused-variable": 66,
+    "-Wtype-limits": 90,
+    "-Wunused-variable": 67,
     "-Wempty-body": 64,
     "-Wunused-but-set-variable": 38,
     "-Wunused-function": 9,
     "-Wunused-label": 2
    },
-   "clients/uil": {
-    "-Wmissing-field-initializers": 506,
-    "-Wunused-but-set-variable": 12,
-    "-Wformat-nonliteral": 4,
-    "-Wsign-compare": 1,
-    "-Wunused-variable": 1,
-    "-Wunused-function": 1
-   },
    "lib/Mrm": {
-    "-Wsign-compare": 77,
     "-Wformat-nonliteral": 62,
     "-Wtype-limits": 28,
     "-Wunused-variable": 5,
     "-Wunused-local-typedefs": 1
    },
    "clients/mwm": {
-    "-Wsign-compare": 90,
     "-Wformat-nonliteral": 53,
     "-Wunused-variable": 19,
     "-Wtype-limits": 7,
@@ -73,9 +58,13 @@
    "tools/wml": {
     "-Wunused-variable": 13,
     "-Wformat-nonliteral": 12,
-    "-Wunused-function": 4,
-    "(unclassified)": 1,
-    "-Wmissing-field-initializers": 1
+    "-Wunused-function": 4
+   },
+   "clients/uil": {
+    "-Wunused-but-set-variable": 12,
+    "-Wformat-nonliteral": 4,
+    "-Wunused-variable": 1,
+    "-Wunused-function": 1
    },
    "config/util": {
     "-Wformat-nonliteral": 4,
