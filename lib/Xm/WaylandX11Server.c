@@ -54,7 +54,6 @@
 static inline uint16_t rd_u16(const uint8_t *p) { uint16_t v; memcpy(&v, p, 2); return v; }
 static inline int16_t  rd_i16(const uint8_t *p) { int16_t v;  memcpy(&v, p, 2); return v; }
 static inline uint32_t rd_u32(const uint8_t *p) { uint32_t v; memcpy(&v, p, 4); return v; }
-static inline int32_t  rd_i32(const uint8_t *p) { int32_t v;  memcpy(&v, p, 4); return v; }
 static inline void     wr_u16(uint8_t *p, uint16_t v) { memcpy(p, &v, 2); }
 static inline void     wr_i16(uint8_t *p, int16_t v)  { memcpy(p, &v, 2); }
 static inline void     wr_u32(uint8_t *p, uint32_t v) { memcpy(p, &v, 4); }
@@ -558,6 +557,157 @@ _XmWlSendEventToWindow(XmWlServer *srv, XmWlWindow *win, uint32_t mask, const ui
 
 static void destroy_window_tree(XmWlServer *srv, XmWlWindow *win, bool emit_events);
 
+bool
+_XmWlResourceBaseInUse(XmWlServer *srv, uint32_t rbase)
+{
+    if (!srv || rbase == 0)
+        return true;
+    for (int i = 0; i < XM_WL_MAX_CLIENTS; ++i) {
+        if (srv->clients[i].active && srv->clients[i].resource_base == rbase)
+            return true;
+    }
+    const uint32_t rmask = ~UINT32_C(0x001fffff);
+    for (size_t b = 0; b < 256u; ++b) {
+        for (XmWlWindow *w = srv->win_buckets[b]; w; w = w->hash_next)
+            if ((w->id & rmask) == rbase) return true;
+        for (XmWlPixmap *p = srv->pix_buckets[b]; p; p = p->hash_next)
+            if ((p->id & rmask) == rbase) return true;
+        for (XmWlGC *g = srv->gc_buckets[b]; g; g = g->hash_next)
+            if ((g->id & rmask) == rbase) return true;
+        for (XmWlPicture *pic = srv->pic_buckets[b]; pic; pic = pic->hash_next)
+            if ((pic->id & rmask) == rbase) return true;
+    }
+    for (size_t b = 0; b < 64u; ++b) {
+        for (XmWlFont *f = srv->font_buckets[b]; f; f = f->hash_next)
+            if ((f->id & rmask) == rbase) return true;
+        for (XmWlGlyphSet *gs = srv->gs_buckets[b]; gs; gs = gs->hash_next)
+            if ((gs->id & rmask) == rbase) return true;
+        for (XmWlRegion *r = srv->reg_buckets[b]; r; r = r->hash_next)
+            if ((r->id & rmask) == rbase) return true;
+    }
+    for (size_t b = 0; b < 128u; ++b) {
+        for (XmWlCursor *c = srv->cursor_buckets[b]; c; c = c->hash_next)
+            if ((c->id & rmask) == rbase) return true;
+    }
+    return false;
+}
+
+static void
+reap_resource_base(XmWlServer *srv, uint32_t rbase)
+{
+    if (!srv || rbase == 0)
+        return;
+    const uint32_t rmask = ~UINT32_C(0x001fffff);
+    for (size_t b = 0; b < 256u; ++b) {
+        bool destroyed_any;
+        do {
+            destroyed_any = false;
+            for (XmWlWindow *w = srv->win_buckets[b]; w; w = w->hash_next) {
+                if ((w->id & rmask) == rbase) {
+                    destroy_window_tree(srv, w, true);
+                    destroyed_any = true;
+                    break;
+                }
+            }
+        } while (destroyed_any);
+
+        XmWlPixmap **pp = &srv->pix_buckets[b];
+        while (*pp) {
+            if (((*pp)->id & rmask) == rbase) {
+                XmWlPixmap *cur = *pp;
+                *pp = cur->hash_next;
+                _XmWlFreePixmapData(cur);
+                free(cur);
+            } else {
+                pp = &(*pp)->hash_next;
+            }
+        }
+
+        XmWlGC **gp = &srv->gc_buckets[b];
+        while (*gp) {
+            if (((*gp)->id & rmask) == rbase) {
+                XmWlGC *cur = *gp;
+                *gp = cur->hash_next;
+                free(cur->clip_rects);
+                free(cur);
+            } else {
+                gp = &(*gp)->hash_next;
+            }
+        }
+
+        XmWlPicture **picp = &srv->pic_buckets[b];
+        while (*picp) {
+            if (((*picp)->id & rmask) == rbase) {
+                XmWlPicture *cur = *picp;
+                *picp = cur->hash_next;
+                _XmWlFreePictureData(cur);
+                free(cur);
+            } else {
+                picp = &(*picp)->hash_next;
+            }
+        }
+    }
+
+    for (size_t b = 0; b < 64u; ++b) {
+        XmWlFont **fp = &srv->font_buckets[b];
+        while (*fp) {
+            if (((*fp)->id & rmask) == rbase) {
+                XmWlFont *cur = *fp;
+                *fp = cur->hash_next;
+                _XmWlFreeFontData(cur);
+                free(cur);
+            } else {
+                fp = &(*fp)->hash_next;
+            }
+        }
+
+        XmWlGlyphSet **gsp = &srv->gs_buckets[b];
+        while (*gsp) {
+            if (((*gsp)->id & rmask) == rbase) {
+                XmWlGlyphSet *cur = *gsp;
+                *gsp = cur->hash_next;
+                _XmWlFreeGlyphSetData(cur);
+                free(cur);
+            } else {
+                gsp = &(*gsp)->hash_next;
+            }
+        }
+
+        XmWlRegion **rp = &srv->reg_buckets[b];
+        while (*rp) {
+            if (((*rp)->id & rmask) == rbase) {
+                XmWlRegion *cur = *rp;
+                *rp = cur->hash_next;
+                pixman_region32_fini(&cur->reg);
+                free(cur);
+            } else {
+                rp = &(*rp)->hash_next;
+            }
+        }
+    }
+
+    for (size_t b = 0; b < 128u; ++b) {
+        bool freed_cur;
+        do {
+            freed_cur = false;
+            for (XmWlCursor *c = srv->cursor_buckets[b]; c; c = c->hash_next) {
+                if ((c->id & rmask) == rbase) {
+                    _XmWlFreeCursor(srv, c->id);
+                    freed_cur = true;
+                    break;
+                }
+            }
+        } while (freed_cur);
+    }
+
+    if (srv->sel_primary_owner && (srv->sel_primary_owner & rmask) == rbase)
+        srv->sel_primary_owner = 0;
+    if (srv->sel_clipboard_owner && (srv->sel_clipboard_owner & rmask) == rbase)
+        srv->sel_clipboard_owner = 0;
+    if (srv->sel_xdnd_owner && (srv->sel_xdnd_owner & rmask) == rbase)
+        srv->sel_xdnd_owner = 0;
+}
+
 void
 _XmWlDisconnectClient(XmWlServer *srv, int client_idx)
 {
@@ -567,6 +717,7 @@ _XmWlDisconnectClient(XmWlServer *srv, int client_idx)
     if (!cli->active) return;
 
     uint32_t rbase = cli->resource_base;
+    uint8_t close_mode = cli->close_down_mode;
 
     if (cli->fd >= 0) {
         close(cli->fd);
@@ -589,119 +740,25 @@ _XmWlDisconnectClient(XmWlServer *srv, int client_idx)
     }
     srv->passive_grab_count = pg_out;
 
+    for (size_t b = 0; b < 256u; ++b) {
+        for (XmWlWindow *w = srv->win_buckets[b]; w; w = w->hash_next)
+            w->event_masks[client_idx] = 0;
+    }
+
     if (rbase != 0) {
-        const uint32_t rmask = ~UINT32_C(0x001fffff);
-        for (size_t b = 0; b < 256u; ++b) {
-            bool destroyed_any;
-            do {
-                destroyed_any = false;
-                for (XmWlWindow *w = srv->win_buckets[b]; w; w = w->hash_next) {
-                    if ((w->id & rmask) == rbase) {
-                        destroy_window_tree(srv, w, true);
-                        destroyed_any = true;
-                        break;
-                    }
-                }
-            } while (destroyed_any);
-
-            for (XmWlWindow *w = srv->win_buckets[b]; w; w = w->hash_next)
-                w->event_masks[client_idx] = 0;
-
-            XmWlPixmap **pp = &srv->pix_buckets[b];
-            while (*pp) {
-                if (((*pp)->id & rmask) == rbase) {
-                    XmWlPixmap *cur = *pp;
-                    *pp = cur->hash_next;
-                    _XmWlFreePixmapData(cur);
-                    free(cur);
-                } else {
-                    pp = &(*pp)->hash_next;
+        if (close_mode == 0u /* DestroyAll */) {
+            reap_resource_base(srv, rbase);
+        } else if (close_mode == 2u /* RetainTemporary */) {
+            bool found = false;
+            for (size_t i = 0; i < srv->retained_temp_count; ++i) {
+                if (srv->retained_temp_rbases[i] == rbase) {
+                    found = true;
+                    break;
                 }
             }
-
-            XmWlGC **gp = &srv->gc_buckets[b];
-            while (*gp) {
-                if (((*gp)->id & rmask) == rbase) {
-                    XmWlGC *cur = *gp;
-                    *gp = cur->hash_next;
-                    free(cur->clip_rects);
-                    free(cur);
-                } else {
-                    gp = &(*gp)->hash_next;
-                }
-            }
-
-            XmWlPicture **picp = &srv->pic_buckets[b];
-            while (*picp) {
-                if (((*picp)->id & rmask) == rbase) {
-                    XmWlPicture *cur = *picp;
-                    *picp = cur->hash_next;
-                    _XmWlFreePictureData(cur);
-                    free(cur);
-                } else {
-                    picp = &(*picp)->hash_next;
-                }
-            }
+            if (!found && srv->retained_temp_count < 64u)
+                srv->retained_temp_rbases[srv->retained_temp_count++] = rbase;
         }
-
-        for (size_t b = 0; b < 64u; ++b) {
-            XmWlFont **fp = &srv->font_buckets[b];
-            while (*fp) {
-                if (((*fp)->id & rmask) == rbase) {
-                    XmWlFont *cur = *fp;
-                    *fp = cur->hash_next;
-                    _XmWlFreeFontData(cur);
-                    free(cur);
-                } else {
-                    fp = &(*fp)->hash_next;
-                }
-            }
-
-            XmWlGlyphSet **gsp = &srv->gs_buckets[b];
-            while (*gsp) {
-                if (((*gsp)->id & rmask) == rbase) {
-                    XmWlGlyphSet *cur = *gsp;
-                    *gsp = cur->hash_next;
-                    _XmWlFreeGlyphSetData(cur);
-                    free(cur);
-                } else {
-                    gsp = &(*gsp)->hash_next;
-                }
-            }
-
-            XmWlRegion **rp = &srv->reg_buckets[b];
-            while (*rp) {
-                if (((*rp)->id & rmask) == rbase) {
-                    XmWlRegion *cur = *rp;
-                    *rp = cur->hash_next;
-                    pixman_region32_fini(&cur->reg);
-                    free(cur);
-                } else {
-                    rp = &(*rp)->hash_next;
-                }
-            }
-        }
-
-        for (size_t b = 0; b < 128u; ++b) {
-            bool freed_cur;
-            do {
-                freed_cur = false;
-                for (XmWlCursor *c = srv->cursor_buckets[b]; c; c = c->hash_next) {
-                    if ((c->id & rmask) == rbase) {
-                        _XmWlFreeCursor(srv, c->id);
-                        freed_cur = true;
-                        break;
-                    }
-                }
-            } while (freed_cur);
-        }
-
-        if (srv->sel_primary_owner && (srv->sel_primary_owner & rmask) == rbase)
-            srv->sel_primary_owner = 0;
-        if (srv->sel_clipboard_owner && (srv->sel_clipboard_owner & rmask) == rbase)
-            srv->sel_clipboard_owner = 0;
-        if (srv->sel_xdnd_owner && (srv->sel_xdnd_owner & rmask) == rbase)
-            srv->sel_xdnd_owner = 0;
     }
 }
 
@@ -4023,6 +4080,51 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
         _XmWlSendReply(cli, hdr, NULL, 0);
+        break;
+    }
+
+    case 112: { /* SetCloseDownMode */
+        if (data1 > 2u) {
+            _XmWlSendError(cli, 2 /* BadValue */, data1, 0, major);
+            break;
+        }
+        cli->close_down_mode = data1;
+        break;
+    }
+
+    case 113: { /* KillClient */
+        if (req_len < 8) break;
+        uint32_t rid = rd_u32(req + 4);
+        if (rid == 0u /* AllTemporary */) {
+            for (size_t i = 0; i < srv->retained_temp_count; ++i)
+                reap_resource_base(srv, srv->retained_temp_rbases[i]);
+            srv->retained_temp_count = 0;
+        } else {
+            uint32_t target_rbase = rid & ~UINT32_C(0x001fffff);
+            if (target_rbase == 0u) {
+                _XmWlSendError(cli, 2 /* BadValue */, rid, 0, major);
+                break;
+            }
+            bool matched_active = false;
+            for (int i = 0; i < XM_WL_MAX_CLIENTS; ++i) {
+                if (srv->clients[i].active && srv->clients[i].resource_base == target_rbase) {
+                    srv->clients[i].close_down_mode = 0u;
+                    if (i != cli->index)
+                        _XmWlDisconnectClient(srv, i);
+                    matched_active = true;
+                    break;
+                }
+            }
+            if (!matched_active) {
+                reap_resource_base(srv, target_rbase);
+                size_t out_n = 0;
+                for (size_t i = 0; i < srv->retained_temp_count; ++i) {
+                    if (srv->retained_temp_rbases[i] != target_rbase)
+                        srv->retained_temp_rbases[out_n++] = srv->retained_temp_rbases[i];
+                }
+                srv->retained_temp_count = out_n;
+            }
+        }
         break;
     }
 

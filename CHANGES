@@ -1,3 +1,18 @@
+Honor X11 SetCloseDownMode/KillClient and validate HDR10 luminance bounds in Wayland backend (2026-11-27)
+=========================================================================================================
+
+- `lib/Xm/WaylandX11Server.c`, `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandBackendI.h`,
+  `lib/Xm/ScrolledW.c`, `lib/Xm/XmExtUtil.c`, `tests/automated/check-wayland-backend.c`:
+  - Implement X11 core requests `SetCloseDownMode` (`DestroyAll`, `RetainPermanent`,
+    `RetainTemporary`) and `KillClient` (`AllTemporary` and resource-ID targets) in
+    `WaylandX11Server.c`, and allocate collision-free `resource_base` namespaces across
+    client slot reuse so Motif's `CreateMotifWindow` (`_MOTIF_DRAG_WINDOW`) persists
+    cleanly across `XCloseDisplay` without spurious `XmDisplay` warnings.
+  - Reject malformed `XmWaylandSetSurfaceHdrMetadata` mastering-luminance payloads where
+    `max_luminance * 10000 <= min_luminance_10000` before `wp_image_description_creator_params_v1`
+    raises a Wayland protocol error, fix a remaining Clang `-Werror=empty-body` `for` loop
+    in `XmExtUtil.c`, and add macOS `libXi.6.dylib` `dlopen` fallbacks in `ScrolledW.c`.
+
 Complete Phase 3 hardening warning ratchet across libXm, libMrm, mwm, uil, wml, and makestrs (2026-11-27)
 =========================================================================================================
 

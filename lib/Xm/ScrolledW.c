@@ -3995,6 +3995,12 @@ xi2_load_library_locked(void)
             g_xi2_dl = dlopen("libXi.so.6", RTLD_LAZY | RTLD_LOCAL);
             if (!g_xi2_dl)
                 g_xi2_dl = dlopen("libXi.so", RTLD_LAZY | RTLD_LOCAL);
+#ifdef __APPLE__
+            if (!g_xi2_dl)
+                g_xi2_dl = dlopen("libXi.6.dylib", RTLD_LAZY | RTLD_LOCAL);
+            if (!g_xi2_dl)
+                g_xi2_dl = dlopen("/opt/X11/lib/libXi.6.dylib", RTLD_LAZY | RTLD_LOCAL);
+#endif
             if (g_xi2_dl) {
                 g_pXIQueryVersion = (XmXiQueryVersionFn)dlsym(g_xi2_dl, "XIQueryVersion");
                 g_pXIQueryDevice = (XmXiQueryDeviceFn)dlsym(g_xi2_dl, "XIQueryDevice");

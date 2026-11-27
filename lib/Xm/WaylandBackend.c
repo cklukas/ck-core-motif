@@ -2293,6 +2293,12 @@ apply_surface_hdr_locked(XmWlServer *srv, struct wl_surface *surf, const XmWayla
     if (!srv->cm_feat_parametric && srv->cm_tf_mask != 0)
         return false;
 
+    if (meta->has_mastering_luminance &&
+        (meta->max_luminance == 0 ||
+         (uint64_t)meta->max_luminance * UINT64_C(10000) <= (uint64_t)meta->min_luminance_10000)) {
+        return false;
+    }
+
     XmWlSurfaceExt *ext = find_or_create_surface_ext(srv, surf, true);
     if (!ext)
         return false;
@@ -4713,12 +4719,24 @@ wayland_server_thread(void *arg)
                     if (!srv->clients[i].active) { slot = i; break; }
                 }
                 if (slot >= 0) {
+                    uint32_t chosen_rbase = 0;
+                    for (uint32_t tries = 0; tries < 255u; ++tries) {
+                        uint32_t cand_idx = (srv->next_client_rbase_slot % 255u) + 1u;
+                        srv->next_client_rbase_slot++;
+                        uint32_t cand_rbase = UINT32_C(0x00200000) * cand_idx;
+                        if (!_XmWlResourceBaseInUse(srv, cand_rbase)) {
+                            chosen_rbase = cand_rbase;
+                            break;
+                        }
+                    }
+                    if (chosen_rbase == 0)
+                        chosen_rbase = UINT32_C(0x00200000) * (uint32_t)(slot + 1);
                     XmWlClient *c = &srv->clients[slot];
                     memset(c, 0, sizeof(*c));
                     c->active = true;
                     c->fd = cfd;
                     c->index = slot;
-                    c->resource_base = UINT32_C(0x00200000) * (uint32_t)(slot + 1);
+                    c->resource_base = chosen_rbase;
                 } else {
                     close(cfd);
                 }

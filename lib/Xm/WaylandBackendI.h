@@ -445,6 +445,7 @@ struct XmWlClient {
     int fd;
     int index;
     uint32_t resource_base;
+    uint8_t close_down_mode; /* 0=DestroyAll, 1=RetainPermanent, 2=RetainTemporary */
     uint16_t seq;
     uint8_t *rx_buf;
     size_t rx_len;
@@ -590,6 +591,9 @@ struct XmWlServer {
 
     /* X11 clients & resources */
     XmWlClient clients[XM_WL_MAX_CLIENTS];
+    uint32_t next_client_rbase_slot;
+    uint32_t retained_temp_rbases[64];
+    size_t retained_temp_count;
     char *atoms[XM_WL_MAX_ATOMS];
     uint32_t atom_count;
 
@@ -800,6 +804,7 @@ XM_WL_INTERNAL void _XmWlRequestSelfActivate(XmWlServer *srv, XmWlWindow *top);
 
 /* WaylandX11Server.c resource & wire helpers */
 XM_WL_INTERNAL void _XmWlInitAtomsAndRoot(XmWlServer *srv);
+XM_WL_INTERNAL bool _XmWlResourceBaseInUse(XmWlServer *srv, uint32_t rbase);
 XM_WL_INTERNAL uint32_t _XmWlInternAtom(XmWlServer *srv, const char *name, size_t len, bool only_if_exists);
 XM_WL_INTERNAL const char *_XmWlAtomName(XmWlServer *srv, uint32_t atom);
 XM_WL_INTERNAL XmWlWindow *_XmWlFindWindow(XmWlServer *srv, uint32_t xid);

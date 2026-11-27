@@ -2308,6 +2308,55 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         XFreePixmap(probe2, pm2);
         XDestroyWindow(probe2, pw2);
         XCloseDisplay(probe2);
+
+        /* Verify SetCloseDownMode(RetainPermanent) preserves Motif drag-helper
+         * windows across XCloseDisplay() and allocates a fresh non-colliding
+         * resource_base to subsequent client connections. */
+        Display *probe_ret = XOpenDisplay(NULL);
+        if (!probe_ret)
+            fail_msg("probe_ret XOpenDisplay failed");
+        XSetCloseDownMode(probe_ret, RetainPermanent);
+        Window retained_win = XCreateSimpleWindow(
+            probe_ret, DefaultRootWindow(probe_ret), -50, -50, 8, 8, 0, 0, 0);
+        XSync(probe_ret, False);
+        XCloseDisplay(probe_ret);
+        pump_xt_ms(app, dpy, 20);
+
+        XWindowAttributes rw_attr = {0};
+        if (!XGetWindowAttributes(dpy, retained_win, &rw_attr) || rw_attr.width != 8)
+            fail_msg("RetainPermanent window was prematurely destroyed on XCloseDisplay");
+
+        Display *probe3 = XOpenDisplay(NULL);
+        if (!probe3)
+            fail_msg("probe3 XOpenDisplay failed");
+        Window pw3 = XCreateSimpleWindow(probe3, DefaultRootWindow(probe3), 0, 0, 12, 12, 0, 0, 0);
+        if (((pw3 ^ retained_win) & ~0x001fffffUL) == 0)
+            fail_msg("probe3 collided with RetainPermanent resource_base");
+        XSync(probe3, False);
+        XDestroyWindow(probe3, pw3);
+        XCloseDisplay(probe3);
+
+        XKillClient(dpy, retained_win);
+        XSync(dpy, False);
+
+        /* Verify XmWaylandSetSurfaceHdrMetadata rejects malformed luminance
+         * (min_lum >= max_lum * 10000) without posting a Wayland protocol error. */
+        struct wl_surface *top_surf_chk = NULL;
+        if (XmWaylandGetWidgetSurface(shell, &top_surf_chk, NULL, NULL, NULL, NULL, NULL) &&
+            top_surf_chk) {
+            XmWaylandHdrMetadata bad_hdr;
+            memset(&bad_hdr, 0, sizeof(bad_hdr));
+            bad_hdr.transfer_function = XM_WAYLAND_COLOR_TF_ST2084_PQ;
+            bad_hdr.primaries = XM_WAYLAND_COLOR_PRIMARIES_BT2020;
+            bad_hdr.has_mastering_luminance = True;
+            bad_hdr.min_luminance_10000 = 5000000u; /* 500 cd/m^2 */
+            bad_hdr.max_luminance = 100u;           /* 100 cd/m^2 <= min -> invalid */
+            XmWaylandLock(dpy);
+            Boolean bad_ok = XmWaylandSetSurfaceHdrMetadata(dpy, top_surf_chk, &bad_hdr);
+            XmWaylandUnlock(dpy);
+            if (bad_ok)
+                fail_msg("XmWaylandSetSurfaceHdrMetadata accepted invalid min>=max mastering luminance");
+        }
     }
 
     XtDestroyWidget(shell);

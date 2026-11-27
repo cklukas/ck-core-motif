@@ -951,7 +951,8 @@ IsSubclassOf(
 	WidgetClass p = wc;
 
     _XmProcessLock();
-	for(; (p) && (p != sc); p = p->core_class.superclass);
+	for(; (p) && (p != sc); p = p->core_class.superclass) {
+	}
     _XmProcessUnlock();
 
 	return (p == sc);
