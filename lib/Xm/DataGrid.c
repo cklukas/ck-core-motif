@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <math.h>
+#include <stdint.h>
 #include <Xm/DataGridP.h>
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
@@ -25,6 +27,60 @@ static Position bounded_position(long long value) {
     if (value < SHRT_MIN) return (Position)SHRT_MIN;
     if (value > SHRT_MAX) return (Position)SHRT_MAX;
     return (Position)value;
+}
+
+typedef struct DataGridScrollState {
+    Widget widget;
+    int pixel_y;
+    int pixel_x;
+    struct DataGridScrollState *next;
+} DataGridScrollState;
+
+static DataGridScrollState *g_dg_scroll_states = NULL;
+
+static DataGridScrollState *dg_scroll_state(Widget w, Boolean create) {
+    DataGridScrollState *st;
+    for (st = g_dg_scroll_states; st; st = st->next) {
+        if (st->widget == w) return st;
+    }
+    if (!create || !w) return NULL;
+    st = (DataGridScrollState *)XtCalloc(1, sizeof(*st));
+    if (!st) return NULL;
+    st->widget = w;
+    st->next = g_dg_scroll_states;
+    g_dg_scroll_states = st;
+    return st;
+}
+
+static void dg_get_subpixel_offsets(XmDataGridWidget grid, int *out_x, int *out_y) {
+    DataGridScrollState *st;
+    _XmProcessLock();
+    st = dg_scroll_state((Widget)grid, False);
+    *out_x = st ? st->pixel_x : 0;
+    *out_y = st ? st->pixel_y : 0;
+    _XmProcessUnlock();
+}
+
+static void dg_reset_subpixel_y(XmDataGridWidget grid) {
+    DataGridScrollState *st;
+    _XmProcessLock();
+    st = dg_scroll_state((Widget)grid, False);
+    if (st) st->pixel_y = 0;
+    _XmProcessUnlock();
+}
+
+static void dg_free_scroll_state(Widget w) {
+    DataGridScrollState **pp;
+    _XmProcessLock();
+    for (pp = &g_dg_scroll_states; *pp; pp = &(*pp)->next) {
+        if ((*pp)->widget == w) {
+            DataGridScrollState *dead = *pp;
+            *pp = dead->next;
+            XtFree((char *)dead);
+            break;
+        }
+    }
+    _XmProcessUnlock();
 }
 
 #define Offset(field) XtOffsetOf(XmDataGridRec, field)
@@ -219,7 +275,10 @@ static Cardinal max_top_row(XmDataGridWidget grid) {
 
 static void clamp_top(XmDataGridWidget grid) {
     Cardinal limit = max_top_row(grid);
-    if (grid->data_grid.top_row > limit) grid->data_grid.top_row = limit;
+    if (grid->data_grid.top_row >= limit) {
+        grid->data_grid.top_row = limit;
+        dg_reset_subpixel_y(grid);
+    }
 }
 static Cardinal add_top_row(XmDataGridWidget grid, Cardinal delta) {
     Cardinal maximum = (Cardinal)~0;
@@ -397,6 +456,7 @@ static void Destroy(Widget widget) {
                          StructureNotifyMask,
                          False, Events, NULL);
     free_model(grid);
+    dg_free_scroll_state(widget);
     XtFree(grid->data_grid.edit_text);
     XtFree(grid->data_grid.edit_error);
     if (grid->data_grid.gc) XFreeGC(XtDisplay(widget), grid->data_grid.gc);
@@ -463,7 +523,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
 }
 
 static void draw_text(XmDataGridWidget grid, int x, int top, Dimension height,
-                      const char *text) {
+                      const char *text, XRectangle *clip_rect) {
     XmString value;
     Dimension width = 0, text_height = 0;
     if (!grid->data_grid.gc || !grid->data_grid.render_table) return;
@@ -476,39 +536,57 @@ static void draw_text(XmDataGridWidget grid, int x, int top, Dimension height,
                  bounded_position((long long)x),
                  bounded_position((long long)top +
                                   ((long long)height - text_height) / 2), width,
-                 XmALIGNMENT_BEGINNING, XmPrim_layout_direction(grid), NULL);
+                 XmALIGNMENT_BEGINNING, XmPrim_layout_direction(grid), clip_rect);
     XmStringFree(value);
 }
 
 static int column_width(XmDataGridWidget grid) {
     int width = grid->data_grid.column_count ?
         (int)grid->core.width / (int)grid->data_grid.column_count : 1;
+    if (grid->data_grid.column_count > 0 && grid->data_grid.columns) {
+        int max_explicit = 0;
+        for (Cardinal c = 0; c < grid->data_grid.column_count; ++c) {
+            if ((int)grid->data_grid.columns[c].width > max_explicit)
+                max_explicit = (int)grid->data_grid.columns[c].width;
+        }
+        if (max_explicit > width)
+            width = max_explicit;
+    }
     return width > 0 ? width : 1;
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmDataGridWidget grid = (XmDataGridWidget)widget;
-    Cardinal row, column;
-    int cell_width;
+    Cardinal row, column, row_limit;
+    int cell_width, sub_x = 0, sub_y = 0;
+    XRectangle body_clip;
+    Boolean has_body_clip = False;
     (void)event; (void)region;
     if (!XtIsRealized(widget) || !grid->data_grid.gc) return;
 
-    cell_width = grid->data_grid.column_count ?
-        (int)grid->core.width / (int)grid->data_grid.column_count : 1;
+    dg_get_subpixel_offsets(grid, &sub_x, &sub_y);
+    cell_width = column_width(grid);
     if (cell_width < 1) cell_width = 1;
-    for (column = 0; column < grid->data_grid.column_count; ++column) {
-        Cardinal visual = grid->data_grid.rtl ?
-            grid->data_grid.column_count - column - 1 : column;
-        draw_text(grid, (int)visual * cell_width + 4, 0,
-                  grid->data_grid.header_height,
-                  grid->data_grid.columns[column].title);
+
+    if (grid->core.height > grid->data_grid.header_height && grid->core.width > 0) {
+        body_clip.x = 0;
+        body_clip.y = (short)grid->data_grid.header_height;
+        body_clip.width = grid->core.width;
+        body_clip.height = (unsigned short)(grid->core.height - grid->data_grid.header_height);
+        has_body_clip = True;
+        XSetClipRectangles(XtDisplay(widget), grid->data_grid.gc, 0, 0,
+                           &body_clip, 1, Unsorted);
     }
-    for (row = 0; row < grid->data_grid.visible_rows &&
+
+    row_limit = grid->data_grid.visible_rows + (sub_y > 0 ? 2u : 1u);
+    for (row = 0; row < row_limit &&
                   grid->data_grid.top_row + row < grid->data_grid.row_count; ++row) {
         Cardinal model_row = grid->data_grid.top_row + row;
-        int top = (int)grid->data_grid.header_height +
-                  (int)row * grid->data_grid.row_height;
+        int top = (int)grid->data_grid.header_height - sub_y +
+                  (int)row * (int)grid->data_grid.row_height;
         XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
+        if (top >= (int)grid->core.height)
+            break;
         if ((int)model_row == grid->data_grid.hovered_row &&
             (int)model_row != grid->data_grid.selected_row &&
             XmGetAppearanceProfile(XtDisplay(widget), &profile) &&
@@ -517,6 +595,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             grid->core.width > 2 && grid->data_grid.row_height > 2) {
             Pixel hover_px = _XmAppearanceHoverSurfacePixel(
                 widget, grid->core.background_pixel);
+            if (has_body_clip)
+                XSetClipRectangles(XtDisplay(widget), grid->data_grid.gc, 0, 0,
+                                   &body_clip, 1, Unsorted);
             XSetForeground(XtDisplay(widget), grid->data_grid.gc, hover_px);
             XFillRectangle(XtDisplay(widget), _XmPaintDrawable(widget),
                            grid->data_grid.gc, 1, top,
@@ -528,24 +609,59 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         for (column = 0; column < grid->data_grid.column_count; ++column) {
             Cardinal visual = grid->data_grid.rtl ?
                 grid->data_grid.column_count - column - 1 : column;
-            int x = (int)visual * cell_width + 4;
+            int x = (int)visual * cell_width + 4 - sub_x;
             if ((int)model_row == grid->data_grid.selected_row &&
-                (int)column == grid->data_grid.selected_column)
+                (int)column == grid->data_grid.selected_column) {
+                if (has_body_clip)
+                    XSetClipRectangles(XtDisplay(widget), grid->data_grid.gc, 0, 0,
+                                       &body_clip, 1, Unsorted);
                 XDrawRectangle(XtDisplay(widget), _XmPaintDrawable(widget),
                                grid->data_grid.gc, x - 2,
                                top + 2,
                                (unsigned)(cell_width > 5 ? cell_width - 5 : 1),
                                (unsigned)(grid->data_grid.row_height > 3 ?
                                           grid->data_grid.row_height - 3 : 1));
+            }
             draw_text(grid, x, top, grid->data_grid.row_height,
-                      grid->data_grid.rows[model_row].values[column]);
+                      grid->data_grid.rows[model_row].values[column],
+                      has_body_clip ? &body_clip : NULL);
         }
+    }
+
+    if (has_body_clip)
+        XSetClipMask(XtDisplay(widget), grid->data_grid.gc, None);
+
+    if (sub_y > 0 && grid->data_grid.header_height > 0 && grid->core.width > 0) {
+        Widget owner = widget;
+        while (owner->core.background_pixmap == ParentRelative && XtParent(owner))
+            owner = XtParent(owner);
+        XSetForeground(XtDisplay(widget), grid->data_grid.gc,
+                       owner->core.background_pixel);
+        XFillRectangle(XtDisplay(widget), _XmPaintDrawable(widget),
+                       grid->data_grid.gc, 0, 0,
+                       grid->core.width, grid->data_grid.header_height);
+        XSetForeground(XtDisplay(widget), grid->data_grid.gc,
+                       grid->primitive.foreground);
+    }
+
+    for (column = 0; column < grid->data_grid.column_count; ++column) {
+        Cardinal visual = grid->data_grid.rtl ?
+            grid->data_grid.column_count - column - 1 : column;
+        draw_text(grid, (int)visual * cell_width + 4 - sub_x, 0,
+                  grid->data_grid.header_height,
+                  grid->data_grid.columns[column].title, NULL);
     }
 }
 
 static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
 {
+    XmDataGridWidget grid = (XmDataGridWidget)widget;
     _XmBufferedPaint(widget, Redisplay, event, region);
+    if (XtIsRealized(widget) && !widget->core.being_destroyed &&
+        grid->primitive.highlighted &&
+        xmPrimitiveClassRec.primitive_class.border_highlight) {
+        xmPrimitiveClassRec.primitive_class.border_highlight(widget);
+    }
 }
 
 static void move_selection(XmDataGridWidget grid, int row_delta,
@@ -571,6 +687,7 @@ static void move_selection(XmDataGridWidget grid, int row_delta,
         (Cardinal)row >= grid->data_grid.top_row &&
         (Cardinal)row - grid->data_grid.top_row >= grid->data_grid.visible_rows)
         grid->data_grid.top_row = (Cardinal)row - grid->data_grid.visible_rows + 1;
+    dg_reset_subpixel_y(grid);
     clamp_top(grid);
     redraw(grid);
     notify_selection(grid, event);
@@ -589,12 +706,15 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
         event->type == LeaveNotify || event->type == UnmapNotify) {
         int next_hover = -1;
         if (event->type == EnterNotify || event->type == MotionNotify) {
+            int sub_x = 0, sub_y = 0;
             int ey = (event->type == MotionNotify) ? event->xmotion.y : event->xcrossing.y;
+            dg_get_subpixel_offsets(grid, &sub_x, &sub_y);
+            (void)sub_x;
             if (ey >= (int)grid->data_grid.header_height &&
                 grid->data_grid.row_height > 0) {
-                int r = (ey - (int)grid->data_grid.header_height) /
+                int r = (ey - (int)grid->data_grid.header_height + sub_y) /
                         (int)grid->data_grid.row_height;
-                if (r >= 0 && (Cardinal)r < grid->data_grid.visible_rows &&
+                if (r >= 0 &&
                     grid->data_grid.top_row + (Cardinal)r < grid->data_grid.row_count)
                     next_hover = (int)(grid->data_grid.top_row + (Cardinal)r);
             }
@@ -675,21 +795,25 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
         return;
     }
     x = event->xbutton.x; y = event->xbutton.y;
-    if (!grid->data_grid.column_count || y < (int)grid->data_grid.header_height) {
-        if (grid->data_grid.column_count) {
-            column = x / column_width(grid);
-            if (grid->data_grid.rtl) column = (int)grid->data_grid.column_count - column - 1;
-            if (column >= 0 && (Cardinal)column < grid->data_grid.column_count)
-                XmDataGridRequestSort(widget, grid->data_grid.columns[column].id,
-                                      True, True);
+    {
+        int sub_x = 0, sub_y = 0;
+        dg_get_subpixel_offsets(grid, &sub_x, &sub_y);
+        if (!grid->data_grid.column_count || y < (int)grid->data_grid.header_height) {
+            if (grid->data_grid.column_count) {
+                column = (x + sub_x) / column_width(grid);
+                if (grid->data_grid.rtl) column = (int)grid->data_grid.column_count - column - 1;
+                if (column >= 0 && (Cardinal)column < grid->data_grid.column_count)
+                    XmDataGridRequestSort(widget, grid->data_grid.columns[column].id,
+                                          True, True);
+            }
+            return;
         }
-        return;
+        row = (y - (int)grid->data_grid.header_height + sub_y) /
+              (int)grid->data_grid.row_height;
+        column = (x + sub_x) / column_width(grid);
     }
-    row = (y - (int)grid->data_grid.header_height) /
-          (int)grid->data_grid.row_height;
-    column = x / column_width(grid);
     if (grid->data_grid.rtl) column = (int)grid->data_grid.column_count - column - 1;
-    if (row >= 0 && (Cardinal)row < grid->data_grid.visible_rows &&
+    if (row >= 0 &&
         grid->data_grid.top_row + (Cardinal)row < grid->data_grid.row_count &&
         column >= 0 && (Cardinal)column < grid->data_grid.column_count) {
         Cardinal model_row = grid->data_grid.top_row + (Cardinal)row;
@@ -796,8 +920,122 @@ Boolean XmDataGridSetTopRow(Widget widget, Cardinal top_row) {
         return False;
     grid = (XmDataGridWidget)widget;
     grid->data_grid.top_row = top_row;
+    dg_reset_subpixel_y(grid);
     clamp_top(grid);
     redraw(grid);
+    return True;
+}
+
+Boolean
+_XmDataGridSmoothScrollStep(Widget widget,
+                            Boolean horizontal,
+                            double delta_v120,
+                            double *carry_inout,
+                            Boolean *at_boundary_out)
+{
+    XmDataGridWidget grid;
+    double local_carry = 0.0;
+    Boolean local_bound = False;
+    double lines = (double)_XmGetWheelScrollSpeed();
+
+    if (!carry_inout) carry_inout = &local_carry;
+    if (!at_boundary_out) at_boundary_out = &local_bound;
+    *at_boundary_out = False;
+
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed ||
+        !XtIsSensitive(widget) || fabs(delta_v120) < 1e-6)
+        return False;
+    grid = (XmDataGridWidget)widget;
+
+    if (horizontal) {
+        int cw = column_width(grid);
+        int64_t total_w = (int64_t)grid->data_grid.column_count * (int64_t)cw;
+        int64_t max_x = total_w - (int64_t)grid->core.width;
+        if (max_x <= 0)
+            return False;
+        int cur_x = 0, cur_y = 0;
+        dg_get_subpixel_offsets(grid, &cur_x, &cur_y);
+        if ((delta_v120 < 0.0 && cur_x <= 0) ||
+            (delta_v120 > 0.0 && (int64_t)cur_x >= max_x)) {
+            *carry_inout = 0.0;
+            *at_boundary_out = True;
+            return False;
+        }
+        double total = (*carry_inout) + (delta_v120 / 120.0) * (lines * 24.0);
+        int64_t step = (int64_t)trunc(total);
+        *carry_inout = total - (double)step;
+        if (step == 0)
+            return True;
+        int64_t next_x = (int64_t)cur_x + step;
+        if (next_x <= 0) {
+            next_x = 0;
+            *carry_inout = 0.0;
+            *at_boundary_out = True;
+        } else if (next_x >= max_x) {
+            next_x = max_x;
+            *carry_inout = 0.0;
+            *at_boundary_out = True;
+        }
+        if (next_x != cur_x) {
+            _XmProcessLock();
+            DataGridScrollState *st = dg_scroll_state(widget, True);
+            if (st) st->pixel_x = (int)next_x;
+            _XmProcessUnlock();
+            redraw(grid);
+        }
+        return True;
+    }
+
+    int rh = grid->data_grid.row_height > 0 ? (int)grid->data_grid.row_height : 22;
+    Cardinal limit_row = max_top_row(grid);
+    int64_t max_py = (int64_t)limit_row * (int64_t)rh;
+    if (max_py <= 0)
+        return False;
+
+    int cur_x = 0, cur_sub_y = 0;
+    dg_get_subpixel_offsets(grid, &cur_x, &cur_sub_y);
+    int64_t cur_py = (int64_t)grid->data_grid.top_row * (int64_t)rh + (int64_t)cur_sub_y;
+    if ((delta_v120 < 0.0 && cur_py <= 0) ||
+        (delta_v120 > 0.0 && cur_py >= max_py)) {
+        *carry_inout = 0.0;
+        *at_boundary_out = True;
+        return False;
+    }
+
+    double total = (*carry_inout) + (delta_v120 / 120.0) * (lines * (double)rh);
+    double nearest = round(total);
+    if (fabs(total - nearest) < 1e-5)
+        total = nearest;
+    int64_t step = (int64_t)trunc(total);
+    *carry_inout = total - (double)step;
+    if (step == 0)
+        return True;
+
+    int64_t next_py = cur_py + step;
+    if (next_py <= 0) {
+        next_py = 0;
+        *carry_inout = 0.0;
+        *at_boundary_out = True;
+    } else if (next_py >= max_py) {
+        next_py = max_py;
+        *carry_inout = 0.0;
+        *at_boundary_out = True;
+    }
+
+    if (next_py != cur_py) {
+        Cardinal new_top = (Cardinal)(next_py / (int64_t)rh);
+        int new_sub = (int)(next_py % (int64_t)rh);
+        if (new_top >= limit_row) {
+            new_top = limit_row;
+            new_sub = 0;
+        }
+        grid->data_grid.top_row = new_top;
+        _XmProcessLock();
+        DataGridScrollState *st = dg_scroll_state(widget, True);
+        if (st) st->pixel_y = new_sub;
+        _XmProcessUnlock();
+        redraw(grid);
+    }
     return True;
 }
 

@@ -2255,6 +2255,26 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
             }
             XFree(pdata);
         }
+
+        /* Verify WL_POINTER_AXIS_SOURCE_FINGER + axis_stop kinetic fling coasting */
+        if (sb_auto) {
+            XmScrollBarSetValues(sb_auto, 0, 0, 0, 0, True);
+            pump_xt_ms(app, dpy, 40);
+            write_stage_file(sync_dir, "kinetic_flick.req");
+            wait_for_stage_file(app, dpy, sync_dir, "kinetic_flick.sent", 3000);
+            int val_at_stop = 0, val_after_coast = 0;
+            pump_xt_ms(app, dpy, 15);
+            XtVaGetValues(sb_auto, XmNvalue, &val_at_stop, NULL);
+            pump_xt_ms(app, dpy, 260);
+            XtVaGetValues(sb_auto, XmNvalue, &val_after_coast, NULL);
+            /* Direct finger input is 37.5px = 2.5 notches (~140 px); kinetic coasting
+             * after axis_stop must advance noticeably beyond both val_at_stop and 155 px. */
+            if (val_after_coast <= val_at_stop || val_after_coast < 160) {
+                fprintf(stderr, "FAIL: kinetic fling after axis_stop did not coast (at_stop=%d after=%d)\n",
+                        val_at_stop, val_after_coast);
+                exit(1);
+            }
+        }
     }
 
     /* Verify disconnected helper Display connections reap their XID namespace

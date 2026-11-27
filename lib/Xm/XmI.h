@@ -341,6 +341,20 @@ extern Boolean _XmSmoothScrollStep(Widget leaf,
                                    double delta_v120,
                                    double *carry_inout,
                                    Boolean *at_boundary_out);
+extern Boolean _XmDataGridSmoothScrollStep(Widget widget,
+                                           Boolean horizontal,
+                                           double delta_v120,
+                                           double *carry_inout,
+                                           Boolean *at_boundary_out);
+extern void _XmXi2AttachDisplay(Widget xm_display);
+extern void _XmXi2DetachDisplay(Display *display);
+extern void _XmXi2InstallShell(Widget shell);
+extern Boolean _XmDispatchSmoothScrollValuator(Widget shell,
+                                               double event_x,
+                                               double event_y,
+                                               unsigned int state,
+                                               double vert_v120,
+                                               double horiz_v120);
 
 extern void _XmAppearanceInheritFont(Widget child, Widget owner);
 extern void _XmAppearanceInheritForeground(Widget child, Widget owner);

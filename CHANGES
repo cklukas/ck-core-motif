@@ -1,3 +1,31 @@
+Add XInput2 smooth-scroll valuators, Wayland finger-flick kinetic momentum, and sub-row DataGrid pixel scrolling (2026-11-27)
+=============================================================================================================================
+
+- `lib/Xm/XmI.h`, `lib/Xm/ScrolledW.c`, `lib/Xm/DataGrid.c`, `lib/Xm/XmString.c`,
+  `lib/Xm/Display.c`, `lib/Xm/BaseClass.c`, `lib/Xm/WaylandBackendI.h`,
+  `lib/Xm/WaylandBackend.c`, `tests/automated/check-smooth-kinetic-scroll.c`,
+  `tests/automated/run-smooth-kinetic-scroll.py`,
+  `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Add X11 XInput2 (`2.1+`) smooth-scroll valuator tracking (`XIQueryDevice`
+    `XIScrollClassInfo`, `XI_Motion` delta decoding on a dedicated observer
+    connection, `XTEST` synthetic-device filtering, and `XIPointerEmulated`
+    duplicate-button suppression) in `ScrolledW.c`, wired automatically across
+    `XmDisplay` and realized Motif shells via runtime `libXi` symbol resolution.
+  - Track `wl_pointer.axis_source` (`WL_POINTER_AXIS_SOURCE_FINGER`) velocity in
+    `WaylandBackend.c` and launch ~83 Hz exponential kinetic coasting upon
+    `wl_pointer.axis_stop` with instant cancellation on click, pointer leave, or
+    direction reversal.
+  - Add out-of-line sub-row vertical and horizontal pixel scroll offsets in
+    `XmDataGrid` (`_XmDataGridSmoothScrollStep`) with body-clipped cell painting
+    below the sticky header, focus-highlight preservation across buffered
+    repaints, and pixel-adjusted pointer hit-testing, plus smooth horizontal
+    pixel scrollbar scaling for `XmList` and `XmText`.
+  - Reset `XftDrawSetClip` after clipped `XmStringDraw` calls in `XmString.c`
+    and compare raw scrollbar positions in `WheelScrollCore` so reversed
+    (`XmMAX_ON_LEFT` / `XmMAX_ON_TOP`) and nested `XmScrolledWindow` wheel
+    dispatch remain exact.
+
 Add Wayland client xdg-toplevel-icon-v1 multi-scale icons, HDR10 surface color management, and queued IPC atoms (2026-11-26)
 ============================================================================================================================
 

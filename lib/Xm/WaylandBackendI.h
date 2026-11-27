@@ -629,6 +629,11 @@ struct XmWlServer {
     bool wheel_frame_has_px[2];
     bool wheel_frame_has_v120[2];
     uint32_t wheel_frame_time_ms;
+    uint32_t wheel_frame_source;
+    bool wheel_frame_has_source;
+    uint32_t wheel_active_source;
+    double wheel_vel_v120_ms[2];
+    uint64_t wheel_last_axis_ms[2];
     int32_t wheel_accum_v120[2];
     bool wheel_gesture_active[2];
     int wheel_last_dir[2];
@@ -639,11 +644,13 @@ struct XmWlServer {
     _Atomic bool wheel_smooth_enabled;
     uint32_t smooth_xid_chain[8];
     double smooth_pending_v120[2];
+    double smooth_pending_kinetic_v120[2];
     bool has_smooth_pending;
     bool smooth_cancel_requested;
     XtIntervalId smooth_timer_id;
     uint32_t smooth_active_chain[8];
     double smooth_rem_v120[2];
+    double smooth_kinetic_v120[2];
     double smooth_unit_carry[2];
     uint64_t smooth_last_step_ms;
 

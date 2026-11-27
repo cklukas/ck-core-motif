@@ -41,8 +41,11 @@ static char rcsid[] = "$TOG: ScrolledW.c /main/16 1997/07/25 16:49:57 samborn $"
 #include <Xm/TreeView.h>
 #include <Xm/DataGrid.h>
 #include <X11/StringDefs.h>
+#include <dlfcn.h>
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
+#include <Xm/Wayland.h>
 #include "VendorSI.h"
 #include <Xm/DragDrop.h>
 #include <Xm/DrawP.h>
@@ -2473,6 +2476,13 @@ XmScrolledWindowWidget sw )
     }
 
     if ((vinc = (sw->swindow.vmax / 10)) < 1) vinc = 1;
+    {
+        int vrange = sw->swindow.vmax - sw->swindow.vExtent;
+        int max_vinc = clipHeight / 12 > 18 ? clipHeight / 12 : 18;
+        if (vrange > 0 && vrange / 6 < max_vinc)
+            max_vinc = vrange / 6 > 1 ? vrange / 6 : 1;
+        if (vinc > max_vinc) vinc = max_vinc;
+    }
     if ((vpage_inc = (clipHeight - (clipHeight / 10))) < 1)
         vpage_inc = clipHeight;
 
@@ -2504,6 +2514,13 @@ XmScrolledWindowWidget sw )
     }
 
     if ((hinc = (sw->swindow.hmax / 10)) < 1) hinc = 1;
+    {
+        int hrange = sw->swindow.hmax - sw->swindow.hExtent;
+        int max_hinc = clipWidth / 12 > 18 ? clipWidth / 12 : 18;
+        if (hrange > 0 && hrange / 6 < max_hinc)
+            max_hinc = hrange / 6 > 1 ? hrange / 6 : 1;
+        if (hinc > max_hinc) hinc = max_hinc;
+    }
     if ((hpage_inc = (clipWidth - (clipWidth / 10))) < 1)
         hpage_inc = clipWidth;
 
@@ -3167,6 +3184,7 @@ static struct {
     XmScrolledWindowWidget sw;
     Window window;
     unsigned int button;
+    Boolean passthrough_seen;
     Widget vbar;
     int vval;
     Widget hbar;
@@ -3264,6 +3282,7 @@ WheelPrepare(Widget widget, XtPointer closure, XEvent *event, Boolean *dispatch)
     g_wheel_press_snapshot.sw = sw;
     g_wheel_press_snapshot.window = event->xbutton.window;
     g_wheel_press_snapshot.button = event->xbutton.button;
+    g_wheel_press_snapshot.passthrough_seen = False;
     g_wheel_press_snapshot.vbar = (Widget)sw->swindow.vScrollBar;
     g_wheel_press_snapshot.vval =
         (sw->swindow.vScrollBar && !sw->swindow.vScrollBar->core.being_destroyed)
@@ -3283,12 +3302,24 @@ WheelActionHook(Widget widget, XtPointer closure, String action, XEvent *event,
     (void)params; (void)count;
     if (!event || (event->type != ButtonPress && event->type != ButtonRelease) ||
         event->xbutton.button < 4 || event->xbutton.button > 7 ||
-        sw->core.being_destroyed || WheelOwner(widget) != sw ||
-        WheelActionIsPassThrough(action)) return;
+        sw->core.being_destroyed || WheelOwner(widget) != sw) return;
+    if (WheelActionIsPassThrough(action)) {
+        if (action && strcmp(action, "ScrolledWindowWheel") != 0 &&
+            event->xbutton.window == sw->swindow.wheel_window &&
+            event->xbutton.button == sw->swindow.wheel_button) {
+            _XmProcessLock();
+            if (g_wheel_press_snapshot.sw == sw)
+                g_wheel_press_snapshot.passthrough_seen = True;
+            _XmProcessUnlock();
+        }
+        return;
+    }
     if (event->xbutton.window == sw->swindow.wheel_window &&
         event->xbutton.button == sw->swindow.wheel_button)
         sw->swindow.wheel_claimed = True;
 }
+
+static Boolean xi2_is_emulated_wheel_event(Display *dpy, const XEvent *event);
 
 static void
 WheelScrollCore(Widget widget, XEvent *event)
@@ -3306,6 +3337,8 @@ WheelScrollCore(Widget widget, XEvent *event)
     if (!event || event->type != ButtonRelease || !XtIsSensitive(widget) ||
         !_XmModalInputAllowed(widget) ||
         (event->xbutton.state & (ControlMask | Mod1Mask | Mod4Mask))) return;
+    if (xi2_is_emulated_wheel_event(XtDisplay(widget), event))
+        return;
     button = event->xbutton.button;
     if (button < 4 || button > 7 || !(sw = WheelOwner(widget)) ||
         sw->core.being_destroyed) return;
@@ -3317,7 +3350,6 @@ WheelScrollCore(Widget widget, XEvent *event)
     bar = (Widget)(horizontal ? sw->swindow.hScrollBar : sw->swindow.vScrollBar);
     if (!bar || bar->core.being_destroyed || !XtIsManaged(bar) ||
         !XtIsSensitive(bar)) {
-        (void)_XmForwardWheelEvent((Widget)sw, event);
         return;
     }
 
@@ -3329,8 +3361,9 @@ WheelScrollCore(Widget widget, XEvent *event)
     if (g_wheel_press_snapshot.sw == sw &&
         g_wheel_press_snapshot.window == event->xbutton.window &&
         g_wheel_press_snapshot.button == button) {
-        if ((bar == g_wheel_press_snapshot.vbar && value != g_wheel_press_snapshot.vval) ||
-            (bar == g_wheel_press_snapshot.hbar && value != g_wheel_press_snapshot.hval)) {
+        int raw_bar_val = ((XmScrollBarWidget)bar)->scrollBar.value;
+        if ((bar == g_wheel_press_snapshot.vbar && raw_bar_val != g_wheel_press_snapshot.vval) ||
+            (bar == g_wheel_press_snapshot.hbar && raw_bar_val != g_wheel_press_snapshot.hval)) {
             bar_already_moved = True;
         }
     }
@@ -3338,39 +3371,21 @@ WheelScrollCore(Widget widget, XEvent *event)
     if (bar_already_moved)
         return;
 
-    if (!editable) {
-        (void)_XmForwardWheelEvent((Widget)sw, event);
+    if (!editable)
         return;
-    }
     limit = (int64_t)maximum - size;
-    if (limit <= minimum) {
-        (void)_XmForwardWheelEvent((Widget)sw, event);
+    if (limit <= minimum)
         return;
-    }
     step_inc = increment > 0 ? increment : (page > 0 ? (page / 10 > 0 ? page / 10 : 1) : 1);
     delta = (int64_t)_XmGetWheelScrollSpeed() * step_inc;
-    /* In XmAUTOMATIC mode, Motif initializes scrollbar increment to vmax / 10,
-     * which grows arbitrarily large on tall work areas (e.g. directories with
-     * hundreds of icons). Cap per-tick wheel delta relative to the viewport
-     * page size so scrolling stays smooth from start to end of tall areas. */
-    if (sw->swindow.ScrollPolicy == XmAUTOMATIC && page > 0) {
-        int64_t base_smooth = page / 4 > 36 ? page / 4 : 36;
-        int64_t max_smooth = (base_smooth * _XmGetWheelScrollSpeed() + 1) / 3;
-        if (max_smooth < 12)
-            max_smooth = 12;
-        if (delta > max_smooth)
-            delta = max_smooth;
-    }
     if (button == 4 || button == 6)
         delta = -delta;
     if (direction == XmMAX_ON_TOP || direction == XmMAX_ON_LEFT) delta = -delta;
     next = (int64_t)value + delta;
     if (next < minimum) next = minimum;
     if (next > limit) next = limit;
-    if (next == value) {
-        (void)_XmForwardWheelEvent((Widget)sw, event);
+    if (next == value)
         return;
-    }
     /* One clamped update, including the native scroll-frame callback. A
      * callback can destroy the scrollbar or owner: never access either again. */
     XmScrollBarSetValues(bar, (int)next, size, increment > 0 ? increment : step_inc, page, True);
@@ -3386,8 +3401,24 @@ WheelScroll(Widget widget, XEvent *event, String *params, Cardinal *count)
 static void
 WheelReleaseEH(Widget widget, XtPointer closure, XEvent *event, Boolean *dispatch)
 {
+    Boolean allow_eh = False;
+    XmScrolledWindowWidget sw;
     (void)closure; (void)dispatch;
-    WheelScrollCore(widget, event);
+    if (!event || event->type != ButtonRelease || !(sw = WheelOwner(widget)))
+        return;
+    _XmProcessLock();
+    if (g_wheel_press_snapshot.sw == sw &&
+        g_wheel_press_snapshot.window == event->xbutton.window &&
+        g_wheel_press_snapshot.button == event->xbutton.button &&
+        g_wheel_press_snapshot.passthrough_seen) {
+        allow_eh = True;
+    }
+    _XmProcessUnlock();
+    /* Also allow fallback when translations were uninstalled completely */
+    if (!allow_eh && widget->core.tm.translations == NULL)
+        allow_eh = True;
+    if (allow_eh)
+        WheelScrollCore(widget, event);
 }
 
 static int g_wheel_scroll_lines = 3;
@@ -3425,6 +3456,8 @@ _XmForwardWheelEvent(Widget from_widget, XEvent *event)
         return False;
     if (event->type != ButtonPress && event->type != ButtonRelease)
         return False;
+    if (xi2_is_emulated_wheel_event(XtDisplay(from_widget), event))
+        return True;
     button = event->xbutton.button;
     if (button < 4 || button > 7)
         return False;
@@ -3458,14 +3491,6 @@ _XmForwardWheelEvent(Widget from_widget, XEvent *event)
                 continue;
             step_inc = increment > 0 ? increment : (page > 0 ? (page / 10 > 0 ? page / 10 : 1) : 1);
             delta = (int64_t)_XmGetWheelScrollSpeed() * step_inc;
-            if (sw->swindow.ScrollPolicy == XmAUTOMATIC && page > 0) {
-                int64_t base_smooth = page / 4 > 36 ? page / 4 : 36;
-                int64_t max_smooth = (base_smooth * _XmGetWheelScrollSpeed() + 1) / 3;
-                if (max_smooth < 12)
-                    max_smooth = 12;
-                if (delta > max_smooth)
-                    delta = max_smooth;
-            }
             if (button == 4 || button == 6)
                 delta = -delta;
             if (direction == XmMAX_ON_TOP || direction == XmMAX_ON_LEFT)
@@ -3629,6 +3654,8 @@ _XmSmoothScrollStep(Widget leaf,
                 int val = 0, sz = 0, inc = 0, pg = 0;
                 XmScrollBarGetValues(bar, &val, &sz, &inc, &pg);
                 int step_inc = inc > 0 ? inc : 1;
+                if (horizontal && step_inc < 16)
+                    step_inc = 16;
                 if (apply_smooth_scrollbar_step(bar, lines_per_notch * (double)step_inc,
                                                 delta_v120, carry_inout,
                                                 &saw_scrollable, at_boundary_out))
@@ -3748,34 +3775,33 @@ _XmSmoothScrollStep(Widget leaf,
             }
         }
 
-        if (!horizontal && XmIsDataGrid(cur)) {
-            saw_scrollable = True;
-            Cardinal before = XmDataGridGetTopRow(cur);
-            if (!(delta_v120 < 0.0 && before == 0)) {
-                double total = (*carry_inout) + (delta_v120 / 120.0) * lines_per_notch;
-                double nearest = round(total);
-                if (fabs(total - nearest) < 1e-5)
-                    total = nearest;
-                int step = (int)trunc(total);
-                if (step == 0) {
-                    *carry_inout = total;
-                    return True;
+        if (horizontal && XmIsText(cur)) {
+            Widget p = XtParent(cur);
+            if (p && XmIsScrolledWindow(p)) {
+                XmScrolledWindowWidget tsw = (XmScrolledWindowWidget)p;
+                Widget hbar = (Widget)tsw->swindow.hScrollBar;
+                if (hbar && !hbar->core.being_destroyed && XtIsManaged(hbar)) {
+                    int val = 0, sz = 0, inc = 0, pg = 0;
+                    XmScrollBarGetValues(hbar, &val, &sz, &inc, &pg);
+                    int step_inc = inc > 1 ? inc : 16;
+                    if (apply_smooth_scrollbar_step(hbar, lines_per_notch * (double)step_inc,
+                                                    delta_v120, carry_inout,
+                                                    &saw_scrollable, at_boundary_out))
+                        return True;
                 }
-                int64_t cand = (int64_t)before + step;
-                if (cand < 0)
-                    cand = 0;
-                XmDataGridSetTopRow(cur, (Cardinal)cand);
-                Cardinal after = XmDataGridGetTopRow(cur);
-                if (after != before) {
-                    *carry_inout = total - (double)step;
-                    if (cand == 0 || (step > 0 && (int64_t)after < cand)) {
-                        *at_boundary_out = True;
-                        *carry_inout = 0.0;
-                    }
-                    return True;
-                }
-                *carry_inout = 0.0;
             }
+        }
+
+        if (XmIsDataGrid(cur)) {
+            Boolean dg_bound = False;
+            if (_XmDataGridSmoothScrollStep(cur, horizontal, delta_v120,
+                                            carry_inout, &dg_bound)) {
+                if (dg_bound)
+                    *at_boundary_out = True;
+                return True;
+            }
+            if (dg_bound)
+                saw_scrollable = True;
         }
 
         if (XmIsScrolledWindow(cur)) {
@@ -3817,6 +3843,598 @@ _XmSmoothScrollStep(Widget leaf,
         return True;
     }
     return False;
+}
+
+/* ---------- X11 XInput2 2.1+ Smooth-Scroll Valuator Engine ---------- */
+
+#define XM_XI2_ALL_MASTER_DEVICES  1
+#define XM_XI2_SCROLL_CLASS        3
+#define XM_XI2_SCROLL_VERTICAL     1
+#define XM_XI2_SCROLL_HORIZONTAL   2
+#define XM_XI2_POINTER_EMULATED    (1 << 16)
+#define XM_XI2_EV_DEVICE_CHANGED   1
+#define XM_XI2_EV_BUTTON_PRESS     4
+#define XM_XI2_EV_MOTION           6
+#define XM_XI2_EV_ENTER            7
+#define XM_XI2_EV_LEAVE            8
+
+typedef struct {
+    int type;
+    int sourceid;
+} XmXi2AnyClassInfo;
+
+typedef struct {
+    int type;
+    int sourceid;
+    int number;
+    int scroll_type;
+    double increment;
+    int flags;
+} XmXi2ScrollClassInfo;
+
+typedef struct {
+    int deviceid;
+    char *name;
+    int use;
+    int attachment;
+    Bool enabled;
+    int num_classes;
+    XmXi2AnyClassInfo **classes;
+} XmXi2DeviceInfo;
+
+typedef struct {
+    int deviceid;
+    int mask_len;
+    unsigned char *mask;
+} XmXi2EventMask;
+
+typedef struct {
+    int base;
+    int latched;
+    int locked;
+    int effective;
+} XmXi2ModifierState;
+
+typedef struct {
+    int mask_len;
+    unsigned char *mask;
+} XmXi2ButtonState;
+
+typedef struct {
+    int mask_len;
+    unsigned char *mask;
+    double *values;
+} XmXi2ValuatorState;
+
+typedef struct {
+    int type;
+    unsigned long serial;
+    Bool send_event;
+    Display *display;
+    int extension;
+    int evtype;
+    Time time;
+    int deviceid;
+    int sourceid;
+    int detail;
+    Window root;
+    Window event;
+    Window child;
+    double root_x;
+    double root_y;
+    double event_x;
+    double event_y;
+    int flags;
+    XmXi2ButtonState buttons;
+    XmXi2ValuatorState valuators;
+    XmXi2ModifierState mods;
+    XmXi2ModifierState group;
+} XmXi2DeviceEvent;
+
+typedef Status (*XmXiQueryVersionFn)(Display *, int *, int *);
+typedef XmXi2DeviceInfo *(*XmXiQueryDeviceFn)(Display *, int, int *);
+typedef void (*XmXiFreeDeviceInfoFn)(XmXi2DeviceInfo *);
+typedef int (*XmXiSelectEventsFn)(Display *, Window, XmXi2EventMask *, int);
+
+typedef struct {
+    int deviceid;
+    int val_num[2]; /* 0=vert, 1=horiz; -1 = absent */
+    double increment[2];
+    double last_val[2];
+    Boolean has_last[2];
+} XmXi2DevScroll;
+
+typedef struct XmXi2DisplayState {
+    Display *display;
+    Display *xi_dpy;
+    XtInputId xi_input_id;
+    Widget xm_display;
+    int xi_opcode;
+    XtEventDispatchProc prev_generic_disp;
+    XmXi2DevScroll devs[16];
+    int dev_count;
+    int xtest_dev_ids[8];
+    int xtest_dev_count;
+    Window last_emu_win;
+    unsigned int last_emu_btn;
+    uint64_t last_emu_ms;
+    uint64_t last_smooth_motion_ms;
+    Widget active_leaf;
+    double carry[2];
+    struct XmXi2DisplayState *next;
+} XmXi2DisplayState;
+
+static void *g_xi2_dl = NULL;
+static Boolean g_xi2_dl_tried = False;
+static XmXiQueryVersionFn g_pXIQueryVersion = NULL;
+static XmXiQueryDeviceFn g_pXIQueryDevice = NULL;
+static XmXiFreeDeviceInfoFn g_pXIFreeDeviceInfo = NULL;
+static XmXiSelectEventsFn g_pXISelectEvents = NULL;
+static XmXi2DisplayState *g_xi2_displays = NULL;
+
+static uint64_t
+xi2_mono_ms(void)
+{
+    struct timespec ts = {0, 0};
+#ifdef CLOCK_MONOTONIC
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+#endif
+    return (uint64_t)ts.tv_sec * 1000ULL + (uint64_t)(ts.tv_nsec / 1000000L);
+}
+
+static Boolean
+xi2_load_library_locked(void)
+{
+    if (!g_xi2_dl_tried) {
+        g_xi2_dl_tried = True;
+        g_pXIQueryVersion = (XmXiQueryVersionFn)dlsym(RTLD_DEFAULT, "XIQueryVersion");
+        g_pXIQueryDevice = (XmXiQueryDeviceFn)dlsym(RTLD_DEFAULT, "XIQueryDevice");
+        g_pXIFreeDeviceInfo = (XmXiFreeDeviceInfoFn)dlsym(RTLD_DEFAULT, "XIFreeDeviceInfo");
+        g_pXISelectEvents = (XmXiSelectEventsFn)dlsym(RTLD_DEFAULT, "XISelectEvents");
+        if (!(g_pXIQueryVersion && g_pXIQueryDevice && g_pXIFreeDeviceInfo && g_pXISelectEvents)) {
+            g_xi2_dl = dlopen("libXi.so.6", RTLD_LAZY | RTLD_LOCAL);
+            if (!g_xi2_dl)
+                g_xi2_dl = dlopen("libXi.so", RTLD_LAZY | RTLD_LOCAL);
+            if (g_xi2_dl) {
+                g_pXIQueryVersion = (XmXiQueryVersionFn)dlsym(g_xi2_dl, "XIQueryVersion");
+                g_pXIQueryDevice = (XmXiQueryDeviceFn)dlsym(g_xi2_dl, "XIQueryDevice");
+                g_pXIFreeDeviceInfo = (XmXiFreeDeviceInfoFn)dlsym(g_xi2_dl, "XIFreeDeviceInfo");
+                g_pXISelectEvents = (XmXiSelectEventsFn)dlsym(g_xi2_dl, "XISelectEvents");
+            }
+        }
+    }
+    return g_pXIQueryVersion && g_pXIQueryDevice && g_pXIFreeDeviceInfo && g_pXISelectEvents;
+}
+
+static XmXi2DisplayState *
+xi2_find_display_locked(Display *dpy)
+{
+    XmXi2DisplayState *st;
+    for (st = g_xi2_displays; st; st = st->next) {
+        if (st->display == dpy)
+            return st;
+    }
+    return NULL;
+}
+
+static void
+xi2_refresh_devices(XmXi2DisplayState *st)
+{
+    int ndevs = 0;
+    XmXi2DeviceInfo *info;
+    Display *qdpy = (st && st->xi_dpy) ? st->xi_dpy : (st ? st->display : NULL);
+    if (!st || !qdpy || !g_pXIQueryDevice || !g_pXIFreeDeviceInfo)
+        return;
+    info = g_pXIQueryDevice(qdpy, 0 /* XIAllDevices */, &ndevs);
+    if (!info)
+        return;
+
+    st->dev_count = 0;
+    st->xtest_dev_count = 0;
+    for (int i = 0; i < ndevs; ++i) {
+        if (info[i].name && strstr(info[i].name, "XTEST") != NULL &&
+            st->xtest_dev_count < 8) {
+            st->xtest_dev_ids[st->xtest_dev_count++] = info[i].deviceid;
+        }
+        if (st->dev_count >= 16)
+            continue;
+        int v_num = -1, h_num = -1;
+        double v_inc = 0.0, h_inc = 0.0;
+        for (int c = 0; c < info[i].num_classes; ++c) {
+            XmXi2AnyClassInfo *any = info[i].classes[c];
+            if (any && any->type == XM_XI2_SCROLL_CLASS) {
+                XmXi2ScrollClassInfo *sc = (XmXi2ScrollClassInfo *)any;
+                if (sc->number >= 0 && fabs(sc->increment) > 1e-6) {
+                    if (sc->scroll_type == XM_XI2_SCROLL_VERTICAL) {
+                        v_num = sc->number;
+                        v_inc = sc->increment;
+                    } else if (sc->scroll_type == XM_XI2_SCROLL_HORIZONTAL) {
+                        h_num = sc->number;
+                        h_inc = sc->increment;
+                    }
+                }
+            }
+        }
+        if (v_num >= 0 || h_num >= 0) {
+            XmXi2DevScroll *ds = &st->devs[st->dev_count++];
+            memset(ds, 0, sizeof(*ds));
+            ds->deviceid = info[i].deviceid;
+            ds->val_num[0] = v_num;
+            ds->val_num[1] = h_num;
+            ds->increment[0] = v_inc;
+            ds->increment[1] = h_inc;
+        }
+    }
+    g_pXIFreeDeviceInfo(info);
+}
+
+static Widget
+resolve_deepest_widget_at(Widget cur, int x, int y)
+{
+    if (!cur || cur->core.being_destroyed || !XtIsRealized(cur))
+        return NULL;
+    if (XtIsComposite(cur)) {
+        CompositeWidget cw = (CompositeWidget)cur;
+        for (Cardinal idx = cw->composite.num_children; idx > 0; --idx) {
+            Widget ch = cw->composite.children[idx - 1u];
+            if (!ch || ch->core.being_destroyed || !XtIsManaged(ch) || !XtIsWidget(ch) || !XtIsRealized(ch))
+                continue;
+            int cx = x - (int)ch->core.x - (int)ch->core.border_width;
+            int cy = y - (int)ch->core.y - (int)ch->core.border_width;
+            if (cx >= 0 && cy >= 0 && cx < (int)ch->core.width && cy < (int)ch->core.height) {
+                Widget deeper = resolve_deepest_widget_at(ch, cx, cy);
+                return deeper ? deeper : ch;
+            }
+        }
+    }
+    return cur;
+}
+
+Boolean
+_XmDispatchSmoothScrollValuator(Widget shell,
+                                double event_x,
+                                double event_y,
+                                unsigned int state,
+                                double vert_v120,
+                                double horiz_v120)
+{
+    Display *dpy;
+    Widget leaf;
+    Boolean handled = False;
+    double local_carry[2] = {0.0, 0.0};
+    double *carry_ptr = local_carry;
+
+    if (!shell || shell->core.being_destroyed || !XtIsRealized(shell))
+        return False;
+    if ((state & (ControlMask | Mod1Mask | Mod4Mask)) != 0)
+        return False;
+    dpy = XtDisplay(shell);
+    leaf = resolve_deepest_widget_at(shell, (int)lround(event_x), (int)lround(event_y));
+    if (!leaf)
+        return False;
+
+    _XmProcessLock();
+    XmXi2DisplayState *st = xi2_find_display_locked(dpy);
+    if (st) {
+        if (st->active_leaf != leaf) {
+            st->active_leaf = leaf;
+            st->carry[0] = 0.0;
+            st->carry[1] = 0.0;
+        }
+        carry_ptr = st->carry;
+    }
+    _XmProcessUnlock();
+
+    double eff_v = vert_v120;
+    double eff_h = horiz_v120;
+    if ((state & ShiftMask) != 0 && fabs(eff_v) > 1e-6 && fabs(eff_h) < 1e-6) {
+        eff_h = eff_v;
+        eff_v = 0.0;
+    }
+
+    if (fabs(eff_v) >= 0.05) {
+        Boolean bnd = False;
+        if (_XmSmoothScrollStep(leaf, False, eff_v, &carry_ptr[0], &bnd))
+            handled = True;
+    }
+    if (fabs(eff_h) >= 0.05) {
+        Boolean bnd = False;
+        if (_XmSmoothScrollStep(leaf, True, eff_h, &carry_ptr[1], &bnd))
+            handled = True;
+    }
+    return handled;
+}
+
+static Boolean
+xi2_is_emulated_wheel_event(Display *dpy, const XEvent *event)
+{
+    Boolean matched = False;
+    if (!dpy || !event || (event->type != ButtonPress && event->type != ButtonRelease))
+        return False;
+    if (event->xbutton.button < 4 || event->xbutton.button > 7)
+        return False;
+    _XmProcessLock();
+    XmXi2DisplayState *st = xi2_find_display_locked(dpy);
+    if (st && st->last_emu_ms != 0 && st->last_smooth_motion_ms != 0 &&
+        (xi2_mono_ms() - st->last_emu_ms) <= 180ULL &&
+        (xi2_mono_ms() - st->last_smooth_motion_ms) <= 250ULL &&
+        st->last_emu_btn == event->xbutton.button) {
+        matched = True;
+    }
+    _XmProcessUnlock();
+    return matched;
+}
+
+static void
+xi2_process_cookie_for_state(XmXi2DisplayState *st, Display *cookie_dpy, XGenericEventCookie *cookie)
+{
+    if (!st || !cookie_dpy || !cookie || cookie->extension != st->xi_opcode)
+        return;
+
+    Display *widget_dpy = st->display;
+    Bool need_free = False;
+    if (!cookie->data) {
+        if (!XGetEventData(cookie_dpy, cookie))
+            return;
+        need_free = True;
+    }
+
+    int evtype = cookie->evtype;
+    if (evtype == XM_XI2_EV_DEVICE_CHANGED) {
+        _XmProcessLock();
+        xi2_refresh_devices(st);
+        _XmProcessUnlock();
+    } else if (evtype == XM_XI2_EV_ENTER || evtype == XM_XI2_EV_LEAVE) {
+        _XmProcessLock();
+        for (int i = 0; i < st->dev_count; ++i) {
+            st->devs[i].has_last[0] = False;
+            st->devs[i].has_last[1] = False;
+        }
+        _XmProcessUnlock();
+    } else if (evtype == XM_XI2_EV_BUTTON_PRESS && cookie->data) {
+        const XmXi2DeviceEvent *de = (const XmXi2DeviceEvent *)cookie->data;
+        if ((de->flags & XM_XI2_POINTER_EMULATED) != 0 && de->detail >= 4 && de->detail <= 7) {
+            _XmProcessLock();
+            st->last_emu_win = de->event;
+            st->last_emu_btn = (unsigned int)de->detail;
+            st->last_emu_ms = xi2_mono_ms();
+            _XmProcessUnlock();
+        }
+    } else if (evtype == XM_XI2_EV_MOTION && cookie->data) {
+        const XmXi2DeviceEvent *de = (const XmXi2DeviceEvent *)cookie->data;
+        Boolean motion_emulated = ((de->flags & XM_XI2_POINTER_EMULATED) != 0);
+        double dv120[2] = {0.0, 0.0};
+        _XmProcessLock();
+        for (int xi = 0; xi < st->xtest_dev_count; ++xi) {
+            if (st->xtest_dev_ids[xi] == de->sourceid || st->xtest_dev_ids[xi] == de->deviceid) {
+                motion_emulated = True;
+                break;
+            }
+        }
+        if (de->valuators.mask && de->valuators.values && de->valuators.mask_len > 0) {
+            XmXi2DevScroll *ds = NULL;
+            for (int i = 0; i < st->dev_count; ++i) {
+                if (st->devs[i].deviceid == de->deviceid || st->devs[i].deviceid == de->sourceid) {
+                    ds = &st->devs[i];
+                    break;
+                }
+            }
+            if (ds) {
+                int max_bit = de->valuators.mask_len * 8;
+                int v_idx = 0;
+                for (int bit = 0; bit < max_bit; ++bit) {
+                    if ((de->valuators.mask[bit >> 3] & (1u << (bit & 7))) == 0)
+                        continue;
+                    double cur_val = de->valuators.values[v_idx++];
+                    for (int ax = 0; ax < 2; ++ax) {
+                        if (ds->val_num[ax] == bit && fabs(ds->increment[ax]) > 1e-6) {
+                            if (!motion_emulated && ds->has_last[ax]) {
+                                double dval = cur_val - ds->last_val[ax];
+                                if (fabs(dval) < fabs(ds->increment[ax]) * 64.0)
+                                    dv120[ax] += (dval / ds->increment[ax]) * 120.0;
+                            }
+                            ds->last_val[ax] = cur_val;
+                            ds->has_last[ax] = True;
+                        }
+                    }
+                }
+            }
+        }
+        if (fabs(dv120[0]) >= 0.05 || fabs(dv120[1]) >= 0.05)
+            st->last_smooth_motion_ms = xi2_mono_ms();
+        _XmProcessUnlock();
+
+        if (fabs(dv120[0]) >= 0.05 || fabs(dv120[1]) >= 0.05) {
+            Widget ev_w = XtWindowToWidget(widget_dpy, de->event);
+            if (ev_w) {
+                (void)_XmDispatchSmoothScrollValuator(
+                    ev_w, de->event_x, de->event_y,
+                    (unsigned int)de->mods.effective, dv120[0], dv120[1]);
+            }
+        }
+    }
+
+    if (need_free)
+        XFreeEventData(cookie_dpy, cookie);
+}
+
+static Boolean
+xm_xi2_generic_dispatcher(XEvent *event)
+{
+    if (!event || event->type != GenericEvent)
+        return False;
+    Display *dpy = event->xcookie.display;
+    XtEventDispatchProc chain = NULL;
+
+    _XmProcessLock();
+    XmXi2DisplayState *st = xi2_find_display_locked(dpy);
+    if (st)
+        chain = st->prev_generic_disp;
+    _XmProcessUnlock();
+
+    if (!st || event->xcookie.extension != st->xi_opcode)
+        return chain ? chain(event) : False;
+
+    xi2_process_cookie_for_state(st, dpy, &event->xcookie);
+    return chain ? chain(event) : True;
+}
+
+static void
+xi2_observer_input_cb(XtPointer closure, int *source, XtInputId *id)
+{
+    (void)source;
+    (void)id;
+    XmXi2DisplayState *st = (XmXi2DisplayState *)closure;
+    if (!st || !st->xi_dpy)
+        return;
+    while (XPending(st->xi_dpy) > 0) {
+        XEvent ev;
+        XNextEvent(st->xi_dpy, &ev);
+        if (ev.type == GenericEvent)
+            xi2_process_cookie_for_state(st, st->xi_dpy, &ev.xcookie);
+    }
+}
+
+static int
+xi2_ignore_xerror(Display *dpy, XErrorEvent *err)
+{
+    (void)dpy;
+    (void)err;
+    return 0;
+}
+
+void
+_XmXi2AttachDisplay(Widget xm_display)
+{
+    Display *dpy;
+    Display *xi_dpy = NULL;
+    int xi_op = 0, ev_b = 0, err_b = 0;
+    int maj = 2, min = 2;
+
+    if (!xm_display)
+        return;
+    dpy = XtDisplay(xm_display);
+    if (!dpy || XmWaylandIsActive(dpy))
+        return;
+    if (!XQueryExtension(dpy, "XInputExtension", &xi_op, &ev_b, &err_b))
+        return;
+
+    _XmProcessLock();
+    if (xi2_find_display_locked(dpy) != NULL || !xi2_load_library_locked()) {
+        _XmProcessUnlock();
+        return;
+    }
+    _XmProcessUnlock();
+
+    const char *dstr = XDisplayString(dpy);
+    if (dstr && dstr[0])
+        xi_dpy = XOpenDisplay(dstr);
+    Display *query_dpy = xi_dpy ? xi_dpy : dpy;
+    if (xi_dpy)
+        (void)XQueryExtension(xi_dpy, "XInputExtension", &xi_op, &ev_b, &err_b);
+
+    if (g_pXIQueryVersion(query_dpy, &maj, &min) != Success || maj < 2 || (maj == 2 && min < 1)) {
+        if (xi_dpy)
+            XCloseDisplay(xi_dpy);
+        return;
+    }
+
+    XmXi2DisplayState *st = (XmXi2DisplayState *)XtCalloc(1, sizeof(*st));
+    if (!st) {
+        if (xi_dpy)
+            XCloseDisplay(xi_dpy);
+        return;
+    }
+    st->display = dpy;
+    st->xi_dpy = xi_dpy;
+    st->xm_display = xm_display;
+    st->xi_opcode = xi_op;
+    xi2_refresh_devices(st);
+
+    if (xi_dpy) {
+        unsigned char root_mask[2] = {0, 0};
+        root_mask[XM_XI2_EV_DEVICE_CHANGED >> 3] |= (unsigned char)(1u << (XM_XI2_EV_DEVICE_CHANGED & 7));
+        XmXi2EventMask em = {
+            .deviceid = 0 /* XIAllDevices */,
+            .mask_len = (int)sizeof(root_mask),
+            .mask = root_mask,
+        };
+        (void)g_pXISelectEvents(xi_dpy, DefaultRootWindow(xi_dpy), &em, 1);
+        XFlush(xi_dpy);
+        XtAppContext app = XtWidgetToApplicationContext(xm_display);
+        st->xi_input_id = XtAppAddInput(
+            app, ConnectionNumber(xi_dpy), (XtPointer)XtInputReadMask,
+            xi2_observer_input_cb, st);
+    }
+
+    _XmProcessLock();
+    st->prev_generic_disp = XtSetEventDispatcher(dpy, GenericEvent, xm_xi2_generic_dispatcher);
+    st->next = g_xi2_displays;
+    g_xi2_displays = st;
+    _XmProcessUnlock();
+}
+
+void
+_XmXi2InstallShell(Widget shell)
+{
+    Display *dpy;
+    Display *xi_dpy = NULL;
+    if (!shell || shell->core.being_destroyed || !XtIsRealized(shell) || XtWindow(shell) == None)
+        return;
+    dpy = XtDisplay(shell);
+    if (!dpy || XmWaylandIsActive(dpy))
+        return;
+    _XmProcessLock();
+    XmXi2DisplayState *st = xi2_find_display_locked(dpy);
+    if (st && st->xi_dpy && g_pXISelectEvents)
+        xi_dpy = st->xi_dpy;
+    _XmProcessUnlock();
+    if (!xi_dpy)
+        return;
+
+    /* Flush shell window creation on primary display before selecting on observer connection */
+    XFlush(dpy);
+    XErrorHandler prev_eh = XSetErrorHandler(xi2_ignore_xerror);
+    unsigned char mask_bits[2] = {0, 0};
+    mask_bits[XM_XI2_EV_BUTTON_PRESS >> 3] |= (unsigned char)(1u << (XM_XI2_EV_BUTTON_PRESS & 7));
+    mask_bits[XM_XI2_EV_MOTION >> 3]       |= (unsigned char)(1u << (XM_XI2_EV_MOTION & 7));
+    mask_bits[XM_XI2_EV_ENTER >> 3]        |= (unsigned char)(1u << (XM_XI2_EV_ENTER & 7));
+    mask_bits[XM_XI2_EV_LEAVE >> 3]        |= (unsigned char)(1u << (XM_XI2_EV_LEAVE & 7));
+    XmXi2EventMask em = {
+        .deviceid = XM_XI2_ALL_MASTER_DEVICES,
+        .mask_len = (int)sizeof(mask_bits),
+        .mask = mask_bits,
+    };
+    (void)g_pXISelectEvents(xi_dpy, XtWindow(shell), &em, 1);
+    XSync(xi_dpy, False);
+    XSetErrorHandler(prev_eh);
+}
+
+void
+_XmXi2DetachDisplay(Display *display)
+{
+    XmXi2DisplayState *dead = NULL;
+    if (!display)
+        return;
+    _XmProcessLock();
+    XmXi2DisplayState **pp = &g_xi2_displays;
+    while (*pp) {
+        if ((*pp)->display == display) {
+            dead = *pp;
+            *pp = dead->next;
+            (void)XtSetEventDispatcher(display, GenericEvent, dead->prev_generic_disp);
+            break;
+        }
+        pp = &(*pp)->next;
+    }
+    _XmProcessUnlock();
+    if (dead) {
+        if (dead->xi_input_id)
+            XtRemoveInput(dead->xi_input_id);
+        if (dead->xi_dpy)
+            XCloseDisplay(dead->xi_dpy);
+        XtFree((char *)dead);
+    }
 }
 
 /************************************************************************

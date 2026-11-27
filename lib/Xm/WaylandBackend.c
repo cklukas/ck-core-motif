@@ -1083,6 +1083,25 @@ flush_wheel_axis(XmWlServer *srv, int ax)
         return;
     }
 
+    if (srv->wheel_frame_has_source)
+        srv->wheel_active_source = srv->wheel_frame_source;
+
+    uint64_t now_mono = now_mono_ms64();
+    uint64_t prev_mono = srv->wheel_last_axis_ms[ax];
+    uint64_t dt_ms = (prev_mono > 0 && now_mono > prev_mono) ? (now_mono - prev_mono) : 12ULL;
+    if (dt_ms < 4ULL) dt_ms = 4ULL;
+    if (dt_ms > 80ULL) {
+        srv->wheel_vel_v120_ms[ax] = step_v120_f / 16.0;
+    } else {
+        double inst_vel = step_v120_f / (double)dt_ms;
+        if ((srv->wheel_vel_v120_ms[ax] > 0.0 && inst_vel < 0.0) ||
+            (srv->wheel_vel_v120_ms[ax] < 0.0 && inst_vel > 0.0))
+            srv->wheel_vel_v120_ms[ax] = inst_vel;
+        else
+            srv->wheel_vel_v120_ms[ax] = srv->wheel_vel_v120_ms[ax] * 0.4 + inst_vel * 0.6;
+    }
+    srv->wheel_last_axis_ms[ax] = now_mono;
+
     /* Native ~83 Hz smooth scrolling on the main Xt thread when an XmDisplay
      * is attached and no Ctrl/Alt/Super modifier or primary button drag is active.
      * Shift + vertical wheel routes to horizontal smooth scrolling. */
@@ -1202,9 +1221,20 @@ pointer_frame(void *data, struct wl_pointer *p)
     XmWlServer *srv = (XmWlServer *)data;
     flush_wheel_axis(srv, 0);
     flush_wheel_axis(srv, 1);
+    srv->wheel_frame_has_source = false;
 }
 
-static void pointer_axis_source(void *data, struct wl_pointer *p, uint32_t s) { (void)data; (void)p; (void)s; }
+static void
+pointer_axis_source(void *data, struct wl_pointer *p, uint32_t s)
+{
+    (void)p;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (srv) {
+        srv->wheel_frame_source = s;
+        srv->wheel_frame_has_source = true;
+        srv->wheel_active_source = s;
+    }
+}
 
 static void
 pointer_axis_stop(void *data, struct wl_pointer *p, uint32_t t, uint32_t a)
@@ -1214,6 +1244,28 @@ pointer_axis_stop(void *data, struct wl_pointer *p, uint32_t t, uint32_t a)
     int ax = wheel_axis_index(a);
     if (ax >= 0) {
         flush_wheel_axis(srv, ax);
+        uint64_t now_mono = now_mono_ms64();
+        if (srv->wheel_active_source == WL_POINTER_AXIS_SOURCE_FINGER &&
+            srv->wheel_smooth_enabled &&
+            srv->attached_xm_display != NULL && srv->xt_input_id != 0 &&
+            (srv->mod_mask & (ControlMask | Mod1Mask | Mod4Mask)) == 0 &&
+            srv->wheel_last_axis_ms[ax] > 0 &&
+            (now_mono - srv->wheel_last_axis_ms[ax]) <= 80ULL &&
+            fabs(srv->wheel_vel_v120_ms[ax]) >= 0.35) {
+            uint32_t xids[8];
+            if (_XmWlHitTestWindowChain(srv, xids) > 0) {
+                int eff_ax = (ax == 0 && (srv->mod_mask & ShiftMask) != 0) ? 1 : ax;
+                double vstep = srv->wheel_vel_v120_ms[ax] * 12.0;
+                if (vstep > 360.0) vstep = 360.0;
+                if (vstep < -360.0) vstep = -360.0;
+                memcpy(srv->smooth_xid_chain, xids, sizeof(xids));
+                srv->smooth_pending_kinetic_v120[eff_ax] = vstep;
+                srv->has_smooth_pending = true;
+                _XmWaylandNotifyMainThread(srv);
+            }
+        }
+        srv->wheel_vel_v120_ms[ax] = 0.0;
+        srv->wheel_last_axis_ms[ax] = 0;
         reset_wheel_axis_state(srv, ax);
     }
 }
@@ -4777,30 +4829,40 @@ run_smooth_scroll_frame(XmWlServer *srv)
     srv->smooth_last_step_ms = _XmWlNowMs();
 
     for (int ax = 0; ax < 2; ++ax) {
+        double kin = srv->smooth_kinetic_v120[ax];
         double rem = srv->smooth_rem_v120[ax];
-        if (fabs(rem) < 0.05) {
+        if (fabs(rem) < 0.05 && fabs(kin) < 0.5) {
             srv->smooth_rem_v120[ax] = 0.0;
+            srv->smooth_kinetic_v120[ax] = 0.0;
             continue;
         }
         if (!leaf) {
-            fallback_discrete_wheel_from_main(srv, ax, rem);
+            if (fabs(rem) >= 0.5)
+                fallback_discrete_wheel_from_main(srv, ax, rem);
             srv->smooth_rem_v120[ax] = 0.0;
+            srv->smooth_kinetic_v120[ax] = 0.0;
             srv->smooth_unit_carry[ax] = 0.0;
             continue;
         }
 
-        double step;
-        if (!srv->wheel_smooth_enabled) {
-            if (fabs(rem) < 60.0)
-                continue;
-            step = rem;
-        } else if (fabs(rem) <= 4.0) {
-            step = rem;
-        } else {
-            step = rem * 0.34;
-            if (fabs(step) < 4.0)
-                step = copysign(4.0, rem);
+        double step = 0.0;
+        if (fabs(rem) >= 0.05) {
+            if (!srv->wheel_smooth_enabled) {
+                if (fabs(rem) < 60.0)
+                    continue;
+                step = rem;
+            } else if (fabs(rem) <= 4.0) {
+                step = rem;
+            } else {
+                step = rem * 0.34;
+                if (fabs(step) < 4.0)
+                    step = copysign(4.0, rem);
+            }
         }
+        if (srv->wheel_smooth_enabled && fabs(kin) >= 0.5)
+            step += kin;
+        if (fabs(step) < 0.05)
+            continue;
 
         Boolean at_boundary = False;
         Boolean handled = _XmSmoothScrollStep(
@@ -4810,19 +4872,30 @@ run_smooth_scroll_frame(XmWlServer *srv)
         if (!handled) {
             /* Non-scrollable widget (e.g. XmSpinBox / XmTabBox): forward exact
              * accumulated delta to discrete Button4..Button7 translations. */
-            fallback_discrete_wheel_from_main(srv, ax, rem);
+            if (fabs(rem) >= 0.5)
+                fallback_discrete_wheel_from_main(srv, ax, rem);
             srv->smooth_rem_v120[ax] = 0.0;
+            srv->smooth_kinetic_v120[ax] = 0.0;
             srv->smooth_unit_carry[ax] = 0.0;
             continue;
         }
 
         if (at_boundary) {
             srv->smooth_rem_v120[ax] = 0.0;
+            srv->smooth_kinetic_v120[ax] = 0.0;
             srv->smooth_unit_carry[ax] = 0.0;
         } else {
-            srv->smooth_rem_v120[ax] = rem - step;
-            if (fabs(srv->smooth_rem_v120[ax]) < 0.05)
-                srv->smooth_rem_v120[ax] = 0.0;
+            if (fabs(rem) >= 0.05) {
+                double rem_step = step - (srv->wheel_smooth_enabled ? kin : 0.0);
+                srv->smooth_rem_v120[ax] = rem - rem_step;
+                if (fabs(srv->smooth_rem_v120[ax]) < 0.05)
+                    srv->smooth_rem_v120[ax] = 0.0;
+            }
+            if (fabs(kin) >= 0.5) {
+                srv->smooth_kinetic_v120[ax] = kin * 0.88;
+                if (fabs(srv->smooth_kinetic_v120[ax]) < 0.5)
+                    srv->smooth_kinetic_v120[ax] = 0.0;
+            }
         }
     }
     XFlush(dpy);
@@ -4835,7 +4908,9 @@ arm_smooth_scroll_timer_if_needed(XmWlServer *srv)
         return;
     bool active = srv->wheel_smooth_enabled &&
                   (fabs(srv->smooth_rem_v120[0]) >= 0.05 ||
-                   fabs(srv->smooth_rem_v120[1]) >= 0.05);
+                   fabs(srv->smooth_rem_v120[1]) >= 0.05 ||
+                   fabs(srv->smooth_kinetic_v120[0]) >= 0.5 ||
+                   fabs(srv->smooth_kinetic_v120[1]) >= 0.5);
     if (active && !srv->smooth_timer_id) {
         XtAppContext app = XtWidgetToApplicationContext(srv->attached_xm_display);
         srv->smooth_timer_id = XtAppAddTimeOut(app, 12, smooth_scroll_timer_cb, srv);
@@ -4852,6 +4927,7 @@ drain_smooth_scroll_main_thread(XmWlServer *srv, bool allow_immediate_step)
         return;
     uint32_t new_chain[8] = {0};
     double pending[2] = {0.0, 0.0};
+    double pending_kin[2] = {0.0, 0.0};
     bool has_pending = false;
     bool cancel_req = false;
 
@@ -4864,8 +4940,12 @@ drain_smooth_scroll_main_thread(XmWlServer *srv, bool allow_immediate_step)
         memcpy(new_chain, srv->smooth_xid_chain, sizeof(new_chain));
         pending[0] = srv->smooth_pending_v120[0];
         pending[1] = srv->smooth_pending_v120[1];
+        pending_kin[0] = srv->smooth_pending_kinetic_v120[0];
+        pending_kin[1] = srv->smooth_pending_kinetic_v120[1];
         srv->smooth_pending_v120[0] = 0.0;
         srv->smooth_pending_v120[1] = 0.0;
+        srv->smooth_pending_kinetic_v120[0] = 0.0;
+        srv->smooth_pending_kinetic_v120[1] = 0.0;
         srv->has_smooth_pending = false;
         has_pending = true;
     }
@@ -4874,6 +4954,8 @@ drain_smooth_scroll_main_thread(XmWlServer *srv, bool allow_immediate_step)
     if (cancel_req) {
         srv->smooth_rem_v120[0] = 0.0;
         srv->smooth_rem_v120[1] = 0.0;
+        srv->smooth_kinetic_v120[0] = 0.0;
+        srv->smooth_kinetic_v120[1] = 0.0;
         srv->smooth_unit_carry[0] = 0.0;
         srv->smooth_unit_carry[1] = 0.0;
         if (srv->smooth_timer_id) {
@@ -4889,21 +4971,26 @@ drain_smooth_scroll_main_thread(XmWlServer *srv, bool allow_immediate_step)
     if (new_chain[0] != 0 && new_chain[0] != srv->smooth_active_chain[0]) {
         srv->smooth_rem_v120[0] = 0.0;
         srv->smooth_rem_v120[1] = 0.0;
+        srv->smooth_kinetic_v120[0] = 0.0;
+        srv->smooth_kinetic_v120[1] = 0.0;
         srv->smooth_unit_carry[0] = 0.0;
         srv->smooth_unit_carry[1] = 0.0;
     }
     memcpy(srv->smooth_active_chain, new_chain, sizeof(new_chain));
 
     for (int ax = 0; ax < 2; ++ax) {
-        if (fabs(pending[ax]) < 0.05)
-            continue;
-        /* Instantaneous direction reversal with zero reverse-momentum lag */
-        if ((srv->smooth_rem_v120[ax] > 0.0 && pending[ax] < 0.0) ||
-            (srv->smooth_rem_v120[ax] < 0.0 && pending[ax] > 0.0)) {
-            srv->smooth_rem_v120[ax] = 0.0;
-            srv->smooth_unit_carry[ax] = 0.0;
+        if (fabs(pending[ax]) >= 0.05) {
+            /* New direct finger/wheel input overrides prior kinetic coasting */
+            srv->smooth_kinetic_v120[ax] = 0.0;
+            if ((srv->smooth_rem_v120[ax] > 0.0 && pending[ax] < 0.0) ||
+                (srv->smooth_rem_v120[ax] < 0.0 && pending[ax] > 0.0)) {
+                srv->smooth_rem_v120[ax] = 0.0;
+                srv->smooth_unit_carry[ax] = 0.0;
+            }
+            srv->smooth_rem_v120[ax] += pending[ax];
         }
-        srv->smooth_rem_v120[ax] += pending[ax];
+        if (fabs(pending_kin[ax]) >= 0.5)
+            srv->smooth_kinetic_v120[ax] = pending_kin[ax];
     }
 
     if (allow_immediate_step) {
@@ -4924,7 +5011,9 @@ smooth_scroll_timer_cb(XtPointer closure, XtIntervalId *id)
     srv->smooth_timer_id = 0;
     drain_smooth_scroll_main_thread(srv, false);
     if (fabs(srv->smooth_rem_v120[0]) >= 0.05 ||
-        fabs(srv->smooth_rem_v120[1]) >= 0.05) {
+        fabs(srv->smooth_rem_v120[1]) >= 0.05 ||
+        fabs(srv->smooth_kinetic_v120[0]) >= 0.5 ||
+        fabs(srv->smooth_kinetic_v120[1]) >= 0.5) {
         run_smooth_scroll_frame(srv);
         arm_smooth_scroll_timer_if_needed(srv);
     }

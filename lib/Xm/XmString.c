@@ -5668,19 +5668,14 @@ _render(Display *d,
       }
   }
   if (restore_clip) {
-#ifdef FIX_1521
 #ifdef USE_XFT
 	  if (_XmRendFontType((_XmStrOptimized(string)) ? rend2 : rend1) == XmFONT_IS_XFT) {
 		  XftDraw *draw = _XmXftDrawCreate(d, w);
 		  if (draw != NULL)
 		    XftDrawSetClip(draw, NULL);
 	  }
-#ifndef FIX_1532
-	  else
 #endif
-#endif
-#endif
-		  XSetClipMask (d, gc, None); 
+	  XSetClipMask (d, gc, None); 
   }
 
   if (_XmRendTags(rend1) != NULL) XtFree((char *)_XmRendTags(rend1));

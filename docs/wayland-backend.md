@@ -128,9 +128,16 @@ process environment when the native Wayland backend is active.
   When smooth scrolling is enabled (`*mouseWheelSmooth: True`, the default), an
   ~83 Hz main-thread interpolator drives sub-line / pixel steps across
   `XmScrolledWindow`, `XmScrollBar`, `XmList`, `XmText`, `XmTreeView`, and
-  `XmDataGrid` with zero speed cap, instant direction reversal, and clean
+  `XmDataGrid` (including sub-row vertical and horizontal pixel offsets in
+  `XmDataGrid` with sticky header clipping) with zero speed cap, touchpad
+  finger-flick (`WL_POINTER_AXIS_SOURCE_FINGER` + `wl_pointer.axis_stop`)
+  exponential kinetic momentum coasting, instant direction reversal, and clean
   start/end clamping, scaling dynamically with `*mouseWheelSpeed` (`1..10`,
-  default `3`) and live `_DT_WAYLAND_WHEEL` compositor IPC updates.
+  default `3`) and live `_DT_WAYLAND_WHEEL` compositor IPC updates. On X11,
+  XLibre, and XWayland displays, `libXm` also binds XInput2 (`2.1+`)
+  `XIScrollClassInfo` vertical and horizontal smooth-scroll valuators on
+  `XI_Motion` while suppressing duplicate server-synthesized
+  `XIPointerEmulated` legacy wheel ticks.
 - **Focus activation and startup tokens (`xdg_activation_v1`)**: `libXm`
   captures and unsets `XDG_ACTIVATION_TOKEN` (or `DESKTOP_STARTUP_ID`) upon
   `XmDisplay` attachment or initial top-level creation—preserving the token for

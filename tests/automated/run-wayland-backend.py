@@ -129,6 +129,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         int ipc_listen_fd;
         int ipc_cli_fd;
         bool ipc_burst_sent;
+        bool kinetic_flick_sent;
         int phase;
     } MiniSrv;
 
@@ -1721,6 +1722,38 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                     ms.ipc_burst_sent = true;
                     write_flag(ms.sync_dir, "ipc_queue.sent");
                 }
+            }
+            if (!ms.kinetic_flick_sent && file_exists(ms.sync_dir, "kinetic_flick.req") &&
+                ms.primary_ptr && ms.primary_surf) {
+                struct timespec kts = {0, 12 * 1000 * 1000L};
+                wl_pointer_send_enter(ms.primary_ptr, 950, ms.primary_surf,
+                                      wl_fixed_from_int(90), wl_fixed_from_int(250));
+                wl_pointer_send_motion(ms.primary_ptr, 3100,
+                                       wl_fixed_from_int(90), wl_fixed_from_int(250));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                nanosleep(&kts, NULL);
+
+                wl_pointer_send_axis_source(ms.primary_ptr, WL_POINTER_AXIS_SOURCE_FINGER);
+                wl_pointer_send_axis(ms.primary_ptr, 3112, WL_POINTER_AXIS_VERTICAL_SCROLL,
+                                     wl_fixed_from_double(15.0));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                nanosleep(&kts, NULL);
+
+                wl_pointer_send_axis_source(ms.primary_ptr, WL_POINTER_AXIS_SOURCE_FINGER);
+                wl_pointer_send_axis(ms.primary_ptr, 3124, WL_POINTER_AXIS_VERTICAL_SCROLL,
+                                     wl_fixed_from_double(22.5));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                nanosleep(&kts, NULL);
+
+                wl_pointer_send_axis_source(ms.primary_ptr, WL_POINTER_AXIS_SOURCE_FINGER);
+                wl_pointer_send_axis_stop(ms.primary_ptr, 3132, WL_POINTER_AXIS_VERTICAL_SCROLL);
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                ms.kinetic_flick_sent = true;
+                write_flag(ms.sync_dir, "kinetic_flick.sent");
             }
 
             if (stage == 0 && file_exists(ms.sync_dir, "ime_client.ready") && ms.text_in_res) {

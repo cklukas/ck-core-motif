@@ -1263,6 +1263,7 @@ DisplayInitialize(
 #ifdef HAVE_WAYLAND_BACKEND
     _XmWaylandAttachDisplay(new_widget);
 #endif
+    _XmXi2AttachDisplay(new_widget);
 }
 
 
@@ -1356,6 +1357,7 @@ DisplayDestroy(
 
     scale_display_destroyed(XtDisplay(w));
     _XmDestroyAppearanceDisplay(XtDisplay(w));
+    _XmXi2DetachDisplay(XtDisplay(w));
 #ifdef HAVE_WAYLAND_BACKEND
     _XmWaylandDetachDisplay(w);
 #endif

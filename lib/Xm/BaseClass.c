@@ -938,6 +938,7 @@ RealizeWrapper(
       (void)_XmXlibreDpiInstallShell(w, NULL, NULL);
 #endif
       (void)_XmAppearanceInstallLiveWatch(w);
+      _XmXi2InstallShell(w);
     }
 }
 
