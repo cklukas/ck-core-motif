@@ -2,8 +2,8 @@
  "record": "hardening-baseline",
  "project": "motif",
  "date": "2026-11-27",
- "code_revision": "090ac07dfc49",
- "motif_revision": "090ac07dfc49",
+ "code_revision": "f6a0aeaad45d",
+ "motif_revision": "f6a0aeaad45d",
  "host_architecture": "aarch64",
  "host": "Ubuntu 26.04.1 LTS (Lima cde-ubuntu2604, local /var/tmp build)",
  "build": {
@@ -16,7 +16,7 @@
   "started": "2026-11-27T09:47:27+01:00",
   "finished": "2026-11-27T09:48:25+01:00",
   "elapsed_seconds": 58,
-  "input_fingerprint": "090ac07dfc49",
+  "input_fingerprint": "f6a0aeaad45d",
   "fingerprint_method": "clean out-of-tree build of synced working tree"
  },
  "warnings": {

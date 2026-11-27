@@ -164,14 +164,14 @@ static void layout(XmStatusBarWidget bar)
     Boolean *chosen;
     long x = 0;
     Boolean scratch_overflow;
-    size_t item_count;
+    uintmax_t item_count;
 
     if (bar->status_bar.initializing || bar->status_bar.laying_out)
         return;
     bar->status_bar.laying_out = True;
     item_count = bar->status_bar.item_count;
     scratch_overflow = item_count >
-                       UINT_MAX / sizeof(*chosen);
+                       (uintmax_t)UINT_MAX / sizeof(*chosen);
     chosen = bar->status_bar.item_count && !scratch_overflow
                  ? XtCalloc(bar->status_bar.item_count, sizeof(Boolean))
                  : NULL;

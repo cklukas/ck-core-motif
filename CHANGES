@@ -1,3 +1,20 @@
+Guard _XmRenderTableRec 16-bit rendition counts and ILP32 -Werror=type-limits bounds (2026-11-27)
+=================================================================================================
+
+- `lib/Xm/XmRenderT.c`, `lib/Xm/Text.c`, `lib/Xm/XmString.c`, `lib/Xm/StatusBar.c`,
+  `lib/Xm/Toolbar.c`, `tests/automated/check-render-table-ushort-and-ilp32-bounds.py`,
+  `docs/hardening-baseline-validation.json`:
+  - Cap `XmRenderTableAddRenditions`, `XmRenderTableCopy`, and `_XmCreateRendition`
+    against `USHRT_MAX` (`_XmRenderTableRec.count` is `unsigned short`), preventing
+    16-bit rendition-count wraparound/leaks and unbounded `ALLOCATE_LOCAL` (`alloca`)
+    stack growth on oversized inputs.
+  - Replace 64-bit-only `size_t` / `sizeof(Boolean)` and post-addition
+    `(size_t)((Cardinal)~0)` checks in `XmRenderT.c`, `Text.c`, `XmString.c`,
+    `StatusBar.c`, and `Toolbar.c` with `ILP32`-clean `UINT_MAX` / `uintmax_t`
+    bounds and annotate `XmRenderFormat` with `__format__(__printf__, 3, 4)` so
+    both 32-bit `ILP32` and unoptimized Clang `--enable-hardening` builds pass
+    `-Werror=type-limits` and `-Werror=format-nonliteral`.
+
 Eliminate -Wtype-limits across Motif and lock in zero-warning --enable-hardening ratchet (2026-11-27)
 =====================================================================================================
 

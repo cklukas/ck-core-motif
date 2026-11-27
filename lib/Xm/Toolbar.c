@@ -225,14 +225,14 @@ static void layout(XmToolbarWidget toolbar)
     unsigned long total = 0;
     Boolean has_overflow = False;
     Boolean scratch_overflow;
-    size_t action_count;
+    uintmax_t action_count;
 
     if (toolbar->toolbar.initializing || toolbar->toolbar.laying_out)
         return;
     toolbar->toolbar.laying_out = True;
     action_count = toolbar->toolbar.action_count;
     scratch_overflow = action_count >
-                       UINT_MAX / sizeof(*chosen) ||
+                       (uintmax_t)UINT_MAX / sizeof(*chosen) ||
                        toolbar->toolbar.action_count >
                        UINT_MAX / sizeof(*action_width) ||
                        toolbar->toolbar.action_count >

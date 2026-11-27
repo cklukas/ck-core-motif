@@ -3514,14 +3514,12 @@ CanonicalizeColorSpans(const XmTextColorSpan *spans,
 
   /* General sweep-line normalization: later spans override earlier spans. */
   if (
-#if SIZE_MAX <= UINT_MAX
+#if SIZE_MAX < UINT_MAX
       (size_t)nvalid > SIZE_MAX / (2 * sizeof(_XmColorEndpoint)) ||
       (size_t)nvalid > SIZE_MAX / (2 * sizeof(XmTextColorSpan)) ||
-      (size_t)nvalid > SIZE_MAX / sizeof(Boolean) ||
 #endif
-      (size_t)nvalid * 2 * sizeof(_XmColorEndpoint) > UINT_MAX ||
-      (size_t)nvalid * 2 * sizeof(XmTextColorSpan) > UINT_MAX ||
-      (size_t)nvalid * sizeof(Boolean) > UINT_MAX) {
+      (size_t)nvalid > UINT_MAX / (2 * sizeof(_XmColorEndpoint)) ||
+      (size_t)nvalid > UINT_MAX / (2 * sizeof(XmTextColorSpan))) {
     XtFree((char *)valid);
     *alloc_ok = False;
     return NULL;

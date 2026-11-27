@@ -1429,6 +1429,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
   XtAppContext		app=NULL;
 
   if ((renditions == NULL) || (rendition_count == 0) ||
+      (rendition_count > USHRT_MAX) ||
       (rendition_count > INT_MAX))
     return(oldtable);
 
@@ -1489,12 +1490,12 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
     }
   else
     {
-      {
-      size_t rc_sz = rendition_count;
-      if (rc_sz > SIZE_MAX / sizeof(Boolean) ||
-	  rc_sz > UINT_MAX / sizeof(Boolean))
+      if (rendition_count > USHRT_MAX
+#if SIZE_MAX < USHRT_MAX
+	  || (size_t)rendition_count > SIZE_MAX / sizeof(Boolean)
+#endif
+	  )
 	goto unlock_return;
-      }
       matches =
 	(Boolean *)ALLOCATE_LOCAL(rendition_count * sizeof(Boolean));
       if (matches == NULL)
@@ -1617,7 +1618,9 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       if (count > 0)				  /* Allocate new table */
 	{
 	  source_table = oldtable;
-	  if (_XmRTCount(oldtable) > UINT_MAX - (unsigned int)count ||
+	  if ((unsigned int)count > USHRT_MAX ||
+	      _XmRTCount(oldtable) > USHRT_MAX - (unsigned int)count ||
+	      _XmRTCount(oldtable) > UINT_MAX - (unsigned int)count ||
 	      (size_t)_XmRTCount(oldtable) > SIZE_MAX - (size_t)count ||
 	      (_XmRTCount(oldtable) + (unsigned int)count > RENDITIONS_IN_STRUCT &&
 	       (
@@ -2015,6 +2018,8 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
   } else {
     if (!tags) _XmRTRefcountDec(table); /* Undo overflow before detaching. */
     capacity = tags ? (tag_count > 0 ? tag_count : 0) : _XmRTCount(table);
+    if (capacity > USHRT_MAX)
+      goto unlock_return;
     if ((capacity > RENDITIONS_IN_STRUCT) &&
         (
 #if SIZE_MAX <= UINT_MAX
@@ -2714,9 +2719,10 @@ _XmCreateRendition(Widget parent,
     return((Widget)NULL);
 
   required_count = (size_t)_XmRTCount(rt) + 1;
-  if ((required_count > RENDITIONS_IN_STRUCT) &&
-      (required_count - RENDITIONS_IN_STRUCT >
-       (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition))) {
+  if (required_count > USHRT_MAX ||
+      ((required_count > RENDITIONS_IN_STRUCT) &&
+       (required_count - RENDITIONS_IN_STRUCT >
+        (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))) {
     FreeRendition(rend);
     FreeHandle(rend);
     return((Widget)NULL);
@@ -3072,6 +3078,9 @@ static XmConst char *CVTproperties[] = {
 
 /* Use this macro to encapsulate the code that extends the output
    buffer as needed */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__format__(__printf__, 3, 4)))
+#endif
 static Boolean
 XmRenderFormat(char *buffer, size_t buffer_size, const char *format, ...)
 {
