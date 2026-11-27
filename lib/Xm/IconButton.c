@@ -440,6 +440,9 @@ static XmConst XmActivatableTraitRec iconButtonAT =
 static void 
 ClassInit()
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmIconButtonClassRec *wc = &xmIconButtonClassRec;
 
     XtSetTypeConverter(XmRString, XmRXmIconPlacement,

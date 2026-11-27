@@ -1363,6 +1363,9 @@ static Boolean
 RenditionsCompatible(_XmStringEntry seg1,
 		     _XmStringEntry seg2)
 {
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XmStringTag	*begin1, *begin2, *end1, *end2;
   short		bcnt1, bcnt2, ecnt1, ecnt2;
 
@@ -3531,6 +3534,9 @@ XmStringExtent(
   Dimension asc, dsc; 
   int j;
   Display *d;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app = NULL;
   
   if (width != NULL)
@@ -5555,7 +5561,6 @@ _render(Display *d,
   Dimension line_width, line_height, ascender = 0, descender = 0;
   _XmStringEntry line;
   int i;
-  size_t j;
   int restore_clip = FALSE;
   _XmRenditionRec	scratch1, scratch2;
   _XmRendition		tmp1, tmp2;
@@ -6382,7 +6387,6 @@ XmCvtByteStreamToXmString(unsigned char *property)
 _XmStringEntry
 _XmStringEntryCopy(_XmStringEntry entry)
 {
-  int i;
   size_t j;
   size_t size;
   size_t allocation_size;

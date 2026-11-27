@@ -108,6 +108,9 @@ Urm__UT_Time (char		*time_stg)
   long		timeval;
 #endif /* __STDC__ */
 
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   _Xctimeparams ctime_buf;
   char *result;
 

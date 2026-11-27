@@ -468,6 +468,9 @@ WmlSynResourceDefPtr	cursyn;		/* current syntactic object */
 WmlResourceDefPtr	newobj;		/* new resolved object */
 int			ndx;		/* loop index */
 int			code;		/* assigned sym_k code value */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 char			errmsg[300];
 
 /*
@@ -543,6 +546,9 @@ WmlSynResourceDefPtr	cursyn;		/* current syntactic object */
 WmlResourceDefPtr	newobj;		/* new resolved object */
 int			ndx;		/* loop index */
 int			code;		/* assigned sym_k code value */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 char			errmsg[300];
 
 /*
@@ -907,6 +913,9 @@ void wmlResolveValidateClass ()
 {
 
 int			ndx;		/* loop index */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 int			max;		/* maximum code value */
 WmlClassDefPtr		clsobj;		/* current class object */
 WmlSynClassDefPtr	synobj;		/* syntactic class object */
@@ -1078,6 +1087,9 @@ void wmlResolveClassInherit(WmlClassDefPtr clsobj)
 
 WmlClassDefPtr		superobj;	/* superclass object */
 WmlClassDefPtr		parentobj;	/* parentclass object */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 int			ndx;		/* loop index */
 WmlResourceDefPtr	resobj;		/* current resource object */
 WmlClassResDefPtr	refobj;		/* current resource reference */
@@ -1358,6 +1370,9 @@ void wmlResolvePrintClass(FILE *outfil, WmlClassDefPtr clsobj)
 
 int			ndx;		/* loop index */
 WmlSynClassDefPtr	synobj;		/* syntactic object */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 WmlClassCtrlDefPtr	ctrlref;	/* controls reference */
 WmlClassDefPtr		ctrlobj;	/* current class in control */
 
@@ -1648,8 +1663,17 @@ for ( ndx=0 ; ndx<wml_obj_reason_ptr->cnt ; ndx++ )
 void wmlMarkReferencePointers(WmlClassDefPtr clsobj)
 {
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 int			ndx;		/* loop index */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 WmlClassDefPtr		mrkcls;		/* class object to mark */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 WmlResourceDefPtr	mrkres;		/* resource object to mark */
 WmlClassResDefPtr	resref;		/* resource reference */
 WmlClassCtrlDefPtr	ctrlref;	/* controls reference */

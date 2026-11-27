@@ -247,6 +247,9 @@ void	sem_resolve_forward_refs()
     {
 	sym_name_entry_type	* name_entry;
 	sym_value_entry_type	* value_entry;
+#if defined(__GNUC__) || defined(__clang__)
+	__attribute__((__unused__))
+#endif
 	sym_obj_entry_type	* obj_entry;
 
 

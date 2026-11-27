@@ -417,6 +417,9 @@ WidgetClass xmColorSelectorWidgetClass = (WidgetClass)&xmColorSelectorClassRec;
 static void 
 ClassInitialize(void)
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmColorSelectorClassRec *wc = &xmColorSelectorClassRec;
 
     XtSetTypeConverter(XmRString, XmRXmColorMode,

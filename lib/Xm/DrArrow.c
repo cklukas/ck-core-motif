@@ -62,6 +62,9 @@ void XmeDrawArrow(Display *display, Drawable d,
    int size, xOffset = 0, yOffset = 0, wwidth, start;
    register int temp, yy, i, h, w;
    short t = 0 , b = 0 , c = 0 ;
+#if defined(__GNUC__) || defined(__clang__)
+   __attribute__((__unused__))
+#endif
    XtAppContext app;
 
    if (!d || width < 3 || height < 3 ||

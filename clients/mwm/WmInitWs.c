@@ -212,6 +212,9 @@ InitMouseBinding(void)
 static void
 BuildLockMaskSequence(void)
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     int i, j, k;
     unsigned int mask;
     unsigned int thisbit;
@@ -341,6 +344,9 @@ SetupLockingModifierMask(void)
     Display *dpy = wmGD.display;
     int pkcLockingMods[NUM_LOCKING_MODS];
 
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     int kcq, kc;
 
     for (i=0; (size_t)i<NUM_LOCKING_MODS; i++)
@@ -770,7 +776,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 		(RootWindow (DISPLAY, sNum) == (Window) wmGD.errorResource) &&
 		(wmGD.errorRequestCode == X_ChangeWindowAttributes))
 	    {
-                const char *format = (char *)GETMESSAGE(40, 3,
+                const char *const format = GETMESSAGE(40, 3,
                     "Another window manager is running on screen %d");
                 int messageLength = snprintf(NULL, 0, format, sNum);
                 char *message = (messageLength >= 0 &&

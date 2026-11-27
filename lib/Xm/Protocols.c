@@ -276,6 +276,9 @@ RemoveAllPMgrHandler(
         Boolean *continue_to_dispatch)
 {   
     XmAllProtocolsMgr ap_mgr = (XmAllProtocolsMgr) closure ;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     Cardinal	i;
     
     while (ap_mgr->num_protocol_mgrs != 0 &&

@@ -1459,6 +1459,9 @@ Enter(
         XEvent *event )
 {
   XmDisplay xm_dpy = (XmDisplay) XmGetXmDisplay(XtDisplay((Widget) w));
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   Boolean etched_in = xm_dpy->display.enable_etched_in_menu;
 
   if (LabG_IsMenupane(w))
@@ -4030,6 +4033,9 @@ XmToggleButtonGadgetGetState(
   if (w == NULL)
     return False;
 
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app = XtWidgetToApplicationContext(w);
 
   _XmAppLock(app);
@@ -4064,6 +4070,9 @@ XmToggleButtonGadgetSetState(
   if (w == NULL)
     return;
 
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app = XtWidgetToApplicationContext(w);
 
   _XmAppLock(app);
@@ -4142,6 +4151,9 @@ XmToggleButtonGadgetSetValue(
   if (w == NULL)
     return False;
 
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app = XtWidgetToApplicationContext(w);
   
   _XmAppLock(app);
@@ -4443,6 +4455,9 @@ DrawEtchedInMenu(
   GC tmp_bgc = NULL;
 #endif  
   XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay((Widget) tb));
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   Boolean etched_in = dpy->display.enable_etched_in_menu;
   
   if ((LabG_TopShadowColor(tb) == TBG_SelectColor(tb)) ||

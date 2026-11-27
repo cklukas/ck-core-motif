@@ -53,6 +53,9 @@ XmeDrawPolygonShadow (
 #endif /* NeedWidePrototypes */
 {
     Region  xregion;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtAppContext app;
 
     if (dpy == NULL || d == None || points == NULL ||

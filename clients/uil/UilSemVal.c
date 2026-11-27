@@ -4484,6 +4484,9 @@ void	sar_cat_value_entry(sym_value_entry_type **target_entry, sym_value_entry_ty
 #define		k_op_state_compound	2
 #define		k_op_state_localized	4
 
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     int			    target_type;
     sym_value_entry_type    *value1_entry;
     sym_value_entry_type    *value2_entry;

@@ -1464,6 +1464,9 @@ ClassInit()
 ClassInit(void)
 #endif
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmDataFieldClassRec* wc = &xmDataFieldClassRec;
     XmTransferTrait tt;
 
@@ -12134,7 +12137,13 @@ XmDataFieldSetString(
     int length;
     size_t measured_length;
     int free_insert = False;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     int ret_val = 0;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     char * mod_value = NULL;
 
     if (w == NULL)

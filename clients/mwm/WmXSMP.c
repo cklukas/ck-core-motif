@@ -97,52 +97,52 @@ parse_session_int(const char *text, int *value)
 }
 
 #ifdef WSM
-static char *dtwmFileName = "dtwm.db";
+static const char dtwmFileName[] = "dtwm.db";
 #else
-static char *dtwmFileName = ".mwmclientdb";
+static const char dtwmFileName[] = ".mwmclientdb";
 # define EXTRA_FN_CHARS 20
 #endif
 
 /* Fully-qualified resource names/classes. */
-static char *xPositionStr = "%s.position.x";
-static char *yPositionStr = "%s.position.y";
-static char *widthSizeStr = "%s.size.width";
-static char *heightSizeStr = "%s.size.height";
-static char *initialStateStr = "%s.initialState";
-static char *wmCommandStr = "%s.wmCommand";
-static char *wmClientMachineStr = "%s.wmClientMachine";
-static char *screenStr = "%s.screen";
+static const char xPositionStr[] = "%s.position.x";
+static const char yPositionStr[] = "%s.position.y";
+static const char widthSizeStr[] = "%s.size.width";
+static const char heightSizeStr[] = "%s.size.height";
+static const char initialStateStr[] = "%s.initialState";
+static const char wmCommandStr[] = "%s.wmCommand";
+static const char wmClientMachineStr[] = "%s.wmClientMachine";
+static const char screenStr[] = "%s.screen";
 #ifdef WSM
-static char *workspacesStr = "%s.workspaces";
-static char *iconXPosStr = "%s.iconPos.x.%s";
-static char *iconYPosStr = "%s.iconPos.y.%s";
+static const char workspacesStr[] = "%s.workspaces";
+static const char iconXPosStr[] = "%s.iconPos.x.%s";
+static const char iconYPosStr[] = "%s.iconPos.y.%s";
 #else
-static char *iconXPosStr = "%s.iconPos.x";
-static char *iconYPosStr = "%s.iconPos.y";
+static const char iconXPosStr[] = "%s.iconPos.x";
+static const char iconYPosStr[] = "%s.iconPos.y";
 #endif
 
 /* Header for private database. */
-static char *dbHeader = "\
+static const char dbHeader[] = "\
 ! %s\n\
 !\n\
 .version: %s\n\
 .dtwmID: %s\n";
 
 /* Format for client entries in database. */
-static char *dbClientFormat = "\
+static const char dbClientFormat[] = "\
 !\n\
 %s.%s: %s\n\
 !\n";
-static char *intArg = ": %d\n";
-static char *strArg = ": %s\n";
-static char *normalStateStr = "NormalState";
-static char *iconicStateStr = "IconicState";
+static const char intArg[] = ": %d\n";
+static const char strArg[] = ": %s\n";
+static const char normalStateStr[] = "NormalState";
+static const char iconicStateStr[] = "IconicState";
 
-static char *XSMPClientStr = "Client";
-static char *proxyClientStr = "ProxyClient";
+static const char XSMPClientStr[] = "Client";
+static const char proxyClientStr[] = "ProxyClient";
 
 #ifndef WSM
-static char *dbFileArgStr = "-session";
+static const char dbFileArgStr[] = "-session";
 #endif
 
 /* Flag to tell us how to treat ProxyClient info. */
@@ -178,8 +178,8 @@ static Boolean addClientToList(ClientData ***, int *, ClientData *);
 static int clientWorkspaceCompare(const void *, const void *);
 
 /* XSMP/Proxy functions to save/restore resources. */
-static char *getClientResource(char *, char *);
-static char *getXSMPResource(ClientData *, int, char *);
+static char *getClientResource(char *, const char *);
+static char *getXSMPResource(ClientData *, int, const char *);
 static void getClientGeometry(ClientData *, int *, int *,
 			      int *, int *);
 static Boolean getProxyClientInfo(ClientData *, ProxyClientInfo *);
@@ -198,6 +198,9 @@ smSaveYourselfCallback(Widget w, XtPointer clientData, XtPointer callData)
 {
     XtCheckpointToken cpToken = (XtCheckpointToken)callData;
     XrmDatabase newClientDB;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     int scr;
     static Boolean firstTime = True;
 
@@ -262,6 +265,9 @@ smSaveYourselfCallback(Widget w, XtPointer clientData, XtPointer callData)
 	/* Set new session properties if wmGD.dbFileName is valid. */
 	if (wmGD.dbFileName != (char *)NULL)
 	{
+#if defined(__GNUC__) || defined(__clang__)
+	    __attribute__((__unused__))
+#endif
 	    char **newRestartCmd, **ptr;
 	    char *newDiscardCmd[4];
 	    Arg args[10];
@@ -772,7 +778,7 @@ clientWorkspaceCompare(const void *ppCD1, const void *ppCD2)
  *  Assumes: wmGD.clientResourceDB is non-NULL
  */
 static char *
-getClientResource(char *clientID, char *fmtStr)
+getClientResource(char *clientID, const char *fmtStr)
 {
     char *resourceBuf;
     int resourceLength;
@@ -783,6 +789,10 @@ getClientResource(char *clientID, char *fmtStr)
 	wmGD.clientResourceDB == (XrmDatabase)NULL)
 	return (char *)NULL;
 
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
     resourceLength = snprintf(NULL, 0, fmtStr, clientID);
     if (resourceLength < 0)
         return (char *)NULL;
@@ -793,6 +803,9 @@ getClientResource(char *clientID, char *fmtStr)
         return (char *)NULL;
     (void)snprintf(resourceBuf, (size_t)resourceLength + 1,
                    fmtStr, clientID);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
     if (XrmGetResource(wmGD.clientResourceDB, resourceBuf, resourceBuf,
 		       &resourceType, &resourceValue))
     {
@@ -810,7 +823,7 @@ getClientResource(char *clientID, char *fmtStr)
  *           wmGD.clientResourceDB is non-NULL
  */
 static char *
-getXSMPResource(ClientData *pCD, int resourceFlag, char *fmtStr)
+getXSMPResource(ClientData *pCD, int resourceFlag, const char *fmtStr)
 {
     if (pCD == NULL || pCD->smClientID == NULL || fmtStr == NULL)
 	return (char *)NULL;

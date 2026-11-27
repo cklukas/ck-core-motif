@@ -1003,6 +1003,9 @@ Enter(
      if ((((ShellWidget) XtParent(XtParent(db)))->shell.popped_up) &&
 	 _XmGetInDragMode((Widget)db))
        {
+#if defined(__GNUC__) || defined(__clang__)
+	 __attribute__((__unused__))
+#endif
 	 XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
 
 	 if (db->drawnbutton.armed)
@@ -1061,6 +1064,9 @@ Leave(
     if (_XmGetInDragMode((Widget)db) && db->drawnbutton.armed &&
 	(/* !ActiveTearOff || */ event->xcrossing.mode == NotifyNormal))
       {
+#if defined(__GNUC__) || defined(__clang__)
+	__attribute__((__unused__))
+#endif
 	XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
 
 	db->drawnbutton.armed = FALSE;
@@ -1120,6 +1126,9 @@ BorderHighlight(
   }
 
   if (Lab_IsMenupane(db)) {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
     Boolean already_armed = db->drawnbutton.armed;
 
@@ -1171,6 +1180,9 @@ BorderUnhighlight(
 
   if (Lab_IsMenupane(db))
     {
+#if defined(__GNUC__) || defined(__clang__)
+      __attribute__((__unused__))
+#endif
       XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
       Boolean already_armed = db->drawnbutton.armed;
 

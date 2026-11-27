@@ -106,6 +106,7 @@ int token_error		= 0;
 
 
 
+%option nounput noinput
 %%
 
 

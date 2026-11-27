@@ -613,6 +613,9 @@ Boolean db_read_char_table(_db_header_ptr header)
 	unsigned char	**ptr = NULL;
 	int		i;
 	unsigned char	*table = NULL;
+#if defined(__GNUC__) || defined(__clang__)
+	__attribute__((__unused__))
+#endif
 	size_t		item_count, pointer_bytes, table_bytes;
 
 	if (header == NULL || header->num_items < 0 ||
@@ -1142,6 +1145,9 @@ void db_open_file ()
 String get_root_dir_name()
 {
 	uid_t uid;
+#if defined(__GNUC__) || defined(__clang__)
+	__attribute__((__unused__))
+#endif
 	_Xgetpwparams pwd_buf;
 	struct passwd *pwd_value;
 	static char *ptr = NULL;
@@ -1201,7 +1207,7 @@ String get_root_dir_name()
 static char libdir[] = LIBDIR;
 static char incdir[] = INCDIR;
 
-static char XAPPLRES_DEFAULT[] = "\
+static const char XAPPLRES_DEFAULT[] = "\
 %%N\
 %%S:\
 %s/%%T/%%N\
@@ -1215,7 +1221,7 @@ static char XAPPLRES_DEFAULT[] = "\
 %s/%%T/%%N\
 %%S";
 
-static char WMDPATH_DEFAULT[] = "\
+static const char WMDPATH_DEFAULT[] = "\
 %%N\
 %%S:\
 %s%%T/%%N\

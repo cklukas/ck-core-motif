@@ -173,6 +173,9 @@ FindDuplicateName(
      CmdTree  *menuTree,
      char     *name)
 {
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   CmdTree *tmp;
   CARD32  duplicateID;
 
@@ -312,8 +315,6 @@ DefineCommand (
   String  name, defaultLabel;
   Boolean found = False;
   Boolean commandSetFound = False;
-  Window  owner;
-  XWindowAttributes attr;
 
   /*
    * check data to make sure somethings there.
@@ -1226,7 +1227,6 @@ RemoveCommandsForClient (
   for (i = 0;  (size_t)i < cmdKillListIndex;  i++)
     {
       CmdTree *tPtr, *pNext;
-      MenuSpec *pMS;
       WmScreenData *pSD = ACTIVE_PSD;
 
       while ((tPtr = FindCmd (cmdKillList[ i ], CCI_TREE_OF_SCR(scr))))
@@ -1918,6 +1918,9 @@ GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box
   CARD32 lastRow, lastCol;
   CARD32 iPlaceW, iPlaceH;
   CARD32 clientState;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   CARD32 useIconBox;
 
 
@@ -2191,7 +2194,6 @@ GetItemCheckInfo(ClientData *pcd, XtPointer reply)
   MenuSpec *menuSpec;
   unsigned int menuItemCount;
   int clientState;
-  int titleGadgetCount;
   int titleId, systemId, minimizeId, maximizeId, northwestId;
   int upperBorderWidth, lowerBorderWidth;
   Window menuWin;
@@ -2326,9 +2328,15 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
   CARD32 infoWanted;
   
   Window winId;  
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtPointer reply;
   size_t size;
 
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   int i, n, menuItemCount = 0;
   MenuItem *menu_item;
 

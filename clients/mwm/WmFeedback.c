@@ -78,6 +78,9 @@ static char rcsid[] = "$XConsortium: WmFeedback.c /main/6 1996/10/23 17:20:55 rs
  */
 static Cursor  waitCursor = (Cursor)0L;
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static char *
 CopyFeedbackString(const char *text)
 {

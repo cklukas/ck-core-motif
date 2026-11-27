@@ -1987,7 +1987,13 @@ ValueTroughWidth(
 {
     char buff[15];
     register int tmp_max, tmp_min, result;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     int direction, ascent, descent;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XCharStruct overall_return;
     
 #if USE_XFT
@@ -2969,8 +2975,14 @@ ShowValue(
 #else
     int width, height;
 #endif
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XCharStruct width_return;
     char buffer[256];
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     int direction, descent;
     XmScrollBarWidget scrollbar;
     Region value_region = sw->scale.value_region;
@@ -3550,6 +3562,9 @@ XmScaleSetValue(
         int value )
 {
     XmScaleWidget sw = (XmScaleWidget) w;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtAppContext app;
 
     if (w == NULL || !XmIsScale(w))
@@ -3592,6 +3607,9 @@ XmScaleGetValue(
         int *value )
 {
    XmScaleWidget sw = (XmScaleWidget) w;
+#if defined(__GNUC__) || defined(__clang__)
+   __attribute__((__unused__))
+#endif
    XtAppContext app;
 
    if (w == NULL || !XmIsScale(w) || value == NULL)

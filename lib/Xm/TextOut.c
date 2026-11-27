@@ -625,6 +625,9 @@ SetNormGC(XmTextWidget tw,
 {
   unsigned long valueMask = (GCForeground | GCBackground);
   XGCValues values;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   OutputData data = tw->text.output->data;
   
   values.foreground = tw->primitive.foreground;
@@ -1179,8 +1182,14 @@ _FontStructFindHeight(XmTextWidget tw,
 		     int to)   /* How many bytes in to stop measuring */
 {
   OutputData data = tw->text.output->data;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XFontStruct *font = data->font;
   char *ptr = NULL;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   unsigned char c;
   int i = 0, csize = 0;
   int result = 0;
@@ -1224,6 +1233,9 @@ _XftFindHeight(XmTextWidget tw,
   OutputData data = tw->text.output->data;
   XftFont *font = (XftFont*)data->font;
   char *ptr = NULL;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   unsigned char c;
   int i = 0, csize = 0;
   int result = 0;
@@ -2236,6 +2248,9 @@ _XmChangeHSB(XmTextWidget tw)
   int local_total = 0;
   int new_size = 0;
   XmNavigatorDataRec nav_data;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   int offset = 0;
   
   if (tw->text.disable_depth != 0) return;
@@ -2979,6 +2994,9 @@ Draw(XmTextWidget tw,
   XmHighlightMode endhighlight = highlight;
   int bottomedge = (((int)tw->text.inner_widget->core.height) -
 		     data->bottommargin) + data->voffset;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   int win_width = 0;
   int newy = 0;
   int charheight = data->font_ascent + data->font_descent;
@@ -3271,6 +3289,9 @@ Draw(XmTextWidget tw,
 	  }
 	  SetNormGC(tw, data->gc, True, stipple);
 	  if (data->use_fontset) {
+#if defined(__GNUC__) || defined(__clang__)
+	    __attribute__((__unused__))
+#endif
 	    int wx, wy;
 
 	    wx = x - data->hoffset;
@@ -6305,6 +6326,9 @@ SliderMove(Widget w,
   Arg args[10];
   OutputData data = tw->text.output->data;
   int local_total = 0;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   int new_top = 0;
   
   /* get the navigator information using the trait getValue since I

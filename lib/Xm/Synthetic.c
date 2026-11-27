@@ -248,6 +248,9 @@ GetValuesHook(Widget w,
   int i, j;
   XrmQuark quark;
   XtArgVal value;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtArgVal orig_value;
   Cardinal value_size;
   XtPointer value_ptr;

@@ -337,6 +337,9 @@ WidgetClass xmHierarchyWidgetClass = (WidgetClass) &xmHierarchyClassRec;
 static void 
 ClassInit()
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmHierarchyClassRec* wc = &xmHierarchyClassRec;
 
     XtSetTypeConverter(XmRString, XmRXmHierarchyNodeState,CvtStringToNodeState,

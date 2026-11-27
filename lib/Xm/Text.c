@@ -2790,6 +2790,9 @@ _XmTextSetTopCharacter(Widget widget,
     _XmTextShowPosition(widget, top_character);
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static void 
 LosingFocus(XmTextWidget tw)
 {
@@ -3780,6 +3783,9 @@ _XmTextPreeditSetCursorPosition(Widget widget,
                                 XmTextPosition position)
 {
   XmTextWidget tw = (XmTextWidget) widget;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XmTextSource source;
   Position dummy;
 

@@ -1282,7 +1282,6 @@ Redisplay(
 	    XmManagerWidget mw = (XmManagerWidget) XtParent(cb);
 	    Boolean replaceGC = False;
 #ifdef FIX_1395
-	    XGCValues values;
 	    GC tmp_bgc = NULL;
 #endif
 
@@ -3408,6 +3407,9 @@ GetCascadeBGClassSecResBase(
         Widget widget,
         XtPointer client_data )	/* unused */
 {       XtPointer  widgetSecdataPtr;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtPointer ret_val;
     size_t labg_cache_size = sizeof (XmLabelGCacheObjPart);
     size_t cascadebg_cache_size = sizeof (XmCascadeButtonGCacheObjPart);

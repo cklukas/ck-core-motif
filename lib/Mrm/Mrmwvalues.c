@@ -125,7 +125,7 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   typedef struct {
     RGMIconImagePtr	icon ;		/* icon to be converted */
     int		pixndx ;	/* argument in arglist (args) */
-  } _SavePixmapArg, *_SavePixmapArgPtr ;
+  } *_SavePixmapArgPtr ;
 
   /*
    *  Local variables

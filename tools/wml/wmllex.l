@@ -73,6 +73,7 @@ static int wml_copy_token(char *destination, size_t capacity,
 %}
 
 %p 3000
+%option nounput noinput
 %%
 
 [ \t\f]		{}

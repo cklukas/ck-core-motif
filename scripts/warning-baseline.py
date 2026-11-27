@@ -42,6 +42,9 @@ DEFECT_CLASSES = [
     "-Wmismatched-dealloc", "-Walloc-size-larger-than", "-Wmisleading-indentation",
     "-Wimplicit-fallthrough", "-Wcast-function-type", "-Waddress",
     "-Wmissing-field-initializers", "-Wsign-compare",
+    "-Wformat-nonliteral", "-Wempty-body", "-Wunused-variable",
+    "-Wunused-but-set-variable", "-Wunused-function", "-Wunused-label",
+    "-Wunused-local-typedefs",
 ]
 
 ENTER = re.compile(r"make(?:\[\d+\])?: (Entering|Leaving) directory '([^']+)'")

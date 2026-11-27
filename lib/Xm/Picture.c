@@ -371,6 +371,9 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
     XmPictureNode *start_node_2;
     XmPictureNode *current_node_2;
     XmPictureNode *newnode;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     int node_idx;
     XmPictureTransition *newtrans;
     char inc;

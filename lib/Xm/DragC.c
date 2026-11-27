@@ -67,7 +67,7 @@ static char rcsid[] = "$TOG: DragC.c /main/29 1997/10/07 12:19:52 cshi $"
 #ifdef DEBUG
 #define Warning(str)	XmeWarning(NULL, str)
 #else
-#define Warning(str)	/*EMPTY*/
+#define Warning(str)	((void)0)
 #endif
 
 #define BIGSIZE ((Dimension)32767)

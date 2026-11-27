@@ -516,7 +516,7 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 	      result = UrmGetRIDWidget (file_id, childptr->key.id,
 					child_ctx) ;
 	      if ( result != MrmSUCCESS )
-		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0053, childptr->key.id) ;
+		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0053, (unsigned int)childptr->key.id) ;
 	      break ;
 	    default:
 	      result = MrmFAILURE ;
@@ -2563,7 +2563,7 @@ Urm__CW_ConvertValue (Widget			parent,
     case MrmRtypeIconImage:
       if(reptype == MrmRtypeInteger)
 	{
-	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0111, (*val)) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0111, (int)(intptr_t)(*val)) ;
 	  return Urm__UT_Error ("Urm__CW_ConvertValue",
 				err_msg, NULL, NULL, MrmFAILURE);  
 	}
@@ -3610,7 +3610,7 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
       if ( result != MrmSUCCESS )
 	{
 	  UrmFreeResourceContext (context_id) ;
-	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0078, resptr->key.id) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0078, (unsigned int)resptr->key.id) ;
 	  return Urm__UT_Error ("Urm__CW_ReadLiteral", err_msg,
 				NULL, NULL, result) ;
 	}
@@ -4262,7 +4262,7 @@ Urm__CW_LoadWidgetResource (Widget			parent ,
     case URMrRID:
       result = UrmGetRIDWidget (file_id, resptr->key.id, context_id) ;
       if ( result != MrmSUCCESS )
-	(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0087, resptr->key.id) ;
+	(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0087, (unsigned int)resptr->key.id) ;
       break ;
 
     default:

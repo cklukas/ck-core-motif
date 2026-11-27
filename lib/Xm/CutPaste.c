@@ -2806,6 +2806,9 @@ ClipboardGetSelection(Display *display,
     for(;;) {
 #endif
       XEvent event;
+#if defined(__GNUC__) || defined(__clang__)
+      __attribute__((__unused__))
+#endif
       XtInputMask mask;
       if (info.received) break;
 #ifndef XTHREADS
@@ -2960,6 +2963,9 @@ ClipboardRequestDataAndWait(
 		(XtAppGetExitFlag(app_context) == False)) {
 #else
     while( !dataisready && !timer_expired) {
+#endif
+#if defined(__GNUC__) || defined(__clang__)
+      __attribute__((__unused__))
 #endif
       XtInputMask mask;
 #ifndef XTHREADS

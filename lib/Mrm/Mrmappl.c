@@ -850,6 +850,9 @@ MrmFetchWidgetOverride (MrmHierarchy		hierarchy_id,
   URMResourceContextPtr	wref_ctx;	/* for widget references */
   URMSetValuesDescPtr	svlist = NULL;	/* list of SetValues descriptors */
   int			ndx ;		/* loop index */
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   char			errmsg[300];
 
   if (index == NULL || w_return == NULL || class_return == NULL ||

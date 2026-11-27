@@ -1294,6 +1294,9 @@ ReadTargetsTable(
  *  Create the default targets table.
  ***************************************************************************/
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static Atom nullTargets[] = 	{ 0,		};
 static Atom stringTargets[] = 	{ XA_STRING,	};
 

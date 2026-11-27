@@ -661,6 +661,9 @@ Redisplay(
 	XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(cb));
 	Boolean etched_in = dpy->display.enable_etched_in_menu;
 	GC tmpGC = NULL;
+#if defined(__GNUC__) || defined(__clang__)
+	__attribute__((__unused__))
+#endif
 	GC fillGC = NULL;
 	XtExposeProc expose;
 
@@ -2629,6 +2632,9 @@ XmCascadeButtonHighlight(
         Boolean highlight )
 #endif /* NeedWidePrototypes */
 {
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app;
 
   if (NULL == cb) return;

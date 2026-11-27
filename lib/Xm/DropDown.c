@@ -110,7 +110,6 @@ static void ClassPartInitialize(WidgetClass);
 static void ClassInitialize();
 static void ExposeMethod(Widget, XEvent*, Region);
 
-static Boolean ComboBoxParentProcess(Widget wid, XmParentProcessData event);
 
 /************************
  * Actions and callbacks.
@@ -1483,6 +1482,9 @@ ShellButtonEvent(Widget w, XtPointer cbw_ptr, XEvent *event, Boolean *dispatch)
 
 /* ARGSUSED */
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static void
 LoseFocusHandler(Widget w, XtPointer cbw_ptr, XEvent *event, Boolean *junk)
 {
@@ -2998,6 +3000,9 @@ Widget XmDropDownGetList(Widget w)
 
 Widget XmDropDownGetChild(Widget w, int num)
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmDropDownWidget cbw = (XmDropDownWidget) w;
     Widget child;
 

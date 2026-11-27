@@ -72,7 +72,7 @@ typedef String	XmCanonicalString;
 #define XmMakeCanonicalString( s) \
 	(XmCanonicalString) XrmQuarkToString(XrmStringToQuark(s))
 
-static XtPointer
+static inline XtPointer
 _XmAllocAndCopyChecked(const void *data, size_t len)
 {
     XtPointer copy;

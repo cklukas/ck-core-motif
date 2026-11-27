@@ -306,6 +306,9 @@ static XtResource constraint_resources[] =
  * synthetic resources don't.  Dunno.
  */
 static void Get_entryLabelString(Widget, int, XtArgVal *);
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static XmSyntheticResource cont_get_resources[] =
 {
   {
@@ -414,6 +417,9 @@ WidgetClass xmColumnWidgetClass = (WidgetClass) &xmColumnClassRec;
 static void
 ClassInitialize(void)
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmColumnClassRec* wc = &xmColumnClassRec;
 
 #if 0	/* POSITION HANDLING */

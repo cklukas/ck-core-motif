@@ -541,10 +541,10 @@ char builtinKeyBindingsName[] = "_MwmKeyBindings_";
 	Alt Shift<Key>F6	window			f.prev_key transient\n\
 	Shift<Key>F10		icon			f.post_wmenu\n\
 }";
-char builtinKeyBindings[] = BUILTINKEYBINDINGS
+const char builtinKeyBindings[] = BUILTINKEYBINDINGS
 
 #else
-char builtinKeyBindings[];
+const char builtinKeyBindings[];
 #endif
 
 /*
@@ -588,10 +588,10 @@ char builtinButtonBindingsName[] = "_MwmButtonBindings_";
 	<Btn3Down>	root		f.menu DefaultRootMenu\n\
 }";
 # endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-char builtinButtonBindings[] = BUILTINBUTTONBINDINGS
+const char builtinButtonBindings[] = BUILTINBUTTONBINDINGS
 
 #else
-char builtinButtonBindings[];
+const char builtinButtonBindings[];
 #endif
 
 
@@ -4745,8 +4745,8 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
     if (! XmeRenderTableGetDefaultFont(pAData->fontList, &(pAData->font)) &&
 	extHeight <= 0)
     {
-        const char *format = (char *)GETMESSAGE(62, 23,
-                                                  "failed to load font: %.100s");
+        const char *const format = GETMESSAGE(62, 23,
+                                              "failed to load font: %.100s");
         const char *fontList = (pAData->fontList != NULL) ?
             (const char *)pAData->fontList : "";
         int messageLength = snprintf(NULL, 0, format, fontList);
@@ -6734,6 +6734,10 @@ SetupDefaultResources(WmScreenData *pSD)
 	size_t bufferLength;
 
 	root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-extra-args"
+#endif
 	messageLength = snprintf(NULL, 0, builtinKeyBindings, root_menu);
 	if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
 	{
@@ -6751,6 +6755,9 @@ SetupDefaultResources(WmScreenData *pSD)
 	    ExitWM(WM_ERROR_EXIT_VALUE);
 	}
 	(void)snprintf(buffer, bufferLength, builtinKeyBindings, root_menu);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
 	ParseKeyStr (pSD, (unsigned char *)buffer);
 	XtFree(buffer);

@@ -2513,7 +2513,7 @@ extern char	*builtinSystemMenu;
 #else
 extern char	builtinSystemMenu[];
 #endif
-extern char	builtinKeyBindings[];
+extern const char	builtinKeyBindings[];
 
 extern Const char	_75_foreground[];
 extern Const char	_50_foreground[];

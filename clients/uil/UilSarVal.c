@@ -2677,6 +2677,9 @@ void	sar_make_font_item(yystype *target_frame, yystype *charset_frame, yystype *
     case sym_k_font_value:
     case sym_k_fontset_value:
     {
+#if defined(__GNUC__) || defined(__clang__)
+	__attribute__((__unused__))
+#endif
 	int	charset;
 	
 	charset = font_value_entry->b_charset;

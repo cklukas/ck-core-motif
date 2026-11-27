@@ -34,6 +34,9 @@ externalref nl_catd Xm_catd;
 
 /* A catalog is replaceable by the user: its text is used only if it asks for
  * the same arguments as the built-in text (see _XmMessageOrDefault). */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__format_arg__(2)))
+#endif
 extern const char *_XmMessageOrDefault(const char *candidate,
                                        const char *fallback);
 

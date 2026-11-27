@@ -1738,6 +1738,9 @@ LayoutSpinBox(Widget w,
 	      Widget child)	/* unused */
 {
   XmSpinBoxWidget spinW = (XmSpinBoxWidget) w;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   MySpinBoxRec  *myW = (MySpinBoxRec *) w;
   int		arrowLayout;
   int		arrowSize;
@@ -2588,7 +2591,13 @@ SpinNSetValue(Widget nav, XmNavigatorData nav_data, Boolean notify)
   int		lastValue;
   int		numericCount;
   int		i;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   int		minimum;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   int		increment;
   Mask mask ;
  
@@ -2786,6 +2795,9 @@ SetPositionValue(Widget w, int offset, XtArgVal *value)
  * GetMaximumPositionValue
  *	Returns the maximum allowable position for this widget.
  *****************************************************************************/
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static int
 GetMaximumPositionValue(XmSpinBoxConstraint sc)
 {
@@ -2805,6 +2817,9 @@ GetMaximumPositionValue(XmSpinBoxConstraint sc)
  * GetMinimumPositionValue
  *	Returns the minimum allowable position for this widget.
  *****************************************************************************/
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static int
 GetMinimumPositionValue(XmSpinBoxConstraint sc)
 {
@@ -3062,6 +3077,9 @@ XmSpinBoxValidatePosition(Widget text_field, int *position)
   String		string;
   XmAccessTextualTrait  textT;
   XmSpinBoxConstraint	wc;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext 		app;
   
   if (text_field == (Widget) NULL)

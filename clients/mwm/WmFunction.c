@@ -3015,6 +3015,9 @@ Boolean F_Pack_Icons (String args, ClientData *pCD, XEvent *event)
 Boolean F_Post_RMenu (String args, ClientData *pCD, XEvent *event)
 {
     MenuSpec    *rootMenu;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     unsigned int button = NoButton;
     int          x, y;
     long         flags = POST_AT_XY;

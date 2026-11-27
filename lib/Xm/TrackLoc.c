@@ -114,6 +114,9 @@ XmTrackingEvent(
     Boolean     key_has_been_pressed= False;
     Widget      target ;
     Position x, y ;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtAppContext app;
     
     if (widget == NULL) return(NULL);

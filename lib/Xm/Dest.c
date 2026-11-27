@@ -62,6 +62,9 @@ Widget XmGetDestination (Display *display)
 {
       XmDisplay dd;
       Widget w = (Widget)NULL;
+#if defined(__GNUC__) || defined(__clang__)
+      __attribute__((__unused__))
+#endif
       XtAppContext app;
 
       if (display == NULL)

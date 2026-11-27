@@ -2537,6 +2537,9 @@ BorderUnhighlight(
     {
       XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
       Boolean etched_in = dpy->display.enable_etched_in_menu;
+#if defined(__GNUC__) || defined(__clang__)
+      __attribute__((__unused__))
+#endif
       Boolean already_armed = tb->toggle.Armed;
 
       tb -> toggle.Armed = FALSE;
@@ -3339,6 +3342,9 @@ XmToggleButtonGetState(
 {
   XmToggleButtonWidget tw = (XmToggleButtonWidget) w;
   Boolean ret_val;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app;
 
   if (w == NULL)
@@ -3373,6 +3379,9 @@ XmToggleButtonSetState(
 {
   XmToggleButtonWidget tw = (XmToggleButtonWidget) w;
   XmMenuSystemTrait menuSTrait;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app;
   XmToggleButtonState newstate;
 
@@ -3459,6 +3468,9 @@ XmToggleButtonSetValue(
 #endif /* NeedWidePrototypes */
 {
   XmToggleButtonWidget tw = (XmToggleButtonWidget) w;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app;
 
   if (w == NULL)
@@ -3761,7 +3773,13 @@ DrawEtchedInMenu(
   fw = (int)tb->core.width - 2 * (int)margin;
   fh = (int)tb->core.height - 2 * (int)margin;
   XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(tb));
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   Boolean etched_in = dpy->display.enable_etched_in_menu;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   Pixel select_pix, tmpc;
   
   if (tb->primitive.top_shadow_color == tb->toggle.select_color ||

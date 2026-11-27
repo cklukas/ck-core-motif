@@ -2913,6 +2913,9 @@ SetDefaultSize(XmListWidget lw,
 	       Boolean reset_max_height)
 {
   int visheight, wideborder, viz;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XFontStruct *fs = (XFontStruct *)NULL;
 
   wideborder = 2 * (lw->primitive.shadow_thickness +

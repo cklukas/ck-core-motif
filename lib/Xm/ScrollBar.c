@@ -5092,6 +5092,9 @@ XmScrollBarGetValues(
         int *page_increment )
 {
    XmScrollBarWidget sbw = (XmScrollBarWidget) w;
+#if defined(__GNUC__) || defined(__clang__)
+   __attribute__((__unused__))
+#endif
    XtAppContext app;
 
    if (w == NULL || !XmIsScrollBar(w))
@@ -5138,6 +5141,9 @@ XmScrollBarSetValues(
    int save_value;
    Arg arglist[4];
    Cardinal n;
+#if defined(__GNUC__) || defined(__clang__)
+   __attribute__((__unused__))
+#endif
    XtAppContext app;
 
    if (w == NULL || !XmIsScrollBar(w))

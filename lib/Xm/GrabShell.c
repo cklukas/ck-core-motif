@@ -404,6 +404,9 @@ MapNotifyHandler(Widget shell, XtPointer client_data,
 #ifdef FIX_1445
 static void MouseWheel (Widget w, XEvent *event, String *params, Cardinal *num_params)
 {
+#if defined(__GNUC__) || defined(__clang__)
+	__attribute__((__unused__))
+#endif
 	XmGrabShellWidget grabshell = (XmGrabShellWidget) w;
 	GSAllowEvents(w, SyncPointer, event -> xbutton.time);
 }

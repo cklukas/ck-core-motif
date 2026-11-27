@@ -201,24 +201,24 @@ void wmlOutputUilSymGen ()
 
 {
 
-char		*canned1 =
+static const char	canned1[] =
 "\n/*  Define literals for objects */\n";
 
 
-char		*canned3 =
+static const char	canned3[] =
 "\n/*  Define literals for reasons */\n\n";
 
 
-char		*canned4 =
+static const char	canned4[] =
 "\n/*  Define literals for arguments */\n\n";
 
-char		*canned5 =
+static const char	canned5[] =
 "\n/*  Define literals for enumeration sets */\n\n";
 
-char		*canned6 =
+static const char	canned6[] =
 "\n/*  Define literals for enumeration values */\n\n";
 
-char		*canned7 =
+static const char	canned7[] =
 "\n/*  Define literals for character sets */\n\n";
 
 char		*canned8 =
@@ -227,6 +227,9 @@ char		*canned8 =
 FILE			*outfil;	/* output file */
 int			ndx;		/* loop index */
 WmlClassDefPtr		clsobj;		/* class object */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 WmlDataTypeDefPtr	datobj;		/* data type object */
 WmlResourceDefPtr	resobj;		/* resource object */
 WmlEnumSetDefPtr	enumsetobj;	/* enumeration set object */
@@ -367,7 +370,7 @@ void wmlOutputUilSymChCl ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "/*  Table of the class type of children\n\
     The table is indexed by child with each entry the\n\
     permitted class for that child.\n\
@@ -434,7 +437,7 @@ void wmlOutputUilSymArTy ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "/*  Table of the types of arguments\n\
     The table is indexed by argument with each entry the\n\
     permitted type for that argument.\n\
@@ -499,7 +502,7 @@ void wmlOutputUilSymRArg ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "/*	Related argument table. Each non-zero entry is the code\n\
 	of the related argument.\n\
  */\n\
@@ -564,12 +567,12 @@ void wmlOutputUilUrmClas ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "\n/*  Define mapping of UIL widget types to convenience functions.  */\n\
 static char *uil_widget_funcs_vec[] = {\n\
   \"\",\t  /* NOT USED */\n";
 
-char			*canned2 =
+static const char	canned2[] =
 "};\n\
 externaldef(uil_sym_glbl) char **uil_widget_funcs = uil_widget_funcs_vec;\n\
 \n\
@@ -577,7 +580,7 @@ externaldef(uil_sym_glbl) char **uil_widget_funcs = uil_widget_funcs_vec;\n\
 static unsigned short int uil_gadget_variants_vec[] = {\n\
   0,\t  /* NOT USED */\n";
 
-char			*canned3 =
+static const char	canned3[] =
 "};\n\
 externaldef(uil_sym_glbl) unsigned short int *uil_gadget_variants =\n\
 \t\tuil_gadget_variants_vec;\n\
@@ -586,7 +589,7 @@ externaldef(uil_sym_glbl) unsigned short int *uil_gadget_variants =\n\
 static unsigned short int uil_urm_nondialog_class_vec[] = {\n\
   0,\t/* NOT USED */\n";
 
-char			*canned4 =
+static const char	canned4[] =
 "};\n\
 externaldef(uil_sym_glbl) unsigned short int *uil_urm_nondialog_class =\n\
 \t\tuil_urm_nondialog_class_vec;\n\
@@ -595,7 +598,7 @@ externaldef(uil_sym_glbl) unsigned short int *uil_urm_nondialog_class =\n\
 static unsigned short int uil_urm_subtree_resource_vec[] = {\n\
   0,\t/* NOT USED */\n";
 
-char			*canned5 =
+static const char	canned5[] =
 "};\n\
 externaldef(uil_sym_glbl) unsigned short int *uil_urm_subtree_resource =\n\
 \t\tuil_urm_subtree_resource_vec;\n\
@@ -604,7 +607,7 @@ externaldef(uil_sym_glbl) unsigned short int *uil_urm_subtree_resource =\n\
 static char *uil_argument_toolkit_names_vec[] = {\n\
   \"\",\t  /* NOT USED */\n";
 
-char			*canned6 =
+static const char	canned6[] =
 "};\n\
 externaldef(uil_sym_glbl) char **uil_argument_toolkit_names =\n\
 \t\tuil_argument_toolkit_names_vec;\n\
@@ -613,7 +616,7 @@ externaldef(uil_sym_glbl) char **uil_argument_toolkit_names =\n\
 static char *uil_reason_toolkit_names_vec[] = {\n\
   \"\",\t/* NOT USED */\n";
 
-char			*canned7 =
+static const char	canned7[] =
 "};\n\
 externaldef(uil_sym_glbl) char **uil_reason_toolkit_names =\n\
 \t\tuil_reason_toolkit_names_vec;\n";
@@ -767,7 +770,7 @@ void wmlOutputUilConst ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "/* Table indexed by argument indicating whether\n\
    argument is a constraint (TRUE) or a regular\n\
    argument (FALSE).  Each entry is one bit.\n\
@@ -850,19 +853,19 @@ void wmlOutputUilSymReas ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "\n/*\n\
  * Bit vectors for each reason. The entries in the vector correspond\n\
  * to each class.\n\
  */\n";
 
-char			*bvechdr =
+static const char	bvechdr[] =
 "\n\
 /* sym_k_%s_reason */\n\
 static unsigned char reason_class_vec%d[] =\n\
   {\n";
 
-char			*canned2 =
+static const char	canned2[] =
 "\n/*\n\
  * Table of bit vectors accessed by sym_k_..._reason\n\
  */\n\
@@ -870,7 +873,7 @@ static unsigned char *allowed_reason_table_vec[] =\n\
   {\n\
   NULL,\t/* UNUSED */\n";
 
-char			*canned3 =
+static const char	canned3[] =
 "  };\n\
 externaldef(uil_sym_glbl) unsigned char **allowed_reason_table =\n\
 \t\tallowed_reason_table_vec;\n";
@@ -969,19 +972,19 @@ void wmlOutputUilSymArTa ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "\n/*\n\
  * Bit vectors for each argument. The entries in the vector correspond\n\
  * to each class.\n\
  */\n";
 
-char			*bvechdr =
+static const char	bvechdr[] =
 "\n\
 /* sym_k_%s_arg */\n\
 static unsigned char arg_class_vec%d[] =\n\
   {\n";
 
-char			*canned2 =
+static const char	canned2[] =
 "\n/*\n\
  * Table of bit vectors accessed by sym_k_..._arg\n\
  */\n\
@@ -989,7 +992,7 @@ static unsigned char *allowed_argument_table_vec[] =\n\
   {\n\
   NULL,\t/* UNUSED */\n";
 
-char			*canned3 =
+static const char	canned3[] =
 "  };\n\
 externaldef(uil_sym_glbl) unsigned char **allowed_argument_table =\n\
 \t\tallowed_argument_table_vec;\n";
@@ -1087,19 +1090,19 @@ void wmlOutputUilSymChTa ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "\n/*\n\
  * Bit vectors for each child. The entries in the vector correspond\n\
  * to each class.\n\
  */\n";
 
-char			*bvechdr =
+static const char	bvechdr[] =
 "\n\
 /* sym_k_%s_child */\n\
 static unsigned char child_class_vec%d[] =\n\
   {\n";
 
-char			*canned2 =
+static const char	canned2[] =
 "\n/*\n\
  * Table of bit vectors accessed by sym_k_..._child\n\
  */\n\
@@ -1107,7 +1110,7 @@ static unsigned char *allowed_child_table_vec[] =\n\
   {\n\
   NULL,\t/* UNUSED */\n";
 
-char			*canned3 =
+static const char	canned3[] =
 "  };\n\
 externaldef(uil_sym_glbl) unsigned char **allowed_child_table =\n\
 \t\tallowed_child_table_vec;\n";
@@ -1204,19 +1207,19 @@ void wmlOutputUilSymCtl ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "\n/*\n\
  * Bit vectors for each control. The entries in the vector correspond\n\
  * to each class.\n\
  */\n";
 
-char			*bvechdr =
+static const char	bvechdr[] =
 "\n\
 /* sym_k_%s_object */\n\
 static unsigned char object_class_vec%d[] =\n\
   {\n";
 
-char			*canned2 =
+static const char	canned2[] =
 "\n/*\n\
  * Table of bit vectors accessed by sym_k_..._object\n\
  */\n\
@@ -1224,7 +1227,7 @@ static unsigned char *allowed_control_table_vec[] =\n\
   {\n\
   NULL,\t/* UNUSED */\n";
 
-char			*canned3 =
+static const char	canned3[] =
 "  };\n\
 externaldef(uil_sym_glbl) unsigned char **allowed_control_table =\n\
 \t\tallowed_control_table_vec;\n";
@@ -1333,14 +1336,14 @@ void wmlOutputUilSymNam ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "/*  Define mapping of sym_k_..._object codes to widget names.  */\n\
 \n\
 externaldef(uil_sym_glbl) int uil_max_object = %d;\n\
 static char *uil_widget_names_vec[] = {\n\
     \"\",\t/* NOT USED */\n";
 
-char			*canned2 =
+static const char	canned2[] =
 "};\n\
 externaldef(uil_sym_glbl) char **uil_widget_names =\n\
 \t\tuil_widget_names_vec;\n\
@@ -1351,7 +1354,7 @@ externaldef(uil_sym_glbl) int uil_max_arg = %d;\n\
 static char *uil_argument_names_vec[] = {\n\
     \"\",\t/* NOT USED */\n";
 
-char			*canned3 =
+static const char	canned3[] =
 "};\n\
 externaldef(uil_sym_glbl) char **uil_argument_names =\n\
 \t\tuil_argument_names_vec;\n\
@@ -1362,7 +1365,7 @@ externaldef(uil_sym_glbl) int uil_max_reason = %d;\n\
 static char *uil_reason_names_vec[] = {\n\
     \"\",\t/* NOT USED */\n";
 
-char			*canned4 =
+static const char	canned4[] =
 "};\n\
 externaldef(uil_sym_glbl) char **uil_reason_names =\n\
 \t\tuil_reason_names_vec;\n\
@@ -1374,7 +1377,7 @@ externaldef(uil_sym_glbl) int uil_max_enumval = %d;\n\
 static char *uil_enumval_names_vec[] = {\n\
     \"\",\t/* NOT USED */\n";
 
-char			*canned5 =
+static const char	canned5[] =
 "};\n\
 externaldef(uil_sym_glbl) char **uil_enumval_names =\n\
 \t\tuil_enumval_names_vec;\n\
@@ -1386,7 +1389,7 @@ static char *uil_charset_names_vec[] = {\n\
     \"\",\t/* NOT USED */\n\
     \"<userdefined>\",\n";
 
-char			*canned6 =
+static const char	canned6[] =
 "};\n\
 externaldef(uil_sym_glbl) char **uil_charset_names =\n\
 \t\tuil_charset_names_vec;\n\
@@ -1397,7 +1400,7 @@ externaldef(uil_sym_glbl) int uil_max_child = %d;\n\
 static char *uil_child_names_vec[] = {\n\
     \"\",\t/* NOT USED */\n";
 
-char			*canned7 =
+static const char	canned7[] =
 "};\n\
 externaldef(uil_sym_glbl) char **uil_child_names =\n\
 \t\tuil_child_names_vec;\n";
@@ -1406,6 +1409,9 @@ externaldef(uil_sym_glbl) char **uil_child_names =\n\
 FILE			*outfil;	/* output file */
 int			ndx;		/* loop index */
 WmlClassDefPtr		clsobj;		/* class object */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 WmlClassDefPtr		varobj;		/* gadget class object */
 WmlSynClassDefPtr	synobj;		/* syntactic object */
 WmlResourceDefPtr	resobj;		/* argument/reason object */
@@ -1541,19 +1547,19 @@ void wmlOutputUilSymEnum ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "\n\
 /*\n\
  * Enumeration value vectors for each enumeration set\n\
  */\n\
 \n";
 
-char			*valhdr =
+static const char	valhdr[] =
 "\n\
 static unsigned short int enum_value_vec%d[] =\n\
   {\n";
 
-char			*canned3 =
+static const char	canned3[] =
 "\n\
 /*\n\
  * Enumeration set descriptor table\n\
@@ -1562,7 +1568,7 @@ static UilEnumSetDescDef enum_set_table_vec[] =\n\
   {\n\
     {0,NULL},\n";
 
-char			*canned4 =
+static const char	canned4[] =
 "  };\n\
 externaldef(uil_sym_glbl) UilEnumSetDescDef *enum_set_table =\n\
 \t\tenum_set_table_vec;\n\
@@ -1574,7 +1580,7 @@ static unsigned short int argument_enumset_table_vec[] =\n\
   {\n\
     0,\n";
 
-char			*canned5 =
+static const char	canned5[] =
 "  };\n\
 externaldef(uil_sym_glbl) unsigned short int *argument_enumset_table =\n\
 \t\targument_enumset_table_vec;\n\
@@ -1699,7 +1705,7 @@ void wmlOutputUilSymCSet ()
 
 {
 
-char			*canned1 =
+static const char	canned1[] =
 "\n\
 /*\n\
  * Character set XmString name table, accessed by sym_k_..._charset code.\n\
@@ -1710,7 +1716,7 @@ static char *charset_xmstring_names_table_vec[] =\n\
     0,\n\
     \"<userdefined>\",\n";
 
-char			*canned2 =
+static const char	canned2[] =
 "};\n\
 externaldef(uil_sym_glbl) char **charset_xmstring_names_table =\n\
 \t\tcharset_xmstring_names_table_vec;\n\
@@ -1724,7 +1730,7 @@ static unsigned char charset_wrdirection_table_vec[] =\n\
     0,\n\
     0,\t/* userdefined */\n";
 
-char			*canned3 =
+static const char	canned3[] =
 "};\n\
 externaldef(uil_sym_glbl) unsigned char *charset_writing_direction_table =\n\
 \t\tcharset_wrdirection_table_vec;\n\
@@ -1738,7 +1744,7 @@ static unsigned char charset_parsdirection_table_vec[] =\n\
     0,\n\
     0,\t/* userdefined */\n";
 
-char			*canned4 =
+static const char	canned4[] =
 "};\n\
 externaldef(uil_sym_glbl) unsigned char *charset_parsing_direction_table =\n\
 \t\tcharset_parsdirection_table_vec;\n\
@@ -1752,7 +1758,7 @@ static unsigned char charset_charsize_table_vec[] =\n\
     0,\n\
     0,\t/* userdefined */\n";
 
-char			*canned5 =
+static const char	canned5[] =
 "};\n\
 externaldef(uil_sym_glbl) unsigned char *charset_character_size_table =\n\
 \t\tcharset_charsize_table_vec;\n\
@@ -1763,7 +1769,7 @@ externaldef(uil_sym_glbl) unsigned char *charset_character_size_table =\n\
 static char *charset_lang_names_table_vec[] =\n\
   {\n";
 
-char			*canned6 =
+static const char	canned6[] =
 "};\n\
 externaldef(uil_sym_glbl) char **charset_lang_names_table =\n\
 \t\tcharset_lang_names_table_vec;\n\
@@ -1773,7 +1779,7 @@ externaldef(uil_sym_glbl) char **charset_lang_names_table =\n\
 static unsigned short int charset_lang_codes_table_vec[] =\n\
   {\n";
 
-char			*canned7 =
+static const char	canned7[] =
 "};\n\
 externaldef(uil_sym_glbl) unsigned short int *charset_lang_codes_table =\n\
 \t\tcharset_lang_codes_table_vec;\n\

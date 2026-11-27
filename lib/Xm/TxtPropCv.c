@@ -364,6 +364,9 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
     unsigned char return_status;
     int result;
     size_t size_so_far = 1; /* initialized for the ending NULL */
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XICCEncodingStyle encoding_style;
 
     /* Initialize the buffer in case we have to abort and return

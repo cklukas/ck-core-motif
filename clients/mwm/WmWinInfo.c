@@ -92,12 +92,19 @@ static void FixSubpanelEmbeddedClientGeometry (ClientData *pCD);
 # define LOCALE_MSG "[XmbTextPropertyToTextList]:\n     Locale (%.100s) not supported. (Check $LANG)."
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__format__(__printf__, 1, 0)))
+#endif
 static void
 WmWarningWithString(const char *format, const char *value)
 {
     int messageLength;
     char *message;
 
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
     messageLength = snprintf(NULL, 0, format, value);
     if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
         return;
@@ -110,6 +117,9 @@ WmWarningWithString(const char *format, const char *value)
     }
 
     (void)snprintf(message, (size_t)messageLength + 1, format, value);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
     Warning(message);
     XtFree(message);
 }
@@ -2884,6 +2894,9 @@ void
 MakeSystemMenu (ClientData *pCD)
 {
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     MenuItem *lastItem;
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 

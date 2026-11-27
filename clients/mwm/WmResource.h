@@ -61,7 +61,7 @@ extern char *builtinSystemMenu;
 #else
 extern char builtinSystemMenu[];
 #endif
-extern char builtinKeyBindings[];
+extern const char builtinKeyBindings[];
 extern char builtinRootMenu[];
 extern char builtinSystemMenuName[];
 

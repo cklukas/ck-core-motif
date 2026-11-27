@@ -305,6 +305,9 @@ void QuitWmSignalHandler (int dummy)
 
 void ChildProcSignalHandler (int dummy)
 {
+#if defined(__GNUC__) || defined(__clang__)
+   __attribute__((__unused__))
+#endif
    pid_t pid;
    int status;
    void (*intStat)(int);

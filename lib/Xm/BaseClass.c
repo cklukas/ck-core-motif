@@ -1638,6 +1638,9 @@ ClassPartInitLeafWrapper(
     }
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static Boolean 
 is_constraint_subclass(WidgetClass cls)
 {

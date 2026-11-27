@@ -2683,6 +2683,9 @@ processCharsetAndTextUtf8(XmStringCharSet tag,
 		      unsigned int	*outlen,
 		      ct_Charset	*prev)
 {
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   unsigned int		ctlen = 0, len;
 
   if (tag == NULL || outc == NULL || outlen == NULL || prev == NULL)

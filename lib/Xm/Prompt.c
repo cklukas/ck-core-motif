@@ -15,6 +15,9 @@ static Position bounded_position(long long value) {
     if (value > SHRT_MAX) return (Position)SHRT_MAX;
     return (Position)value;
 }
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static Dimension padded_extent(Dimension value, Dimension padding) {
     return value > (Dimension)USHRT_MAX - padding
                ? (Dimension)USHRT_MAX : (Dimension)(value + padding);

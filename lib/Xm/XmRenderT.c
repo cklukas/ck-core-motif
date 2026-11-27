@@ -1415,6 +1415,9 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
   XmRenderTable		source_table;
   Boolean		*matches;
   short			idx;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext		app=NULL;
 
   if ((renditions == NULL) || (rendition_count == 0) ||
@@ -1972,6 +1975,9 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
   _XmRenderTable body;
   int index, count;
   Cardinal capacity;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app = NULL;
   if (!table) return NULL;
 #ifdef XTHREADS
@@ -2089,6 +2095,9 @@ XmRenderTableGetTags(XmRenderTable table,
 	XmStringTag *tags = NULL;
 	Cardinal i, tag_count;
 	int ret_val = 0;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext          app = NULL;
 
 	if (tag_list == NULL)
@@ -2159,6 +2168,9 @@ XmRenderTableGetRendition(XmRenderTable table,
 			  XmStringTag tag)
 {
   XmRendition ret_val;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app = NULL;
 
   if (table == NULL)
@@ -2193,6 +2205,9 @@ XmRenderTableGetRenditions(XmRenderTable table,
   XmRendition	rend, *rends;
   Cardinal	i, count;
   Boolean	copy_failed = False;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext  app = NULL;
 
   rends = NULL;
@@ -2851,6 +2866,9 @@ XmRenditionUpdate(XmRendition rendition,
   Arg		*arg;
   Display	*display = _XmGetDefaultDisplay();
   Boolean	can_free;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext	app = NULL;
   
   if (rendition == NULL) return;

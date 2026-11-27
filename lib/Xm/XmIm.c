@@ -642,6 +642,9 @@ XmImUnregister(Widget w)
   register XmImDisplayInfo xim_info;
   register XmImShellInfo im_info;
   register XmImXICInfo xic_info;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app;
   
   /* Punt if insufficient information was provided. */
@@ -1167,6 +1170,9 @@ XmImFreeXIC(Widget w,
   register XmImDisplayInfo xim_info;
   register XmImShellInfo im_info;
   register XmImXICInfo xic_info;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XtAppContext app;
   
   /* Punt if insufficient information was provided. */

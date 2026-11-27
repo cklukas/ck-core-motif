@@ -234,8 +234,11 @@ extern void _XmWarningMsg(Widget w,
 			  char *message,
 			  char **params,
 			  Cardinal num_params);
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__format_arg__(2)))
+#endif
 extern const char *_XmMessageOrDefault(const char *candidate,
-				       const char *fallback);
+                                       const char *fallback);
 extern size_t _XmExpandMessage(char *buffer,
 			       size_t buffer_size,
 			       const char *message,

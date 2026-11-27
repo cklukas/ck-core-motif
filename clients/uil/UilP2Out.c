@@ -3179,6 +3179,9 @@ int	compute_color_table_size(sym_value_entry_type *table_entry)
 void	create_color_table(sym_value_entry_type *table_entry, char *buffer)
 {
     RGMColorTable	    *table;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     RGMColorTableEntry	    *item;
     RGMResourceDesc	    *desc;
     int			    i;

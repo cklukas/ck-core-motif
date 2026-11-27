@@ -71,6 +71,9 @@ XmeGetPixmapData(
     int loc_hot_y;
     unsigned int loc_width = 0;
     unsigned int loc_height;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtAppContext app;
     
     app = XtDisplayToApplicationContext(DisplayOfScreen(screen));

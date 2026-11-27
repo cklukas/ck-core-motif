@@ -2097,6 +2097,9 @@ static void
 SetPushButtonSize(
      XmPushButtonWidget newpb)
 {
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   XmLabelPart *lp = &(newpb->label);
   unsigned int onW = 0, onH = 0, onW2 = 0, onH2 = 0;
   XtWidgetProc resize;

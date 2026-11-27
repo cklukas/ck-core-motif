@@ -284,6 +284,9 @@ GetQualifiedDir(String dirSpec)
  ****************/
 {
   size_t          dirSpecLen;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   _Xgetpwparams	  pwd_buf;
   struct passwd * pwd_value;
 
@@ -853,6 +856,9 @@ void
   if (dirStream || useCache)
     {   
       unsigned loopCount = 0;
+#if defined(__GNUC__) || defined(__clang__)
+      __attribute__((__unused__))
+#endif
       _Xreaddirparams dirEntryBuf;
       
       if (loadCache && !ResetCache(qualifiedDir))
@@ -1146,6 +1152,9 @@ String
 XmeGetHomeDirName(void)
 {
   uid_t uid;
+#if defined(__GNUC__) || defined(__clang__)
+  __attribute__((__unused__))
+#endif
   _Xgetpwparams	pwd_buf;
   struct passwd * pwd_value;
 

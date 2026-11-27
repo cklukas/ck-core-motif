@@ -353,6 +353,9 @@ WidgetClass xmTreeWidgetClass = (WidgetClass) &xmTreeClassRec;
 static void 
 ClassInit(void)
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmTreeClassRec* wc = &xmTreeClassRec;
 
     XtSetTypeConverter(XmRString, XmRXmConnectStyle,

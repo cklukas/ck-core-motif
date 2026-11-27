@@ -499,7 +499,6 @@ void emit_length_and_string(int table_id)
 {
     _db_header	header;
     int		*lengths;
-    char	*string_table;
     char	**table = NULL;
     int		i;
     size_t	length_count;
@@ -716,8 +715,10 @@ void emit_int_and_table_shorts(int table_id)
     _db_header		header;
     UilEnumSetDescDef	*table = NULL;
     UilEnumSetDescDef	*serialized;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     int			j, i;
-    unsigned short int	*value_vec;
     size_t              item_count;
     size_t              table_size;
 

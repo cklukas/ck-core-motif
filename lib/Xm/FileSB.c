@@ -1958,7 +1958,6 @@ FileSearchProc(
     {   XtSetArg( args[0], XmNitemCount, 0) ;
         XtSetValues( SB_List( fs), args, 1) ;
         } 
-file_search_done:
     FS_ListUpdated( fs) = TRUE ;
 
     XtFree( (char *) fileList) ;
@@ -2535,7 +2534,6 @@ DirSearchProc(
         FS_ListUpdated( fs) = TRUE ;
         FS_PrevDirModTime( fs) = curDirModTime ;
         }
-dir_search_done:
     XtFree( (char *) qualifiedDir) ;
     
     FS_DirectoryValid( fs) = TRUE ;

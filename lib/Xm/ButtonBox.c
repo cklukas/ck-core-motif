@@ -273,6 +273,9 @@ ClassInitialize()
 static void 
 ClassPartInitialize(WidgetClass w_class )
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmButtonBoxWidgetClass bbClass
         = (XmButtonBoxWidgetClass) w_class ;
 
@@ -648,6 +651,9 @@ ChangeManaged(Widget w)
 static void
 InsertChild(register Widget child)
 {
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 Boolean         is_button = False ;
 XmButtonBoxWidget bb = (XmButtonBoxWidget) XtParent( child) ;
     /*

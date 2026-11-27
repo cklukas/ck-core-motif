@@ -9553,6 +9553,9 @@ PreeditSetRendition(Widget w,
     XIMFeedback fb;
     XmTextPosition prestart = PreStart((XmTextFieldWidget)w)+data->chg_first, left, right;
     XmHighlightMode mode;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmTextFieldWidget tf = (XmTextFieldWidget)w;
 
     if (text == NULL || text->length <= 0) {
@@ -9759,6 +9762,9 @@ PreeditDone(XIC xic,
             XPointer client_data,
             XPointer call_data)
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     Boolean replace_res;
     XmTextFieldWidget tf = (XmTextFieldWidget)client_data;
     Widget p = (Widget) tf;
@@ -9784,6 +9790,9 @@ PreeditDone(XIC xic,
 
     if (tf->text.overstrike){
       if (need_verify) {
+#if defined(__GNUC__) || defined(__clang__)
+	__attribute__((__unused__))
+#endif
 	int cur = PreStart(tf);
  	PreeditVerifyReplace(tf, PreStart(tf), PreStart(tf), 
 				(char*) tf->text.onthespot->over_str,
@@ -9824,6 +9833,9 @@ PreeditDraw(XIC xic,
     char *mb = NULL, *over_mb = NULL;
     wchar_t *wc = NULL, *over_wc = NULL, *tab_wc = NULL , *recover_wc = NULL;
     XmTextPosition startPos, endPos, rest_len =0 , tmp_end;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     Boolean replace_res;
     XRectangle overall_ink;
     size_t i;

@@ -170,6 +170,9 @@ void XmeDrawShadows(Display *display, Drawable d,
                   unsigned int shad_type)
 {
     GC  tmp_gc ;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtAppContext app;
     int inner_width, inner_height, inner_thickness;
 
@@ -216,6 +219,9 @@ void XmeClearBorder (Display *display, Window w,
                     Dimension width, Dimension height, Dimension shadow_thick)
 #endif /* NeedWidePrototypes */
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtAppContext app;
     int clear_width, clear_height, border;
 
@@ -259,6 +265,9 @@ void XmeDrawHighlight(Display *display, Drawable d,
 #endif /* NeedWidePrototypes */
 {
     XRectangle rect[4] ;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtAppContext app;
     int draw_width, draw_height, thickness;
 
@@ -326,6 +335,9 @@ _XmDrawSeparatorWithDash(Display *display, Drawable d,
    XSegment segs[2];
    GC   tmp_gc;
    int i, ndash, shadow_dash_size, separator_span, line_span;
+#if defined(__GNUC__) || defined(__clang__)
+   __attribute__((__unused__))
+#endif
    XtAppContext app;
 
    if (!d || (separator_type == XmNO_LINE)) return ;

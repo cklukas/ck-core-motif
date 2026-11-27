@@ -715,6 +715,9 @@ static void
 Destroy(
         Widget w )
 {
+#if defined(__GNUC__) || defined(__clang__)
+   __attribute__((__unused__))
+#endif
    XmGadget g = (XmGadget)w;
 
    _XmNavigDestroy(w);

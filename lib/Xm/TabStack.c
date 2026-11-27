@@ -193,10 +193,10 @@ static void XiMoveTabPanel _ARGS((Widget, Widget));
 }
 
 #ifndef AssignMax
-#define AssignMax(x,y) if((y)>(x)) (x)=(y); else
+#define AssignMax(x,y) do { if ((y) > (x)) (x) = (y); } while (0)
 #endif
 #ifndef AssignMin
-#define AssignMin(x,y) if((y)<(x)) (x)=(y); else
+#define AssignMin(x,y) do { if ((y) < (x)) (x) = (y); } while (0)
 #endif
 #ifndef Max
 #define Max(x,y) (((x)>(y))?(x):(y))
@@ -705,6 +705,9 @@ ClassInitialize(void)
 ClassInitialize()
 #endif
 {
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmTabStackClassRec* wc = &xmTabStackClassRec;
 
     /*
@@ -1410,6 +1413,9 @@ SetValues(current, request, set, arg_list, arg_cnt)
     Cardinal         num_filtered_args;
     Boolean          need_redraw = False, need_resize = False,
                      need_layout = False; 
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XmString          replacement;
 
     if( c_tab->manager.shadow_thickness != s_tab->manager.shadow_thickness )

@@ -1485,8 +1485,14 @@ void		sar_save_argument_pair(yystype * argument_frame, yystype * value_frame, yy
     sym_list_entry_type		* list_entry;
     sym_value_entry_type	* val_value_entry;
     sym_value_entry_type	* arg_value_entry;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     unsigned char		actual_tag;
 
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     yystype			* source_frame;
 
 
@@ -1599,6 +1605,9 @@ void		sar_save_reason_binding(yystype * reason_frame, yystype * proc_ref_frame, 
     yystype			* object_frame;
     sym_callback_entry_type	* callback_entry;
     sym_list_entry_type		* list_entry;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     yystype			* source_frame;
 
     source_frame = & yylval;
@@ -2025,6 +2034,9 @@ void		sar_add_list_entry(yystype * entry_frame)
     sym_list_entry_type		* list_entry;
     sym_obj_entry_type		* entry_entry;
 
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     yystype			* source_frame;
 
     source_frame = & yylval;
@@ -2143,7 +2155,13 @@ void		sar_add_forward_list_entry(yystype * entry_frame)
     yystype			* list_frame;
     sym_list_entry_type		* list_entry;
     sym_obj_entry_type		* entry_entry;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     sym_name_entry_type		* name_entry;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     yystype			* source_frame;
     sym_nested_list_entry_type	*nested_entry;
 
@@ -2221,6 +2239,9 @@ yystype				* obj_frame;
 sym_widget_entry_type		* widget_entry;
 unsigned int			widget_type;
 sym_obj_entry_type		* obj_entry;
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 yystype				* source_frame;
 
 

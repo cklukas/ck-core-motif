@@ -73,6 +73,13 @@ AC_DEFUN([CK_HARDENING_INIT],
    _CK_HARDENING_FLAG([-Werror=address], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-Werror=missing-field-initializers], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-Werror=sign-compare], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=format-nonliteral], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=empty-body], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=unused-variable], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=unused-but-set-variable], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=unused-function], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=unused-label], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=unused-local-typedefs], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-fstack-protector-strong], [ck_hardening_flags])
    AS_CASE([" $CFLAGS "],
      [*" -O1 "*|*" -O2 "*|*" -O3 "*|*" -Os "*|*" -Og "*|*" -Ofast "*],

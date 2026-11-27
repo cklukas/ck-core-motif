@@ -1318,6 +1318,9 @@ Initialize(
 {
     XmIconGadget	new_ig = (XmIconGadget)nw;
     unsigned int w = 0, h = 0;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     Cardinal i ;
     XmString label_copy;
 

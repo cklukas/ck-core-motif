@@ -1,3 +1,26 @@
+Complete Phase 3 hardening warning ratchet across libXm, libMrm, mwm, uil, wml, and makestrs (2026-11-27)
+=========================================================================================================
+
+- `ck_hardening.m4`, `scripts/warning-baseline.py`, `lib/Xm/*`, `lib/Mrm/*`,
+  `clients/mwm/*`, `clients/uil/*`, `tools/wml/*`, `config/util/makestrs.c`,
+  `tests/automated/check-hardening-defect-ratchet.py`,
+  `docs/hardening-baseline-validation.json`, `docs/hardening.md`:
+  - Annotate `_XmMessageOrDefault` with `__attribute__((__format_arg__(2)))`,
+    wire built-in `MrmMessages.c` format literals into `_MrmCatgetsLit` in
+    `lib/Mrm/MrmMsgI.h`, fix four 64-bit `MrmResource_id` / `XtArgVal` variadic
+    `snprintf` type mismatches in `lib/Mrm/Mrmwcrw.c`, and convert mutable
+    format pointers/arrays in `clients/mwm`, `clients/uil`, `tools/wml`, and
+    `config/util/makestrs.c` to `const char[]` format literals.
+  - Eliminate all `-Wempty-body` (`AssignMax` / `AssignMin` / `Warning` macros),
+    `-Wunused-variable`, `-Wunused-but-set-variable`, `-Wunused-function`
+    (`%option nounput noinput` in WML scanners, `#ifndef CALLABLE` in `UilMain.c`,
+    `static inline` in `DragCI.h`), `-Wunused-label`, and
+    `-Wunused-local-typedefs` diagnostics across the entire repository, and
+    promote all seven warning classes to `-Werror=...` under `--enable-hardening`
+    (zero warnings in `clients/uil`, `tools/wml`, `config/util`, and Clang
+    `--enable-hardening`; only 125 wide-platform `SIZE_MAX` / `RGMListSizeMax`
+    `-Wtype-limits` guards remain on 64-bit GCC).
+
 Expand libFuzzer parser suite (Compound Text, ImageCache, UIL grammar) and fix uncovered memory-safety defects (2026-11-27)
 ===========================================================================================================================
 

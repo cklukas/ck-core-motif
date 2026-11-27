@@ -108,6 +108,9 @@ static void free_items(XmAutoSuggestBoxWidget box)
     XtFree((char *)items);
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static void free_item_array(XmAutoSuggestStoredItem *items, Cardinal count)
 {
     Cardinal i;

@@ -457,6 +457,9 @@ SecondaryConvertHandler(Widget w,
   for (;;) {
 #endif
     XEvent event;
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtInputMask mask;
 
     if (secondary_lock == 0) break;

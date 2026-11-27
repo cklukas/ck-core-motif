@@ -197,6 +197,9 @@ MakeCachedDirEntry(String dirName)
 	char    *p;
 	int	numFiles = 0;
 	size_t	nameHeapSize = 0;
+#if defined(__GNUC__) || defined(__clang__)
+	__attribute__((__unused__))
+#endif
 	_Xreaddirparams dirEntryBuf;
 
         /* 
@@ -679,6 +682,9 @@ XmGetIconFileName(
 	{'H', NULL},	/* host prefix */
     };
 
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((__unused__))
+#endif
     XtAppContext app;
 
     app = XtDisplayToApplicationContext(display);

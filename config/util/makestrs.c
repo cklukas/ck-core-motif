@@ -230,8 +230,6 @@ WriteHeader (char* tagline, File* phile, int abi)
 {
     FILE* f;
     char* tmp;
-    Table* t;
-    TableEnt* te;
     static void (*const headerproc[])(FILE *, File *) = { DefaultWriteHeader, ArrayperWriteHeader,
 	                                  IntelABIWriteHeader, IntelABIWriteHeader,
 	                                  SPARCABIWriteHeader, FunctionWriteHeader };
@@ -281,7 +279,7 @@ WriteSourceLine (TableEnt* te, int abi, int fudge)
     (void) printf ("%s", "\n");
 }
 
-static char* const_string = "%s %sConst char %s[] = {\n";
+static const char const_string[] = "%s %sConst char %s[] = {\n";
 
 static void
 IntelABIWriteSource (int abi)

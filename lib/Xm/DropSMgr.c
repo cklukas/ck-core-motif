@@ -3341,6 +3341,9 @@ CountDropSites(
 
 /* This short resource list is used to initialize just the
    activity member. */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static XtResource mini_resources[] = {
 	{   XmNdropSiteActivity, XmCDropSiteActivity, XmRDropSiteActivity,
 		sizeof(unsigned char),

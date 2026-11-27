@@ -796,6 +796,9 @@ FunctionTableEntry functionTable[] = {
 
 /* External callers can request a prefix of the built-in function table.  Keep
  * an invalid size from extending that request beyond the table itself. */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__unused__))
+#endif
 static int
 BoundFunctionTableSize(int tableSize)
 {
