@@ -554,7 +554,10 @@ void XmBreadcrumbBarSetSegments(Widget widget,
     if (old_current >= 0 && (Cardinal)old_current < bar->breadcrumb.count)
         selected_id = bar->breadcrumb.items[old_current].id;
     if (count) {
-        if ((size_t)count > SIZE_MAX / sizeof(*bar->breadcrumb.items) ||
+        if (
+#if SIZE_MAX <= UINT_MAX
+            (size_t)count > SIZE_MAX / sizeof(*bar->breadcrumb.items) ||
+#endif
             (size_t)count > UINT_MAX / sizeof(*bar->breadcrumb.items))
             return;
         replacement = (XmBreadcrumbBarItem *)XtCalloc(

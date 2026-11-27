@@ -29,6 +29,8 @@
 #include <config.h>
 #endif
 
+#include <limits.h>
+
 
 /*
  *++
@@ -307,7 +309,10 @@ Urm__SwapRGMCallbackDesc (RGMCallbackDescPtr	callb_desc,
   swapbytes( callb_desc->count );
   swapbytes( callb_desc->annex );
   swapbytes( callb_desc->unres_ref_count );
-  if (callb_desc->count < 0 || callb_desc->count > RGMListSizeMax ||
+  if (callb_desc->count < 0 ||
+#if SHRT_MAX > RGMListSizeMax
+      callb_desc->count > RGMListSizeMax ||
+#endif
       (size_t)callb_desc->count + 1 >
         (widget_rec->size - callback_offs -
 	 (sizeof(RGMCallbackDesc) - sizeof(RGMCallbackItem))) /

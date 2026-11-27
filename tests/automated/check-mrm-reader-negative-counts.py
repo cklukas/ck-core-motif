@@ -9,7 +9,6 @@ text = (Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c").read_text(
 )
 start = text.index("Urm__CW_ConvertValue (Widget")
 body = text[start:]
-assert "vecptr->count < 0 || vecptr->count > RGMListSizeMax" in body
-assert "fontlist->count < 0 || fontlist->count > RGMListSizeMax" in body
-assert "vecptr->count < 0 || vecptr->count > RGMListSizeMax" in body
+assert body.count("vecptr->count < 0") >= 3 and body.count("vecptr->count > RGMListSizeMax") >= 3
+assert "fontlist->count < 0" in body and "fontlist->count > RGMListSizeMax" in body
 print("Mrm reader rejects negative vector and font-list counts")

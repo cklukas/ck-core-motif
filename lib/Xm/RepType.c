@@ -1352,7 +1352,10 @@ XmRepTypeRegister(
     XtConvertArgRec convertArg;
     XmRepTypeId reptype_id;
     
-    if (!num_values || (unsigned int)num_values > UCHAR_MAX ||
+    if (!num_values ||
+#if NeedWidePrototypes
+	(unsigned int)num_values > UCHAR_MAX ||
+#endif
 	!rep_type_name || !value_names)
 	return( XmREP_TYPE_INVALID) ;
 

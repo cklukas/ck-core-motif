@@ -1204,7 +1204,9 @@ XmAddToPostFromList(
 
       /* Add to list, we add the menu's shell parent. */
       if (list->num_popups == (Cardinal)-1 ||
+#if SIZE_MAX <= UINT_MAX
           (size_t)(list->num_popups + 1) > SIZE_MAX / sizeof(Widget) ||
+#endif
           (size_t)(list->num_popups + 1) > UINT_MAX / sizeof(Widget))
         {
           _XmAppUnlock(app);

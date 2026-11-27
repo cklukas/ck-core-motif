@@ -2241,7 +2241,9 @@ XmCreateSelectionDialog(
     Widget w;
 
     if (sb_n == (Cardinal)~(Cardinal)0 ||
+#if SIZE_MAX <= UINT_MAX
         (size_t)sb_n >= SIZE_MAX / sizeof(Arg) ||
+#endif
         sb_n >= (Cardinal)(UINT_MAX / sizeof(Arg)) ||
         (sb_n != 0 && sb_args == NULL))
 	return NULL;
@@ -2279,7 +2281,9 @@ XmCreatePromptDialog(
     Widget w;
 
     if (sb_n == (Cardinal)~(Cardinal)0 ||
+#if SIZE_MAX <= UINT_MAX
         (size_t)sb_n >= SIZE_MAX / sizeof(Arg) ||
+#endif
         sb_n >= (Cardinal)(UINT_MAX / sizeof(Arg)) ||
         (sb_n != 0 && sb_args == NULL))
 	return NULL;

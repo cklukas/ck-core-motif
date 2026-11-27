@@ -12,8 +12,8 @@ region = text[start:end]
 
 if "int insert_length=0;" not in region:
     raise SystemExit("preedit length is still stored in a narrow type")
-if "call_data->text->length < 0" not in region:
-    raise SystemExit("negative XIM preedit lengths are not rejected")
+if "(insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE" not in region:
+    raise SystemExit("oversized XIM preedit lengths are not rejected")
 if "unsigned short insert_length" in region:
     raise SystemExit("preedit length retains the old 16-bit storage")
 

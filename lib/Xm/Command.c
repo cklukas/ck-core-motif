@@ -910,7 +910,9 @@ XmCreateCommand(
     ArgList  argsNew;
 
     if (ac == (Cardinal)~(Cardinal)0 ||
+#if SIZE_MAX <= UINT_MAX
         (size_t)ac >= SIZE_MAX / sizeof(Arg) ||
+#endif
         ac >= (Cardinal)(UINT_MAX / sizeof(Arg)) ||
         (ac != 0 && al == NULL))
 	return NULL;

@@ -3280,15 +3280,6 @@ DrawSquareShadows(tab, info, geometry, selected, edge, shadow)
 			       geometry->y,
 			       (int)geometry->width - 2*shadow,
 			       shadow);
-			       
-		if( geometry->column == 0 && geometry->column > 0 )
-		{
-		    XmDrawBevel(XtDisplay(tab), XiCanvas(tab),
-				tab->manager.bottom_shadow_GC,
-				tab->manager.top_shadow_GC,
-				geometry->x, geometry->y, shadow,
-				XmBEVEL_BOTH);
-		}
 	    }
 	    else if( geometry->row == 0 )
 	    {

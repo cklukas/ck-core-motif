@@ -1746,7 +1746,10 @@ CreateIndirectionTable(XtResourceList resources,
   register Cardinal i;
   XtResourceList* table;
 
-  if ((size_t)num_resources > SIZE_MAX / sizeof(*table) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t)num_resources > SIZE_MAX / sizeof(*table) ||
+#endif
       num_resources > UINT_MAX / sizeof(*table))
     return NULL;
   table = (XtResourceList*)XtMalloc((size_t)num_resources * sizeof(*table));
@@ -1844,7 +1847,10 @@ _XmTransformSubResources(
      {
        XtResourceList tmp_resources;
 
-       if ((size_t)num_comp_resources > SIZE_MAX / sizeof(XtResource) ||
+       if (
+#if SIZE_MAX <= UINT_MAX
+	   (size_t)num_comp_resources > SIZE_MAX / sizeof(XtResource) ||
+#endif
 	   num_comp_resources > UINT_MAX / sizeof(XtResource)) {
 	 *resources = NULL;
 	 *num_resources = 0;

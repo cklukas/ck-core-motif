@@ -215,7 +215,10 @@ xpmParseColors(
     if (ncolors >= UINT_MAX / sizeof(XpmColor))
 	return (XpmNoMemory);
     if (data->type == XPMBUFFER &&
-	(data->cptr == NULL || (size_t)cpp >= SIZE_MAX ||
+	(data->cptr == NULL ||
+#if SIZE_MAX <= UINT_MAX
+	 (size_t)cpp >= SIZE_MAX ||
+#endif
 	 (size_t)ncolors > SIZE_MAX / ((size_t)cpp + 1) ||
 	 strnlen(data->cptr, (size_t)ncolors * ((size_t)cpp + 1)) <
 	     (size_t)ncolors * ((size_t)cpp + 1)))

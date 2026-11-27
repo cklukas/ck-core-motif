@@ -442,7 +442,10 @@ remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
         free_saved_value(XmImResList[k].xmstring, value);
         continue;
         }
-      if ((size_t)r->count > SIZE_MAX / sizeof(Arg) - 1 ||
+      if (
+#if SIZE_MAX <= UINT_MAX
+          (size_t)r->count > SIZE_MAX / sizeof(Arg) - 1 ||
+#endif
           (size_t)r->count > UINT_MAX / sizeof(Arg) - 1) {
         free_saved_value(XmImResList[k].xmstring, value);
         continue;
@@ -3017,7 +3020,10 @@ add_ref(XmImRefInfo refs,
           new_max = refs->max_refs + increment;
         }
 
-      if ((size_t)new_max > SIZE_MAX / sizeof(*new_refs) ||
+      if (
+#if SIZE_MAX <= UINT_MAX
+          (size_t)new_max > SIZE_MAX / sizeof(*new_refs) ||
+#endif
           new_max > UINT_MAX / sizeof(*new_refs) ||
           new_max > UINT_MAX / sizeof(*new_callbacks))
         return 0;
@@ -3090,7 +3096,10 @@ remove_ref(XmImRefInfo refs,
 	  Cardinal new_max = refs->max_refs / 2;
 	  Widget *new_refs;
 	  XIMCallback **new_callbacks;
-	  if ((size_t)new_max > SIZE_MAX / sizeof(Widget) ||
+	  if (
+#if SIZE_MAX <= UINT_MAX
+	      (size_t)new_max > SIZE_MAX / sizeof(Widget) ||
+#endif
 	      new_max > UINT_MAX / sizeof(Widget) ||
 	      new_max > UINT_MAX / sizeof(XIMCallback *))
 	    return refs->num_refs;
@@ -3176,7 +3185,9 @@ VaSetArg(VaArgList list,
       Cardinal new_max;
       VaArg *new_args;
       if (list->max > (Cardinal)-1 - 10 ||
+#if SIZE_MAX <= UINT_MAX
           (size_t)(list->max + 10) > SIZE_MAX / sizeof(VaArg) ||
+#endif
           (list->max + 10) > UINT_MAX / sizeof(VaArg))
         return;
       new_max = list->max + 10;

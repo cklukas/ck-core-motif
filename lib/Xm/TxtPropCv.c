@@ -832,7 +832,7 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 
     _XmAppLock(app);
     if (text_prop == NULL || string_table_return == NULL ||
-	count_return == NULL || text_prop->nitems < 0 ||
+	count_return == NULL ||
 	(text_prop->nitems != 0 && text_prop->value == NULL)) {
 	_XmAppUnlock(app);
 	return BadValue;

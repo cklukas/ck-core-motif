@@ -962,7 +962,10 @@ void
 	      if (*pNumAlloc > (unsigned)-1 - FILE_LIST_BLOCK)
 		break;
 	      new_alloc = *pNumAlloc + FILE_LIST_BLOCK;
-	      if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_entries) ||
+	      if (
+#if SIZE_MAX <= UINT_MAX
+		  (size_t)new_alloc > SIZE_MAX / sizeof(*new_entries) ||
+#endif
 		  (size_t)new_alloc > (size_t)UINT_MAX / sizeof(*new_entries))
 		break;
 	      new_entries = (String *)XtRealloc(

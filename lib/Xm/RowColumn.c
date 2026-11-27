@@ -3845,7 +3845,9 @@ TraversalChildren (
       */
      child_count = rc->composite.num_children;
      if (child_count == (Cardinal)~0 ||
+#if SIZE_MAX <= UINT_MAX
          (size_t)child_count > SIZE_MAX / sizeof(Widget) - 1 ||
+#endif
          (size_t)child_count > (size_t)((Cardinal)~0) / sizeof(Widget) - 1)
        return (False);
      slot_count = (size_t)child_count + 1;

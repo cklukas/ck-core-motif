@@ -285,7 +285,10 @@ png_load_file(FILE *infile, unsigned long *pWidth,
         return 4;
     }
     allocated_image = *image_data;
-    if (height > SIZE_MAX / sizeof(png_bytep) ||
+    if (
+#if SIZE_MAX <= UINT_MAX
+        height > SIZE_MAX / sizeof(png_bytep) ||
+#endif
         (row_pointers = (png_bytepp) malloc((size_t)height *
                                              sizeof(png_bytep))) == NULL) {
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);

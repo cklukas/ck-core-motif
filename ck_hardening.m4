@@ -80,6 +80,7 @@ AC_DEFUN([CK_HARDENING_INIT],
    _CK_HARDENING_FLAG([-Werror=unused-function], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-Werror=unused-label], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-Werror=unused-local-typedefs], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=type-limits], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-fstack-protector-strong], [ck_hardening_flags])
    AS_CASE([" $CFLAGS "],
      [*" -O1 "*|*" -O2 "*|*" -O3 "*|*" -Os "*|*" -Og "*|*" -Ofast "*],

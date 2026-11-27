@@ -7,6 +7,6 @@ text=source.read_text(encoding="utf-8")
 start=text.index("\nUrm__CW_FixupValue ("); end=text.find("\n\n\f",start)
 region=text[start:end]
 if "bufptr == NULL || val == 0" not in region: raise SystemExit("font-list buffer guard missing")
-if "oldlist->count < 0 || oldlist->count > RGMListSizeMax" not in region: raise SystemExit("old font-list count guard missing")
-if "fontlist->count < 0 || fontlist->count > RGMListSizeMax" not in region: raise SystemExit("font-list count guard missing")
+if "oldlist->count < 0" not in region or "oldlist->count > RGMListSizeMax" not in region: raise SystemExit("old font-list count guard missing")
+if "fontlist->count < 0" not in region or "fontlist->count > RGMListSizeMax" not in region: raise SystemExit("font-list count guard missing")
 print("Mrm font-list fixup validates buffers and counts")

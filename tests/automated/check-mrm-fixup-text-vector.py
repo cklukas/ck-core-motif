@@ -11,5 +11,5 @@ start = text.index("Urm__CW_FixupValue (long")
 end = text.index("\n}\n", start)
 body = text[start:end]
 assert "vecptr == NULL || bufptr == NULL || swap_needed == NULL" in body
-assert "vecptr->count < 0 || vecptr->count > RGMListSizeMax" in body
+assert "vecptr->count < 0" in body and "vecptr->count > RGMListSizeMax" in body
 print("Mrm text-vector fixup guards pointers and counts")

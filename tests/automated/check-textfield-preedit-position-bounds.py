@@ -14,7 +14,8 @@ rendition_end = text.index("\n}\n", rendition_start)
 rendition = text[rendition_start:rendition_end]
 
 for item in ("call_data->caret < 0", "call_data->chg_first < 0",
-             "call_data->chg_length < 0", "call_data->text->length < 0"):
+             "call_data->chg_length < 0",
+             "(insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE"):
     if item not in draw:
         raise SystemExit(f"missing TextField XIM guard: {item}")
 if "text == NULL || text->length <= 0" not in rendition:

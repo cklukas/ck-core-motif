@@ -165,7 +165,9 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   if (num_args == 0)
     return MrmFAILURE;
   if (num_args > (Cardinal)INT_MAX ||
+#if SIZE_MAX <= UINT_MAX
       (size_t)num_args > SIZE_MAX / sizeof(Arg) ||
+#endif
       num_args > UINT_MAX / sizeof(Arg))
     return MrmFAILURE;
   arg_count = (int)num_args;
@@ -217,7 +219,10 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   resptr->res_group = URMgLiteral ;
   resptr->cvt_type = URMtNul ;
 
-  if ((size_t)num_args > SIZE_MAX / sizeof(*pixargs) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t)num_args > SIZE_MAX / sizeof(*pixargs) ||
+#endif
       num_args > UINT_MAX / sizeof(*pixargs))
     {
       XtFree ((char *)resptr);

@@ -473,7 +473,10 @@ IncludeCommand (
       PRINT("Truncated window list passed to IncludeCommand.\n");
       return;
     }
-  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t) count > SIZE_MAX / sizeof(Window) ||
+#endif
       (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for IncludeCommand.\n");
@@ -620,7 +623,10 @@ EnableCommand (
       PRINT("Truncated window list passed to EnableCommand.\n");
       return;
     }
-  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t) count > SIZE_MAX / sizeof(Window) ||
+#endif
       (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for EnableCommand.\n");
@@ -764,7 +770,10 @@ DisableCommand (
       PRINT("Truncated window list passed to DisableCommand.\n");
       return;
     }
-  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t) count > SIZE_MAX / sizeof(Window) ||
+#endif
       (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for DisableCommand.\n");
@@ -923,7 +932,10 @@ RenameCommand (
 	  XtFree(newname);
       return;
     }
-  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t) count > SIZE_MAX / sizeof(Window) ||
+#endif
       (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for RenameCommand.\n");
@@ -1070,7 +1082,10 @@ RemoveCommand (
       PRINT("Truncated window list passed to RemoveCommand.\n");
       return;
     }
-  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t) count > SIZE_MAX / sizeof(Window) ||
+#endif
       (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for RemoveCommand.\n");

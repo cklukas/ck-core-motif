@@ -1128,8 +1128,11 @@ GetDetailHeader(
  	if (cw->container.cache_detail_heading)
  	    XtFree((char*)cw->container.cache_detail_heading) ;
 	 cw->container.cache_detail_heading = NULL;
-	  if ((size_t)icon_detail_header_count >
+	  if (
+#if SIZE_MAX <= UINT_MAX
+	      (size_t)icon_detail_header_count >
 	      (SIZE_MAX / sizeof(XmString)) - 1 ||
+#endif
 	      (size_t)icon_detail_header_count >
 	      (UINT_MAX / sizeof(XmString)) - 1) {
 	      return;
@@ -1323,8 +1326,11 @@ Initialize(
      * deal with XmNdetailOrder & XmNdetailOrderCount
      */
     if (ncw->container.detail_order_count && ncw->container.detail_order) {
-	if ((size_t)ncw->container.detail_order_count >
+	if (
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)ncw->container.detail_order_count >
 		SIZE_MAX / sizeof(Cardinal) ||
+#endif
 	    (size_t)ncw->container.detail_order_count >
 		UINT_MAX / sizeof(Cardinal)) {
 	    ncw->container.detail_order = NULL;
@@ -2039,8 +2045,11 @@ SetValues(
 	if (ncw->container.detail_order_count && 
 	    ncw->container.detail_order) {
 	    Cardinal * detail_order ;
-	    if ((size_t)ncw->container.detail_order_count >
+	    if (
+#if SIZE_MAX <= UINT_MAX
+		(size_t)ncw->container.detail_order_count >
 		SIZE_MAX / sizeof(Cardinal) ||
+#endif
 		(size_t)ncw->container.detail_order_count >
 		UINT_MAX / sizeof(Cardinal)) {
 		ncw->container.detail_order = NULL;
@@ -3701,8 +3710,11 @@ GetSpatialSize (
      */
     if (CtrSpatialStyleIsCELLS(cw))
 	{
-	if ((size_t)cw->composite.num_children >
+	if (
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)cw->composite.num_children >
 	    SIZE_MAX / sizeof(XmContainerCwidCellInfoRec) ||
+#endif
 	    (size_t)cw->composite.num_children >
 	    UINT_MAX / sizeof(XmContainerCwidCellInfoRec))
 	    return;
@@ -6304,7 +6316,9 @@ GetDumbTabList(
     size_t tab_bytes;
 
     if (asked_num_tab == 0 ||
+#if SIZE_MAX <= UINT_MAX
         (size_t)asked_num_tab > SIZE_MAX / sizeof(*tab_pool) ||
+#endif
         (size_t)asked_num_tab > UINT_MAX / sizeof(*tab_pool))
         return NULL;
     tab_bytes = (size_t)asked_num_tab * sizeof(*tab_pool);
@@ -10009,8 +10023,11 @@ GetSelectedCwids(
 	
 	if (cw->container.selected_item_count == 0)
 		return(NULL);
-	if ((size_t)cw->container.selected_item_count >
+	if (
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)cw->container.selected_item_count >
 	    SIZE_MAX / sizeof(Widget) ||
+#endif
 	    (size_t)cw->container.selected_item_count >
 	    UINT_MAX / sizeof(Widget))
 		return(NULL);

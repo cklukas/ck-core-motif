@@ -79,7 +79,10 @@ static void rebuild(XmCommandPaletteWidget palette)
     XtFree((char *)palette->palette.visible);
     palette->palette.visible = NULL;
     if (palette->palette.item_count &&
-        ((size_t)palette->palette.item_count > SIZE_MAX / sizeof(Cardinal) ||
+        (
+#if SIZE_MAX <= UINT_MAX
+         (size_t)palette->palette.item_count > SIZE_MAX / sizeof(Cardinal) ||
+#endif
          (size_t)palette->palette.item_count > UINT_MAX / sizeof(Cardinal))) {
         XtWarning("XmCommandPalette: visible item index is too large");
         XtFree(filter);
@@ -163,7 +166,9 @@ void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, 
     if (!count) { free_items(palette); rebuild(palette); return; }
     if (!items) { XtWarning("XmCommandPaletteSetItems: NULL item array"); return; }
     if ((size_t)count > (size_t)INT_MAX ||
+#if SIZE_MAX <= UINT_MAX
         (size_t)count > SIZE_MAX / sizeof(*palette->palette.items) ||
+#endif
         (size_t)count > UINT_MAX / sizeof(*palette->palette.items)) {
         XtWarning("XmCommandPaletteSetItems: item array is too large");
         return;

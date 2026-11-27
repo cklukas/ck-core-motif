@@ -2470,11 +2470,13 @@ CvtStringToCharSetTable(
     }
   memcpy(work_str, in_str, in_str_size);
 
+#if SIZE_MAX <= UINT_MAX
   if (numCharsets > (SIZE_MAX / sizeof(XmStringCharSet)) - 1)
     {
       XtFree(work_str);
       return(False);
     }
+#endif
   tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);
   if (strDataSize > SIZE_MAX - tableSize ||
       tableSize > (size_t)UINT_MAX ||

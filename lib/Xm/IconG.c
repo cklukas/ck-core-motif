@@ -1236,7 +1236,9 @@ CopyDetailTable(XmStringTable source, Cardinal count)
     Cardinal i;
 
     if (source == NULL || count == 0 ||
+#if SIZE_MAX <= UINT_MAX
         (size_t)count > SIZE_MAX / sizeof(*copy) ||
+#endif
         (size_t)count > UINT_MAX / sizeof(*copy))
         return NULL;
 
@@ -3435,7 +3437,10 @@ GetStringTableReOrdered(
     if (count > Max_st_count) {
 	Cardinal new_max = MAX(count, 33);
 	XmStringTable new_table;
-	if ((size_t)new_max > SIZE_MAX / sizeof(XmString) ||
+	if (
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)new_max > SIZE_MAX / sizeof(XmString) ||
+#endif
 	    new_max > UINT_MAX / sizeof(XmString))
 	    return NULL;
 	new_table = (XmStringTable)XtRealloc(

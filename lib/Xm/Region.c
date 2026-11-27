@@ -2285,7 +2285,10 @@ _XmRegionDrawShadow(
 	}
     }
 
-    if (nrects <= 0 || shadow_thick > (unsigned int)INT_MAX / 2 ||
+    if (nrects <= 0 ||
+#if NeedWidePrototypes || USHRT_MAX > INT_MAX / 2
+	(unsigned int)shadow_thick > (unsigned int)INT_MAX / 2 ||
+#endif
 	(long)nrects > (long)INT_MAX / ((long)shadow_thick * 2) ||
 	(long)nrects * (long)shadow_thick * 2 >
 	    (long)(UINT_MAX / sizeof(XSegment))) {

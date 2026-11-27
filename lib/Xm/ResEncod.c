@@ -282,7 +282,9 @@ _PushDir(ct_context *ctx, ct_Direction dir)
         ct_Direction *new_stack;
 
         if (new_size < ctx->dirstacksize ||
+#if SIZE_MAX <= UINT_MAX
             (size_t)new_size > SIZE_MAX / sizeof(*new_stack) ||
+#endif
             (size_t)new_size > UINT_MAX / sizeof(*new_stack))
             return False;
         new_stack = (ct_Direction *)XtRealloc(

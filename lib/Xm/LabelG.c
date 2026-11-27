@@ -4047,7 +4047,9 @@ int *line_count)
             &(lw->label.baselines), &count);
         if (lw->label.baselines == NULL || count == (Cardinal)-1 ||
             count > (Cardinal)INT_MAX ||
+#if SIZE_MAX <= UINT_MAX
             (size_t)count >= SIZE_MAX / sizeof(*new_baselines) ||
+#endif
             (size_t)count >= (size_t)UINT_MAX / sizeof(*new_baselines)) {
             lw->label.baselines = NULL;
             return False;
@@ -4071,7 +4073,9 @@ int *line_count)
     }
 
     if (count == (Cardinal)-1 || count > (Cardinal)INT_MAX ||
+#if SIZE_MAX <= UINT_MAX
         (size_t)count >= SIZE_MAX / sizeof(Dimension) ||
+#endif
         (size_t)count >= (size_t)UINT_MAX / sizeof(Dimension))
         return False;
 

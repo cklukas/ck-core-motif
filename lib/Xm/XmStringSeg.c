@@ -59,7 +59,10 @@ CopyRenditionTags(XmStringTag *source,
     return True;
   if (source == NULL)
     return False;
-  if ((size_t)count > SIZE_MAX / sizeof(*tags) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t)count > SIZE_MAX / sizeof(*tags) ||
+#endif
       (size_t)count > UINT_MAX / sizeof(*tags))
     return False;
 
@@ -193,7 +196,10 @@ _XmStringGetSegment(_XmStringContext   context,
 	      if ((*tag_count == 0) && _XmStrContRendCount(local_context))
 		{
 		  *tag_count = _XmStrContRendCount(local_context);
-		  if ((size_t)*tag_count > SIZE_MAX / sizeof(XmStringTag) ||
+		  if (
+#if SIZE_MAX <= UINT_MAX
+		      (size_t)*tag_count > SIZE_MAX / sizeof(XmStringTag) ||
+#endif
 		      (size_t)*tag_count > UINT_MAX / sizeof(XmStringTag))
 		    {
 		      *tag_count = 0;
@@ -269,7 +275,10 @@ _XmStringGetSegment(_XmStringContext   context,
 	      if ((*tag_count == 0) && _XmStrContRendCount(local_context))
 		{
 		  *tag_count = _XmStrContRendCount(local_context);
-		    if ((size_t)*tag_count > SIZE_MAX / sizeof(XmStringTag) ||
+		    if (
+#if SIZE_MAX <= UINT_MAX
+			(size_t)*tag_count > SIZE_MAX / sizeof(XmStringTag) ||
+#endif
 			(size_t)*tag_count > UINT_MAX / sizeof(XmStringTag))
 		      {
 			*tag_count = 0;

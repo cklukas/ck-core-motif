@@ -1905,7 +1905,10 @@ FileSearchProc(
 	    qsort( (void *)fileList, numFiles, sizeof( char *), 
 		  _XmOSFileCompare) ;
 	
-        if ((size_t)numFiles > SIZE_MAX / sizeof(XmString) ||
+        if (
+#if SIZE_MAX <= UINT_MAX
+            (size_t)numFiles > SIZE_MAX / sizeof(XmString) ||
+#endif
             (size_t)numFiles > UINT_MAX / sizeof(XmString))
             goto file_search_cleanup;
         XmStringFileList = (XmString *) XtMalloc(
@@ -2475,7 +2478,10 @@ DirSearchProc(
         if(    numDirs > 1    )
         {   qsort( (void *)dirList, numDirs, sizeof( char *), _XmOSFileCompare) ;
             } 
-        if ((size_t)numDirs > SIZE_MAX / sizeof(XmString) ||
+        if (
+#if SIZE_MAX <= UINT_MAX
+            (size_t)numDirs > SIZE_MAX / sizeof(XmString) ||
+#endif
             (size_t)numDirs > UINT_MAX / sizeof(XmString))
             goto dir_string_cleanup;
         XmStringDirList = (XmString *) XtMalloc(

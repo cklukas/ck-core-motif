@@ -217,9 +217,11 @@ Initialize(
 
 	if (dtp->num_drop_transfers != 0)
 	{
+#if SIZE_MAX <= UINT_MAX
 		if ((size_t)dtp->num_drop_transfers >
 		    SIZE_MAX / sizeof(XmDropTransferEntryRec))
 		    goto no_drop_transfers;
+#endif
 		dtp->num_drop_transfer_lists = 1;
 		dtp->drop_transfer_lists = (XmDropTransferList)
 			XtMalloc(sizeof(XmDropTransferListRec) *

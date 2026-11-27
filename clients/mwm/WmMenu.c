@@ -3407,7 +3407,10 @@ static Boolean SavePBInfo (MenuSpec *topMenuSpec, MenuItem *menuItem,
     /* need to create array */
     {
         newSize = MENU_BUTTON_INC;
-        if ((size_t)newSize > SIZE_MAX / sizeof(*newButtons) ||
+        if (
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)newSize > SIZE_MAX / sizeof(*newButtons) ||
+#endif
 	    newSize > UINT_MAX / sizeof(*newButtons))
 	    return (FALSE);
 	newButtons = (MenuButton *)XtMalloc(
@@ -3423,7 +3426,10 @@ static Boolean SavePBInfo (MenuSpec *topMenuSpec, MenuItem *menuItem,
         if (topMenuSpec->menuButtonSize > UINT_MAX - MENU_BUTTON_INC)
 	    return (FALSE);
         newSize = topMenuSpec->menuButtonSize + MENU_BUTTON_INC;
-        if ((size_t)newSize > SIZE_MAX / sizeof(*newButtons) ||
+        if (
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)newSize > SIZE_MAX / sizeof(*newButtons) ||
+#endif
 	    newSize > UINT_MAX / sizeof(*newButtons))
 	    return (FALSE);
         newButtons = (MenuButton *)XtRealloc(

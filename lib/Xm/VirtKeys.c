@@ -449,8 +449,10 @@ FillBindingsFromDB(Display       *dpy,
 	      XmVKeyBinding resized;
 
 	      if (new_num > UINT_MAX - *num_keys ||
+#if SIZE_MAX <= UINT_MAX
 		  (size_t)(*num_keys + new_num) >
 		  SIZE_MAX / sizeof(XmVKeyBindingRec) ||
+#endif
 		  (size_t)(*num_keys + new_num) >
 		  UINT_MAX / sizeof(XmVKeyBindingRec)) {
 		if (free_keys)

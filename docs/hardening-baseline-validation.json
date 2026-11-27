@@ -2,40 +2,32 @@
  "record": "hardening-baseline",
  "project": "motif",
  "date": "2026-11-27",
- "code_revision": "c8dd7d160",
- "motif_revision": "c8dd7d160",
+ "code_revision": "090ac07dfc49",
+ "motif_revision": "090ac07dfc49",
  "host_architecture": "aarch64",
  "host": "Ubuntu 26.04.1 LTS (Lima cde-ubuntu2604, local /var/tmp build)",
  "build": {
   "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
   "profile": "--enable-hardening",
-  "hardening_flags": "-Wall -Wextra -Wno-unused-parameter -Wformat=2 -Wnull-dereference -Werror=format-security -Werror=implicit-fallthrough=3 -Werror=null-dereference -Werror=misleading-indentation -Werror=cast-function-type -Wno-cast-function-type-strict -Werror=pointer-to-int-cast -Werror=int-to-pointer-cast -Werror=maybe-uninitialized -Werror=uninitialized -Werror=address -Werror=missing-field-initializers -Werror=sign-compare -Werror=format-nonliteral -Werror=empty-body -Werror=unused-variable -Werror=unused-but-set-variable -Werror=unused-function -Werror=unused-label -Werror=unused-local-typedefs -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3",
+  "hardening_flags": "-Wall -Wextra -Wno-unused-parameter -Wformat=2 -Wnull-dereference -Werror=format-security -Werror=implicit-fallthrough=3 -Werror=null-dereference -Werror=misleading-indentation -Werror=cast-function-type -Wno-cast-function-type-strict -Werror=pointer-to-int-cast -Werror=int-to-pointer-cast -Werror=maybe-uninitialized -Werror=uninitialized -Werror=address -Werror=missing-field-initializers -Werror=sign-compare -Werror=format-nonliteral -Werror=empty-body -Werror=unused-variable -Werror=unused-but-set-variable -Werror=unused-function -Werror=unused-label -Werror=unused-local-typedefs -Werror=type-limits -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3",
   "optimization": "-O2 -g0",
   "jobs": 6,
   "make": "for d in bindings bitmaps config localized lib include tools clients doc; do make -j6 -C $d; done",
-  "started": "2026-11-27T02:35:36+01:00",
-  "finished": "2026-11-27T02:39:17+01:00",
-  "elapsed_seconds": 221,
-  "input_fingerprint": "c8dd7d160",
+  "started": "2026-11-27T09:47:27+01:00",
+  "finished": "2026-11-27T09:48:25+01:00",
+  "elapsed_seconds": 58,
+  "input_fingerprint": "090ac07dfc49",
   "fingerprint_method": "clean out-of-tree build of synced working tree"
  },
  "warnings": {
-  "unique_warnings": 125,
+  "unique_warnings": 0,
   "defect_class_warnings": 0,
   "defect_classes": {},
-  "totals": {
-   "-Wtype-limits": 125
-  },
+  "totals": {},
   "components": {
-   "lib/Xm": {
-    "-Wtype-limits": 90
-   },
-   "lib/Mrm": {
-    "-Wtype-limits": 28
-   },
-   "clients/mwm": {
-    "-Wtype-limits": 7
-   },
+   "lib/Xm": {},
+   "lib/Mrm": {},
+   "clients/mwm": {},
    "tools/wml": {},
    "clients/uil": {},
    "config/util": {}

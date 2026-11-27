@@ -2788,10 +2788,13 @@ UpdateMotionBuffer(
 	    else  {
 		size_t size;
 		MotionBuffer newMb;
-		if (mb->count > UINT_MAX - STACKMOTIONBUFFERSIZE ||
-		    (size_t)(mb->count + STACKMOTIONBUFFERSIZE) >
+		if (mb->count > UINT_MAX - STACKMOTIONBUFFERSIZE
+#if SIZE_MAX <= UINT_MAX
+		    || (size_t)(mb->count + STACKMOTIONBUFFERSIZE) >
 		    ((size_t)-1 - sizeof(MotionBufferRec)) /
-		    sizeof(MotionEntryRec))
+		    sizeof(MotionEntryRec)
+#endif
+		    )
 		    return;
 		size = sizeof(MotionBufferRec) +
 		  (size_t)(mb->count + STACKMOTIONBUFFERSIZE) *

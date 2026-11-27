@@ -257,7 +257,11 @@ UrmCallbackRecordValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset,
         return False;
       count = desc->count;
     }
-  if (count < 0 || count > RGMListSizeMax)
+  if (count < 0
+#if SHRT_MAX > RGMListSizeMax
+      || count > RGMListSizeMax
+#endif
+      )
     return False;
   available = widgetrec->size - offset - header_size;
   return (size_t)count + 1 <= available / item_size;
@@ -469,7 +473,10 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 	}
       childrendesc =
 	(RGMChildrenDescPtr)((char *)widgetrec+widgetrec->children_offs);
-      if ( childrendesc->count < 0 || childrendesc->count > RGMListSizeMax ||
+      if ( childrendesc->count < 0 ||
+#if SHRT_MAX > RGMListSizeMax
+           childrendesc->count > RGMListSizeMax ||
+#endif
 	   (size_t)childrendesc->count >
 	     (widgetrec->size - widgetrec->children_offs -
 	      (sizeof(RGMChildrenDesc) - sizeof(RGMChildDesc))) /
@@ -834,8 +841,10 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
       if (argdesc->count < 0 || argdesc->extra < 0 ||
+#if SHRT_MAX > RGMListSizeMax
           argdesc->count > RGMListSizeMax ||
           argdesc->extra > RGMListSizeMax ||
+#endif
           (size_t)argdesc->count >
               (widgetrec->size - widgetrec->arglist_offs -
                (sizeof(RGMArgListDesc) - sizeof(RGMArgument))) /
@@ -1187,8 +1196,10 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
       if (argdesc->count < 0 || argdesc->extra < 0 ||
+#if SHRT_MAX > RGMListSizeMax
           argdesc->count > RGMListSizeMax ||
           argdesc->extra > RGMListSizeMax ||
+#endif
           (size_t)argdesc->count >
               (widgetrec->size - widgetrec->arglist_offs -
                (sizeof(RGMArgListDesc) - sizeof(RGMArgument))) /
@@ -2177,7 +2188,11 @@ Urm__CW_FixupValue (long			val,
 	  swapbytes(vecptr->validation);
 	}
       if ( vecptr->validation != URMTextVectorValid ||
-	   vecptr->count < 0 || vecptr->count > RGMListSizeMax )
+	   vecptr->count < 0
+#if SHRT_MAX > RGMListSizeMax
+	   || vecptr->count > RGMListSizeMax
+#endif
+	   )
 	return MrmFAILURE ;
       for ( fixndx=0 ; fixndx<vecptr->count ; fixndx++ ) 
 	{
@@ -2286,7 +2301,11 @@ Urm__CW_FixupValue (long			val,
 	{
 	  oldlist = (OldRGMFontListPtr)bufptr;
 	  if ( oldlist->validation != URMFontListValid ||
-	       oldlist->count < 0 || oldlist->count > RGMListSizeMax )
+	       oldlist->count < 0
+#if SHRT_MAX > RGMListSizeMax
+	       || oldlist->count > RGMListSizeMax
+#endif
+	       )
 	    return MrmFAILURE ;
 
 	  fontlist = (RGMFontListPtr)val;
@@ -2310,7 +2329,11 @@ Urm__CW_FixupValue (long			val,
       else
 	{
 	  fontlist = (RGMFontListPtr) val ;
-	  if ( fontlist->count < 0 || fontlist->count > RGMListSizeMax )
+	  if ( fontlist->count < 0
+#if SHRT_MAX > RGMListSizeMax
+	       || fontlist->count > RGMListSizeMax
+#endif
+	       )
 	    return MrmFAILURE ;
 	  if ( *swap_needed )
 	    {
@@ -2318,7 +2341,11 @@ Urm__CW_FixupValue (long			val,
 	      swapbytes( fontlist->count );
 	    }
 	  if (fontlist->validation != URMFontListValid ||
-	      fontlist->count < 0 || fontlist->count > RGMListSizeMax)
+	      fontlist->count < 0
+#if SHRT_MAX > RGMListSizeMax
+	      || fontlist->count > RGMListSizeMax
+#endif
+	      )
 	    return MrmFAILURE;
 	  for ( fixndx=0 ; fixndx<fontlist->count ; fixndx++ )
 	    {
@@ -2623,7 +2650,11 @@ Urm__CW_ConvertValue (Widget			parent,
 	  
 	vecptr = (RGMTextVectorPtr) (*val) ;
 	if ( vecptr == NULL || vecptr->validation != URMTextVectorValid ||
-	    vecptr->count < 0 || vecptr->count > RGMListSizeMax )
+	    vecptr->count < 0
+#if SHRT_MAX > RGMListSizeMax
+	    || vecptr->count > RGMListSizeMax
+#endif
+	    )
 	  return MrmFAILURE ;
 	/* Have to pack vecptr */
 	vec_count = vecptr->count;
@@ -2639,7 +2670,11 @@ Urm__CW_ConvertValue (Widget			parent,
 	
 	vecptr = (RGMTextVectorPtr) (*val) ;
 	if ( vecptr == NULL || vecptr->validation != URMTextVectorValid ||
-	    vecptr->count < 0 || vecptr->count > RGMListSizeMax )
+	    vecptr->count < 0
+#if SHRT_MAX > RGMListSizeMax
+	    || vecptr->count > RGMListSizeMax
+#endif
+	    )
 	  return MrmFAILURE ;
 	/* Have to pack vecptr */
 	vec_count = vecptr->count;
@@ -2671,7 +2706,11 @@ Urm__CW_ConvertValue (Widget			parent,
 
         vecptr = (RGMIntegerVectorPtr) (*val) ;
         if ( vecptr == NULL || vecptr->validation != URMIntegerVectorValid ||
-             vecptr->count < 0 || vecptr->count > RGMListSizeMax )
+             vecptr->count < 0
+#if SHRT_MAX > RGMListSizeMax
+             || vecptr->count > RGMListSizeMax
+#endif
+             )
           return MrmFAILURE ;
         *val = (long) vecptr->item ;
         break ;
@@ -2818,7 +2857,11 @@ Urm__CW_ConvertValue (Widget			parent,
     case MrmRtypeFontList:
       fontlist = (RGMFontListPtr) (*val) ;
 	  if ( fontlist == NULL || fontlist->validation != URMFontListValid ||
-	       fontlist->count < 0 || fontlist->count > RGMListSizeMax )
+	       fontlist->count < 0
+#if SHRT_MAX > RGMListSizeMax
+	       || fontlist->count > RGMListSizeMax
+#endif
+	       )
 	return MrmFAILURE ;
       dfontlist = NULL ;
       for ( ndx=0 ; ndx<fontlist->count ; ndx++ )
@@ -4004,7 +4047,11 @@ Urm__CW_FixupCallback (Widget			parent ,
 
   if (cbdesc == NULL || bufptr == NULL ||
       cbdesc->validation != URMCallbackDescriptorValid ||
-      cbdesc->count < 0 || cbdesc->count > RGMListSizeMax)
+      cbdesc->count < 0
+#if SHRT_MAX > RGMListSizeMax
+      || cbdesc->count > RGMListSizeMax
+#endif
+      )
     return MrmFAILURE;
 
   /*
@@ -4439,7 +4486,11 @@ Urm__CW_TranslateOldCallback (OldRGMCallbackDescPtr	oldptr)
 
   if (oldptr == NULL ||
       oldptr->validation != URMCallbackDescriptorValid ||
-      oldptr->count < 0 || oldptr->count == INT_MAX)
+      oldptr->count < 0
+#if SHRT_MAX >= INT_MAX
+      || oldptr->count == INT_MAX
+#endif
+      )
 	return NULL;
   item_count = (size_t)oldptr->count + 1;
   if (item_count >

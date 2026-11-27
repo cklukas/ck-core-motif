@@ -225,11 +225,13 @@ static void layout(XmToolbarWidget toolbar)
     unsigned long total = 0;
     Boolean has_overflow = False;
     Boolean scratch_overflow;
+    size_t action_count;
 
     if (toolbar->toolbar.initializing || toolbar->toolbar.laying_out)
         return;
     toolbar->toolbar.laying_out = True;
-    scratch_overflow = toolbar->toolbar.action_count >
+    action_count = toolbar->toolbar.action_count;
+    scratch_overflow = action_count >
                        UINT_MAX / sizeof(*chosen) ||
                        toolbar->toolbar.action_count >
                        UINT_MAX / sizeof(*action_width) ||
@@ -523,7 +525,10 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
         (count && !actions))
         return;
     toolbar = (XmToolbarWidget)widget;
-    if (count && ((size_t)count > SIZE_MAX / sizeof(*toolbar->toolbar.actions) ||
+    if (count && (
+#if SIZE_MAX <= UINT_MAX
+                  (size_t)count > SIZE_MAX / sizeof(*toolbar->toolbar.actions) ||
+#endif
                   (size_t)count > UINT_MAX / sizeof(*toolbar->toolbar.actions)))
         return;
     if (count) {

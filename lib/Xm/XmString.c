@@ -1766,7 +1766,10 @@ XmStringConcatAndFree(XmString a,
     }
   }
 
-  if ((size_t)lc > SIZE_MAX / sizeof(_XmStringEntry) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t)lc > SIZE_MAX / sizeof(_XmStringEntry) ||
+#endif
       (size_t)lc > UINT_MAX / sizeof(_XmStringEntry)) {
     _XmProcessUnlock();
     XmStringFree(a);
@@ -1840,7 +1843,10 @@ XmStringConcatAndFree(XmString a,
       _XmStrEntryCount(a) = a_lc;
       if (segs) {
 	original_segs = segs;
-	if (a_lc <= 0 || (size_t)a_lc > SIZE_MAX / sizeof(*segs) ||
+	if (a_lc <= 0 ||
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)a_lc > SIZE_MAX / sizeof(*segs) ||
+#endif
 	    (size_t)a_lc > UINT_MAX / sizeof(*segs)) {
 	    _XmStrEntry(a) = segs;
 	    _XmStrEntryCount(a) = a_lc;
@@ -6004,8 +6010,7 @@ _XmStringNonOptCreate(
 	      push_seen = txt_seen = pop_seen = False;
 	    }
 
-	  if (_XmUnoptSegRendBeginCount(&seg) < 0 ||
-	      _XmUnoptSegRendBeginCount(&seg) == INT_MAX)
+	  if (_XmUnoptSegRendBeginCount(&seg) >= UCHAR_MAX)
 	    goto conversion_failed;
 	  rend_cnt = _XmUnoptSegRendBeginCount(&seg) + 1;
 	  
@@ -6123,8 +6128,7 @@ _XmStringNonOptCreate(
 	case XmSTRING_COMPONENT_RENDITION_END:
 	  txt_seen = True;
 
-	  if (_XmUnoptSegRendEndCount(&seg) < 0 ||
-	      _XmUnoptSegRendEndCount(&seg) == INT_MAX)
+	  if (_XmUnoptSegRendEndCount(&seg) >= UCHAR_MAX)
 	    goto conversion_failed;
 	  rend_cnt = _XmUnoptSegRendEndCount(&seg) + 1;
 	  
@@ -8053,7 +8057,7 @@ XmStringLineCount(
   int ret_val;
 
   _XmProcessLock();
-  if ((string == NULL)) {
+  if (string == NULL) {
 	_XmProcessUnlock();
 	return(0);
   }
@@ -9223,7 +9227,10 @@ unparse_text(char                **result,
       if (c_length > SIZE_MAX / MB_CUR_MAX)
 	UNPARSE_FAIL();
       max_bytes = (size_t)c_length * MB_CUR_MAX / sizeof(wchar_t);
-      if ((size_t)c_length > SIZE_MAX - sizeof(wchar_t) ||
+      if (
+#if SIZE_MAX <= UINT_MAX
+	  (size_t)c_length > SIZE_MAX - sizeof(wchar_t) ||
+#endif
 	  (size_t)c_length + sizeof(wchar_t) > (size_t)((Cardinal)~0))
 	UNPARSE_FAIL();
       wchar_t *null_text = (wchar_t*) XtMalloc((Cardinal)((size_t)c_length +
@@ -9265,7 +9272,10 @@ unparse_text(char                **result,
       size_t converted;
       size_t allocation_size;
       char *new_result;
-      if ((size_t)c_length >= SIZE_MAX ||
+      if (
+#if SIZE_MAX <= UINT_MAX
+	  (size_t)c_length >= SIZE_MAX ||
+#endif
 	  (size_t)c_length + 1 > (size_t)((Cardinal)~0))
 	UNPARSE_FAIL();
       char *null_text = XtMalloc((Cardinal)((size_t)c_length + 1));
@@ -10312,7 +10322,10 @@ XmeStringGetComponent(_XmStringContext context,
 	  if (copy_data)
 	    {
 	      char *tmp;
-	      if ((size_t)char_count > SIZE_MAX - sizeof(wchar_t) ||
+	      if (
+#if SIZE_MAX <= UINT_MAX
+	          (size_t)char_count > SIZE_MAX - sizeof(wchar_t) ||
+#endif
 	          (size_t)char_count + sizeof(wchar_t) > (size_t)((Cardinal)~0)) {
 	        if (update_context) _XmStrContError(context) = True;
 	        _XmProcessUnlock();

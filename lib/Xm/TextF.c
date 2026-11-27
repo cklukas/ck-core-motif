@@ -893,8 +893,12 @@ TextFieldCheckedGrowth(int string_length,
   if (inserted + TEXT_INCREMENT > SIZE_MAX / unit_size)
     return False;
   increment_bytes = (inserted + TEXT_INCREMENT) * unit_size;
+#if SIZE_MAX <= UINT_MAX
   doubled = (size_t)allocated_bytes > SIZE_MAX / 2 ?
     SIZE_MAX : (size_t)allocated_bytes * 2;
+#else
+  doubled = (size_t)allocated_bytes * 2;
+#endif
   target = required > increment_bytes ? required : increment_bytes;
   if (doubled > target)
     target = doubled;
@@ -2447,7 +2451,7 @@ RedisplayText(XmTextFieldWidget tf,
     return;
 
   baseline_y = (int64_t)margin_top +
-    (int64_t)(TextF_FontAscent(tf) < 0 ? 0 : TextF_FontAscent(tf));
+    (int64_t)TextF_FontAscent(tf);
   if (baseline_y > INT_MAX)
     return;
   
@@ -5907,8 +5911,8 @@ CheckTimerScrolling(Widget w,
     (int64_t)tf->primitive.shadow_thickness +
     (int64_t)tf->primitive.highlight_thickness;
   int64_t text_bottom = top_margin +
-    (int64_t)(TextF_FontAscent(tf) < 0 ? 0 : TextF_FontAscent(tf)) +
-    (int64_t)(TextF_FontDescent(tf) < 0 ? 0 : TextF_FontDescent(tf));
+    (int64_t)TextF_FontAscent(tf) +
+    (int64_t)TextF_FontDescent(tf);
   int64_t edge_position;
   
   tf->text.select_pos_x = event->xmotion.x;
@@ -9269,7 +9273,7 @@ TextFieldGetBaselines(Widget w,
   baseline = (uint64_t)tf->text.margin_top +
     (uint64_t)tf->primitive.shadow_thickness +
     (uint64_t)tf->primitive.highlight_thickness +
-    (uint64_t)(TextF_FontAscent(tf) < 0 ? 0 : TextF_FontAscent(tf));
+    (uint64_t)TextF_FontAscent(tf);
   if (baseline > (uint64_t)((Dimension)~0))
     baseline = (uint64_t)((Dimension)~0);
   base_array[0] = (Dimension)baseline;
@@ -9861,8 +9865,7 @@ PreeditDraw(XIC xic,
         return;
 
     if (call_data->text &&
-        (call_data->text->length < 0 ||
-         (insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE))
+        (insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE)
         return;
 
     if (call_data->chg_length>PreEnd(tf)-PreStart(tf))

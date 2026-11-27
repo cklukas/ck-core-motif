@@ -630,7 +630,10 @@ Initialize(Widget    request,
   /* Ignore XmNheight resource value for descedants */
   num_child_args = 0;
   if (*num_args != 0 &&
-      ((size_t)*num_args > SIZE_MAX / sizeof(Arg) ||
+      (
+#if SIZE_MAX <= UINT_MAX
+       (size_t)*num_args > SIZE_MAX / sizeof(Arg) ||
+#endif
        (size_t)*num_args > UINT_MAX / sizeof(Arg)))
     child_args = NULL;
   else

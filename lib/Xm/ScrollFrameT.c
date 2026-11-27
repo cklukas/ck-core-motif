@@ -89,8 +89,10 @@ _XmSFAddNavigator(
 	    Cardinal new_slots;
 	    /* Allocate more space */
 	    if (scroll_frame_data->num_nav_slots > (Cardinal)-1 - 2 ||
+#if SIZE_MAX <= UINT_MAX
 		(size_t)(scroll_frame_data->num_nav_slots + 2) >
 		  SIZE_MAX / sizeof(Widget) ||
+#endif
 		(size_t)(scroll_frame_data->num_nav_slots + 2) >
 		  (size_t)(Cardinal)-1 / sizeof(Widget))
 		return;

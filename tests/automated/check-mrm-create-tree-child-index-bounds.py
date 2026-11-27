@@ -11,7 +11,8 @@ region = text[start:end]
 required = (
     "(size_t)(widgetrec->size - widgetrec->children_offs) <",
     "sizeof(RGMChildrenDesc) - sizeof(RGMChildDesc)",
-    "childrendesc->count < 0 || childrendesc->count > RGMListSizeMax",
+    "childrendesc->count < 0 ||",
+    "childrendesc->count > RGMListSizeMax ||",
     "UrmFreeResourceContext (child_ctx)",
     "(size_t)childptr->key.index_offs < RGMWidgetRecordHdrSize",
     "childptr->key.index_offs >= widgetrec->size",

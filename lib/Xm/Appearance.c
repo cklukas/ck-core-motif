@@ -1429,7 +1429,7 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
         return False;
     }
     if (errno == ERANGE || *text == '\0' || end == text || *end != '\0' ||
-        number > (unsigned long)~(Dimension)0)
+        number > (unsigned long)(Dimension)~(Dimension)0)
         return False;
     /* Profile metrics are logical pixels. Stored classic/application values
      * already are device pixels and never pass through this conversion. */

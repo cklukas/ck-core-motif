@@ -1528,7 +1528,10 @@ _XmFilterResources(
 	    }
       }
 
-    if ((size_t)j > SIZE_MAX / sizeof(XtResource) ||
+    if (
+#if SIZE_MAX <= UINT_MAX
+	(size_t)j > SIZE_MAX / sizeof(XtResource) ||
+#endif
 	(size_t)j > UINT_MAX / sizeof(XtResource)) {
 	return 0;
     }

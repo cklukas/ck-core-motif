@@ -1,3 +1,24 @@
+Eliminate -Wtype-limits across Motif and lock in zero-warning --enable-hardening ratchet (2026-11-27)
+=====================================================================================================
+
+- `ck_hardening.m4`, `scripts/warning-baseline.py`, `lib/Xm/*`, `lib/Mrm/*`,
+  `clients/mwm/*`, `tests/automated/*`, `docs/hardening-baseline-validation.json`,
+  `docs/hardening.md`:
+  - Guard 32-bit `SIZE_MAX` (`#if SIZE_MAX <= UINT_MAX`), `MrmCount`
+    (`#if SHRT_MAX > RGMListSizeMax`), and `NeedWidePrototypes` width checks
+    across `lib/Xm`, `lib/Mrm`, and `clients/mwm` without weakening 32-bit or
+    wide-prototype overflow protection, remove tautological `< 0` comparisons on
+    unsigned X11/Motif fields (`XTextProperty.nitems`, `XIMText.length`,
+    `TextF_FontAscent`/`TextF_FontDescent`), and promote `-Werror=type-limits`
+    in `ck_hardening.m4` and `check-hardening-defect-ratchet.py`.
+  - Fix two real narrowing/wraparound defects exposed by Clang `-Werror=type-limits`:
+    `~(Dimension)0` signed-`int` promotion to `ULONG_MAX` instead of `USHRT_MAX`
+    in `Appearance.c` (`(unsigned long)(Dimension)~(Dimension)0`) and `unsigned char`
+    (`UCHAR_MAX`) rendition-count wraparound checked against `INT_MAX` in ASN.1
+    `XmString` decoding (`XmString.c`), plus `Cardinal *` null-pointer conversions
+    in `TextIn.c`, bringing `--enable-hardening` to **0 unique warnings** under
+    both GCC 15.2 and Clang 21.1.
+
 Honor X11 SetCloseDownMode/KillClient and validate HDR10 luminance bounds in Wayland backend (2026-11-27)
 =========================================================================================================
 

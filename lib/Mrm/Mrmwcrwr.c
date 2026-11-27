@@ -974,7 +974,13 @@ UrmCWRSetArgChar8Vec (URMResourceContextPtr	context_id,
   /*
    * Validate vector - make sure it doesn't contain too many elements
    */
-  if ( num_stg < 0 || num_stg > RGMListSizeMax || num_stg == INT_MAX ||
+  if ( num_stg < 0 ||
+#if SHRT_MAX > RGMListSizeMax
+       num_stg > RGMListSizeMax ||
+#endif
+#if SHRT_MAX >= INT_MAX
+       num_stg == INT_MAX ||
+#endif
        (num_stg > 0 && stg_vec == NULL) ||
        sizeof(RGMTextVector) > USHRT_MAX)
     return Urm__UT_Error ("DwUrmCWRSetArgChar8Vec", _MrmMMsg_0095,
@@ -1100,7 +1106,13 @@ UrmCWRSetArgCStringVec (URMResourceContextPtr	context_id,
   /*
    * Validate vector - make sure it doesn't contain too many elements
    */
-  if ( num_cstg < 0 || num_cstg > RGMListSizeMax || num_cstg == INT_MAX ||
+  if ( num_cstg < 0 ||
+#if SHRT_MAX > RGMListSizeMax
+       num_cstg > RGMListSizeMax ||
+#endif
+#if SHRT_MAX >= INT_MAX
+       num_cstg == INT_MAX ||
+#endif
        (num_cstg > 0 && cstg_vec == NULL) ||
        sizeof(RGMTextVector) > USHRT_MAX)
     return Urm__UT_Error ("DwUrmCWRSetArgCStringVec", _MrmMMsg_0095,
@@ -1237,8 +1249,11 @@ UrmCWRSetArgCallback (URMResourceContextPtr	context_id ,
    * in-memory list.
    */
   if ( nitems > RGMListSizeMax ||
-       sizeof(RGMCallbackDesc) > USHRT_MAX ||
-	   (size_t)nitems == SIZE_MAX)
+       sizeof(RGMCallbackDesc) > USHRT_MAX
+#if SIZE_MAX <= UINT_MAX
+	   || (size_t)nitems == SIZE_MAX
+#endif
+	   )
 	return Urm__UT_Error ("UrmCWRSetArgCallback", _MrmMMsg_0109,
 			      NULL, context_id, MrmTOO_MANY) ;
   item_count = (size_t)nitems + 1;
@@ -2000,8 +2015,11 @@ UrmCWRSetCreationCallback (URMResourceContextPtr	context_id ,
    * an extra item is added for runtime use.
    */
   if ( nitems > RGMListSizeMax ||
-       sizeof(RGMCallbackDesc) > USHRT_MAX ||
-	   (size_t)nitems == SIZE_MAX)
+       sizeof(RGMCallbackDesc) > USHRT_MAX
+#if SIZE_MAX <= UINT_MAX
+	   || (size_t)nitems == SIZE_MAX
+#endif
+	   )
 	return Urm__UT_Error ("UrmCWRSetCreationCallback", _MrmMMsg_0109,
 			      NULL, context_id, MrmTOO_MANY) ;
   item_count = (size_t)nitems + 1;

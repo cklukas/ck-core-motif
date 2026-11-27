@@ -1123,7 +1123,9 @@ RefigureLines(XmTextWidget tw)
       Cardinal requested_lines;
       Line resized_line;
       if (i > UINT_MAX - 2 ||
+#if SIZE_MAX <= UINT_MAX
 	  (size_t)(i + 2) > SIZE_MAX / sizeof(LineRec) ||
+#endif
 	  (size_t)(i + 2) > UINT_MAX / sizeof(LineRec)) {
 	XtFree((char *)oldline);
 	tw->text.needs_refigure_lines = TRUE;
@@ -1315,7 +1317,10 @@ RemoveLines(XmTextWidget tw,
 	new_size += TABLE_INCREMENT;
       }
     }
-    if ((size_t)new_size > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+    if (
+#if SIZE_MAX <= UINT_MAX
+	(size_t)new_size > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+#endif
 	(size_t)new_size > UINT_MAX / sizeof(XmTextLineTableRec))
       return;
     new_table = (XmTextLineTable)XtRealloc(
@@ -1360,7 +1365,10 @@ AddLines(XmTextWidget tw,
 	new_size += TABLE_INCREMENT;
       }
     }
-    if ((size_t)new_size > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+    if (
+#if SIZE_MAX <= UINT_MAX
+	(size_t)new_size > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+#endif
 	(size_t)new_size > UINT_MAX / sizeof(XmTextLineTableRec))
       return;
     new_table = (XmTextLineTable)XtRealloc(
@@ -3461,7 +3469,10 @@ CanonicalizeColorSpans(const XmTextColorSpan *spans,
   *alloc_ok = True;
   if (spans == NULL || count == 0 || max_pos <= 0)
     return NULL;
-  if ((size_t)count > SIZE_MAX / sizeof(XmTextColorSpan) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t)count > SIZE_MAX / sizeof(XmTextColorSpan) ||
+#endif
       (size_t)count > UINT_MAX / sizeof(XmTextColorSpan)) {
     *alloc_ok = False;
     return NULL;
@@ -3502,11 +3513,14 @@ CanonicalizeColorSpans(const XmTextColorSpan *spans,
   }
 
   /* General sweep-line normalization: later spans override earlier spans. */
-  if ((size_t)nvalid > SIZE_MAX / (2 * sizeof(_XmColorEndpoint)) ||
-      (size_t)nvalid * 2 * sizeof(_XmColorEndpoint) > UINT_MAX ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t)nvalid > SIZE_MAX / (2 * sizeof(_XmColorEndpoint)) ||
       (size_t)nvalid > SIZE_MAX / (2 * sizeof(XmTextColorSpan)) ||
-      (size_t)nvalid * 2 * sizeof(XmTextColorSpan) > UINT_MAX ||
       (size_t)nvalid > SIZE_MAX / sizeof(Boolean) ||
+#endif
+      (size_t)nvalid * 2 * sizeof(_XmColorEndpoint) > UINT_MAX ||
+      (size_t)nvalid * 2 * sizeof(XmTextColorSpan) > UINT_MAX ||
       (size_t)nvalid * sizeof(Boolean) > UINT_MAX) {
     XtFree((char *)valid);
     *alloc_ok = False;
@@ -4135,8 +4149,7 @@ PreeditDraw(XIC xic,
 
   /* have we exceeded max size of preedit buffer? - then punt */
   if (call_data->text &&
-      (call_data->text->length < 0 ||
-       (insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE))
+      (insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE)
     return;
 
   if (call_data->chg_length>PreEndTW(tw)-PreStartTW(tw))

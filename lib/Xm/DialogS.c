@@ -208,7 +208,12 @@ ClassInitialize( void )
 
   sc_num_res = xmVendorShellExtClassRec.object_class.num_resources;
 
-  if ((size_t)wc_unique_res > SIZE_MAX / sizeof(XtResource) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t)wc_unique_res > SIZE_MAX / sizeof(XtResource) ||
+#endif
+      wc_unique_res > UINT_MAX / sizeof(XtResource) ||
+      sc_num_res > (UINT_MAX / sizeof(XtResource)) - wc_unique_res ||
       (size_t)sc_num_res >
       (SIZE_MAX / sizeof(XtResource)) - wc_unique_res) {
     xmDialogShellExtObjectClass->core_class.class_initialize();
@@ -869,7 +874,10 @@ XmeCreateClassDialog(
 	return NULL;
     if (bb_n && !bb_args)
 	return NULL;
-    if ((size_t)bb_n >= SIZE_MAX / sizeof(Arg) ||
+    if (
+#if SIZE_MAX <= UINT_MAX
+        (size_t)bb_n >= SIZE_MAX / sizeof(Arg) ||
+#endif
         bb_n >= (Cardinal)(UINT_MAX / sizeof(Arg)))
 	return NULL;
 

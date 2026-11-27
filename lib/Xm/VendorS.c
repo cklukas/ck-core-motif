@@ -1125,7 +1125,10 @@ AddGrab(
 	if (old_max > (Cardinal)~0 - increment)
 	    return;
 	new_max = old_max + increment;
-	if ((size_t)new_max > SIZE_MAX / sizeof(XmModalDataRec) ||
+	if (
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)new_max > SIZE_MAX / sizeof(XmModalDataRec) ||
+#endif
 	    (size_t)new_max > UINT_MAX / sizeof(XmModalDataRec))
 	    return;
 	resized = (XmModalData)XtRealloc(

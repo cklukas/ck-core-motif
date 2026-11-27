@@ -14,7 +14,7 @@ assert "static void\nfree_saved_value(String name, XtArgVal value)" in source
 assert "XmFontListFree((XmFontList)value);" in source
 assert body.count(cleanup) == 3
 for marker in ("if (r->count == (Cardinal)-1)",
-               "if ((size_t)r->count > SIZE_MAX / sizeof(Arg) - 1 ||",
+               "(size_t)r->count > SIZE_MAX / sizeof(Arg) - 1 ||",
                "if (new_args == NULL)"):
     position = body.index(marker)
     assert cleanup in body[position:position + 300]

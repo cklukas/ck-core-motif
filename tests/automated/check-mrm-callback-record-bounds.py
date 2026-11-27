@@ -9,7 +9,7 @@ required = (
     "static Boolean\nUrmCallbackRecordValid",
     "sizeof(OldRGMCallbackDesc) - sizeof(OldRGMCallbackItem)",
     "sizeof(RGMCallbackDesc) - sizeof(RGMCallbackItem)",
-    "if (count < 0 || count > RGMListSizeMax)",
+    "if (count < 0\n#if SHRT_MAX > RGMListSizeMax\n      || count > RGMListSizeMax\n#endif\n      )",
     "return (size_t)count + 1 <= available / item_size;",
 )
 for needle in required:

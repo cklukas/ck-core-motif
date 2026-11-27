@@ -188,7 +188,9 @@ XmStringTableParseStringArray(XtPointer   *strings,
   XmStringTable strs;
 
   if ((strings == NULL) || (count == 0) ||
+#if SIZE_MAX <= UINT_MAX
       ((size_t)count > SIZE_MAX / sizeof(XmString)) ||
+#endif
       ((size_t)count > (size_t)UINT_MAX / sizeof(XmString))) {
     return(NULL);
   }
@@ -234,7 +236,9 @@ XmStringTableUnparse(XmStringTable     table,
   Cardinal	i;
   
   if ((table == NULL) || (count == 0) ||
+#if SIZE_MAX <= UINT_MAX
       ((size_t)count > SIZE_MAX / sizeof(XtPointer)) ||
+#endif
       ((size_t)count > (size_t)UINT_MAX / sizeof(XtPointer))) {
     return(NULL);
   }

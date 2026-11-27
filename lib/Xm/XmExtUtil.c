@@ -276,7 +276,9 @@ _XmFilterArgs(ArgList args, Cardinal num_args, String *filter,
     *filtered_args = NULL;
     *num_filtered_args = 0;
     if (num_args == 0 || args == NULL ||
+#if SIZE_MAX <= UINT_MAX
         (size_t)num_args > SIZE_MAX / sizeof(Arg) ||
+#endif
         num_args > UINT_MAX / sizeof(Arg))
         return;
 

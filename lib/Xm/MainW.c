@@ -1385,7 +1385,7 @@ GetVertRects(
     /* The first rectangle is the one that makes the scrollbar goes up */
     (*vrect)[0].x = w->core.x - mw->swindow.vScrollBar->core.x ;
     /* just translate to the scrollbar coordinate */
-    (*vrect)[0].y =- mw->swindow.vScrollBar->core.y ;
+    (*vrect)[0].y = -mw->swindow.vScrollBar->core.y ;
     (*vrect)[0].width = w->core.width ;
 
     /* The second rectangle is the one that makes the scrollbar goes down */

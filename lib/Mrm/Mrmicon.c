@@ -1605,7 +1605,9 @@ UrmIconImageSize (RGMIconImagePtr	icon)
 
   bytes_per_line = (icon->width+7) / 8;
   if (icon->width <= 0 || icon->height <= 0 ||
+#if SHRT_MAX > INT_MAX - 7
       icon->width > INT_MAX - 7 ||
+#endif
       bytes_per_line > INT_MAX / icon->height)
     return 0;
   raster_len = bytes_per_line * icon->height;
@@ -1649,8 +1651,11 @@ UrmColorTableSize (RGMColorTablePtr	ctable)
   size_t size;
 
   if (ctable == NULL || ctable->validation != URMColorTableValid ||
-      ctable->count < URMColorTableUserMin ||
-      ctable->count > RGMListSizeMax)
+      ctable->count < URMColorTableUserMin
+#if SHRT_MAX > RGMListSizeMax
+      || ctable->count > RGMListSizeMax
+#endif
+      )
     return 0;
   if ((size_t)(ctable->count - 1) >
       (SIZE_MAX - sizeof(RGMColorTable)) / sizeof(RGMColorTableEntry))

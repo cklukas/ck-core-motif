@@ -2646,7 +2646,10 @@ ReManageChildren(XmPanedWidget pw)
 		if ((Cardinal)XmPaned_num_slots(pw) > (Cardinal)~0 - BLOCK)
 		    return;
 		new_slots = XmPaned_num_slots(pw) + BLOCK;
-		if ((size_t)new_slots > SIZE_MAX / sizeof(Widget) ||
+		if (
+#if SIZE_MAX <= UINT_MAX
+		    (size_t)new_slots > SIZE_MAX / sizeof(Widget) ||
+#endif
 		    (size_t)new_slots > (size_t)((Cardinal)~0) / sizeof(Widget))
 		    return;
 		new_children = (WidgetList)XtRealloc(

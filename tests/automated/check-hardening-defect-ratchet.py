@@ -33,6 +33,7 @@ PROMOTED_FLAGS = [
     "-Werror=unused-function",
     "-Werror=unused-label",
     "-Werror=unused-local-typedefs",
+    "-Werror=type-limits",
 ]
 
 assert 'CFLAGS="$CFLAGS $$2 -Werror $1"' in M4, (

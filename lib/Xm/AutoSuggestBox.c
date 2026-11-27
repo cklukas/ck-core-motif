@@ -737,7 +737,9 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
         return False;
     box = (XmAutoSuggestBoxWidget)widget;
     if (generation != box->auto_suggest.generation || count > INT_MAX ||
+#if SIZE_MAX <= UINT_MAX
         (size_t)count > SIZE_MAX / sizeof(*replacement) ||
+#endif
         (size_t)count > (size_t)UINT_MAX / sizeof(*replacement)) return False;
     if (count) {
         replacement = (XmAutoSuggestStoredItem *)XtCalloc(count, sizeof(*replacement));

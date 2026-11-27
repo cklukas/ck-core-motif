@@ -1126,14 +1126,14 @@ DeleteOrKill(XmTextWidget tw,
     ptr = _XmStringSourceGetString(tw, from, to, False);
     if (ptr == NULL) {
       _XmTextEnableRedisplay(tw);
-      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal) 0);
+      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal *) NULL);
       return FALSE;
     }
     ptr_length = strlen(ptr);
     if (ptr_length > (size_t)INT_MAX) {
       XtFree(ptr);
       _XmTextEnableRedisplay(tw);
-      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal) 0);
+      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal *) NULL);
       return FALSE;
     }
     XRotateBuffers(XtDisplay(tw), 1);
@@ -1149,7 +1149,7 @@ DeleteOrKill(XmTextWidget tw,
     if ((*tw->text.source->Replace)(tw, NULL, &from,
 				    &to, &newblock, False) != EditDone) {
       _XmTextEnableRedisplay(tw);
-      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal) 0);
+      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal *) NULL);
       if (freeBlock && newblock.ptr) XtFree(newblock.ptr);
       return FALSE;
     } else {
@@ -1161,7 +1161,7 @@ DeleteOrKill(XmTextWidget tw,
     if (freeBlock && newblock.ptr) XtFree(newblock.ptr);
   } else {
     _XmTextEnableRedisplay(tw);
-    RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal) 0);
+    RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal *) NULL);
     return FALSE;
   }
   return TRUE;
@@ -1186,7 +1186,7 @@ StuffFromBuffer(XmTextWidget tw,
 			  &cursorPos, &block, &newblock, &freeBlock)) {
     if ((*tw->text.source->Replace)(tw, NULL, &from_pos, &to_pos, 
 				    &newblock, False) != EditDone) {
-      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal) 0);
+      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal *) NULL);
     } else {
       _XmTextSetCursorPosition((Widget)tw, cursorPos);
       _XmTextSetDestinationSelection((Widget)tw, tw->text.cursor_position,
@@ -1195,7 +1195,7 @@ StuffFromBuffer(XmTextWidget tw,
     }
     if (freeBlock && newblock.ptr) XtFree(newblock.ptr);
   } else {
-    RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal) 0);
+    RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal *) NULL);
   }
   if (block.ptr) XtFree(block.ptr);
 }
@@ -4735,7 +4735,7 @@ _XmTextHandleSecondaryFinished(Widget w,
 			  &cursorPos, &block, &newblock, &freeBlock)) {
     if ((*tw->text.source->Replace)(tw, NULL, &left, &right, 
 				    &newblock, False) != EditDone) {
-      RingBell(w, NULL, (String *) NULL, (Cardinal) 0);
+      RingBell(w, NULL, (String *) NULL, (Cardinal *) NULL);
     } else {
       int count;
       count = _XmTextCountCharacters(newblock.ptr, newblock.length);
@@ -4767,7 +4767,7 @@ _XmTextHandleSecondaryFinished(Widget w,
     }
     if (freeBlock && newblock.ptr) XtFree(newblock.ptr);
   } else {
-    RingBell(w, NULL, (String *) NULL, (Cardinal) 0);
+    RingBell(w, NULL, (String *) NULL, (Cardinal *) NULL);
   }
 }
 

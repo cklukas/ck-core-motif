@@ -870,7 +870,8 @@ ReadAtomsTable(
         }
 
 	if (ret && propertyRecPtr->info.num_atoms > atomsTable->numEntries) {
-	    if ((size_t)propertyRecPtr->info.num_atoms >
+	    size_t num_atoms = propertyRecPtr->info.num_atoms;
+	    if (num_atoms >
 		(size_t)UINT_MAX / sizeof(xmAtomsTableEntryRec)) {
 		XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
 		ret = False;
@@ -1170,7 +1171,8 @@ ReadTargetsTable(
         }
 
 	if (ret && propertyRecPtr->info.num_target_lists > targetsTable->numEntries) {
-	    if ((size_t)propertyRecPtr->info.num_target_lists >
+	    size_t num_target_lists = propertyRecPtr->info.num_target_lists;
+	    if (num_target_lists >
 		(size_t)UINT_MAX / sizeof(xmTargetsTableEntryRec)) {
 		XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
 		ret = False;
@@ -1222,9 +1224,11 @@ ReadTargetsTable(
 		}
 		num_targets = shortItem.value;
 
-	                if(!num_targets)
+		{
+		size_t num_targets_sz = num_targets;
+		if(!num_targets)
 		  targets = NULL;
-		else if ((size_t)num_targets >
+		else if (num_targets_sz >
 			 (size_t)UINT_MAX / sizeof(Atom)) {
 		    XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
 		    ret = False;
@@ -1233,6 +1237,7 @@ ReadTargetsTable(
 		else
 	          targets = (Atom *) XtMalloc((Cardinal)
 			  ((size_t)sizeof(Atom) * num_targets));
+		}
 		if (num_targets != 0 && targets == NULL)
 		{
 		    while (targetsTable->numEntries > old_num_entries)

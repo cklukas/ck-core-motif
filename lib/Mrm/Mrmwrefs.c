@@ -24,6 +24,8 @@
 #include <config.h>
 #endif
 
+#include <limits.h>
+
 
 #ifdef REV_INFO
 #ifndef lint
@@ -511,7 +513,11 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
 
   if (cbptr == NULL ||
       cbptr->validation != URMCallbackDescriptorValid ||
-      cbptr->count < 0 || cbptr->count == INT_MAX)
+      cbptr->count < 0
+#if SHRT_MAX >= INT_MAX
+      || cbptr->count == INT_MAX
+#endif
+      )
 	{
 	  Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0048,
 			 NULL, NULL, MrmFAILURE);

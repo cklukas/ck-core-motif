@@ -461,7 +461,10 @@ Boolean XmSegmentedControlSetItems(Widget widget,
         (count && !items) || count > (Cardinal)INT_MAX) return False;
     control = (XmSegmentedControlWidget)widget;
     if (count) {
-        if ((size_t)count > SIZE_MAX / sizeof(*copy) ||
+        if (
+#if SIZE_MAX <= UINT_MAX
+            (size_t)count > SIZE_MAX / sizeof(*copy) ||
+#endif
             (size_t)count > UINT_MAX / sizeof(*copy))
             return False;
         copy = (XmSegmentedControlItemRec *)XtCalloc(

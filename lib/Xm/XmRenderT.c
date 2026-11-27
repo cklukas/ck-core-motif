@@ -367,7 +367,10 @@ CompileResourceTable(XtResourceList resources,
   XrmResourceList	table, tPtr;
   XtResourceList	rPtr;
 
-  if ((size_t)num_resources > SIZE_MAX / sizeof(XrmResource) ||
+  if (
+#if SIZE_MAX <= UINT_MAX
+      (size_t)num_resources > SIZE_MAX / sizeof(XrmResource) ||
+#endif
       (size_t)num_resources > UINT_MAX / sizeof(XrmResource))
     return NULL;
   tPtr = table = (XrmResourceList)XtMalloc(
@@ -486,7 +489,10 @@ GetResources(XmRendition rend,
   if (num_quarks < argcount)
     {
       XrmQuark *new_quarks;
-      if ((size_t)argcount > SIZE_MAX / sizeof(XrmQuark) ||
+      if (
+#if SIZE_MAX <= UINT_MAX
+	  (size_t)argcount > SIZE_MAX / sizeof(XrmQuark) ||
+#endif
 		  (size_t)argcount > UINT_MAX / sizeof(XrmQuark))
 		{
 #ifdef XTHREADS
@@ -562,8 +568,10 @@ GetResources(XmRendition rend,
 	  unsigned int next_size;
 	  XrmHashTable *new_search_list;
 	  if (searchListSize > UINT_MAX / 2 ||
+#if SIZE_MAX <= UINT_MAX
 	      (size_t)searchListSize > SIZE_MAX /
 		(2 * sizeof(XrmHashTable)) ||
+#endif
 	      (size_t)searchListSize > UINT_MAX /
 		(2 * sizeof(XrmHashTable)))
 	    goto resource_failure;
@@ -1441,8 +1449,11 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
   if (oldtable == NULL)
     {
       if ((rendition_count > RENDITIONS_IN_STRUCT) &&
-          ((size_t)(rendition_count - RENDITIONS_IN_STRUCT) >
+          (
+#if SIZE_MAX <= UINT_MAX
+           (size_t)(rendition_count - RENDITIONS_IN_STRUCT) >
            (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition) ||
+#endif
            sizeof(_XmRenderTableRec) +
            (size_t)(rendition_count - RENDITIONS_IN_STRUCT) * sizeof(XmRendition) >
            UINT_MAX))
@@ -1478,8 +1489,12 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
     }
   else
     {
-      if ((size_t)rendition_count > SIZE_MAX / sizeof(Boolean))
+      {
+      size_t rc_sz = rendition_count;
+      if (rc_sz > SIZE_MAX / sizeof(Boolean) ||
+	  rc_sz > UINT_MAX / sizeof(Boolean))
 	goto unlock_return;
+      }
       matches =
 	(Boolean *)ALLOCATE_LOCAL(rendition_count * sizeof(Boolean));
       if (matches == NULL)
@@ -1605,8 +1620,11 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 	  if (_XmRTCount(oldtable) > UINT_MAX - (unsigned int)count ||
 	      (size_t)_XmRTCount(oldtable) > SIZE_MAX - (size_t)count ||
 	      (_XmRTCount(oldtable) + (unsigned int)count > RENDITIONS_IN_STRUCT &&
-	       ((size_t)(_XmRTCount(oldtable) + (unsigned int)count - RENDITIONS_IN_STRUCT) >
+	       (
+#if SIZE_MAX <= UINT_MAX
+	        (size_t)(_XmRTCount(oldtable) + (unsigned int)count - RENDITIONS_IN_STRUCT) >
 	        (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition) ||
+#endif
 	        sizeof(_XmRenderTableRec) +
 	        (size_t)(_XmRTCount(oldtable) + (unsigned int)count - RENDITIONS_IN_STRUCT) * sizeof(XmRendition) >
 	        UINT_MAX)))
@@ -1998,8 +2016,11 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
     if (!tags) _XmRTRefcountDec(table); /* Undo overflow before detaching. */
     capacity = tags ? (tag_count > 0 ? tag_count : 0) : _XmRTCount(table);
     if ((capacity > RENDITIONS_IN_STRUCT) &&
-        ((size_t)(capacity - RENDITIONS_IN_STRUCT) >
+        (
+#if SIZE_MAX <= UINT_MAX
+         (size_t)(capacity - RENDITIONS_IN_STRUCT) >
          (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition) ||
+#endif
          sizeof(_XmRenderTableRec) +
          (size_t)(capacity - RENDITIONS_IN_STRUCT) * sizeof(XmRendition) >
          UINT_MAX))
@@ -2116,7 +2137,11 @@ XmRenderTableGetTags(XmRenderTable table,
 	}
 #endif
 	tag_count = _XmRTCount(table);
-	if ((size_t)tag_count > SIZE_MAX / sizeof(*tags) ||
+	if (
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)tag_count > SIZE_MAX / sizeof(*tags) ||
+#endif
+	    (size_t)tag_count > UINT_MAX / sizeof(*tags) ||
 	    tag_count > INT_MAX)
 	  goto done;
 
@@ -2226,7 +2251,10 @@ XmRenderTableGetRenditions(XmRenderTable table,
      _XmProcessLock();
   }
 #endif
-	if ((size_t)tag_count > SIZE_MAX / sizeof(*rends) ||
+	if (
+#if SIZE_MAX <= UINT_MAX
+	    (size_t)tag_count > SIZE_MAX / sizeof(*rends) ||
+#endif
 	    tag_count > UINT_MAX / sizeof(*rends))
 	    goto unlock_return;
 

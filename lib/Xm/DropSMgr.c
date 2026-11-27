@@ -4414,7 +4414,7 @@ XmDropSiteRegistered(
 	                         XtDisplayOfObject(widget)));
     info = DSMWidgetToInfo(dsm, widget);
 
-    if ((info == NULL)) {
+    if (info == NULL) {
 	_XmAppUnlock(app);
 	return False;
     }
