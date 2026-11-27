@@ -1,3 +1,35 @@
+Expand libFuzzer parser suite (Compound Text, ImageCache, UIL grammar) and fix uncovered memory-safety defects (2026-11-27)
+===========================================================================================================================
+
+- `lib/Xm/ResEncod.c`, `clients/uil/UilLexAna.c`, `clients/uil/UilSymStor.c`,
+  `clients/uil/UilSrcSrc.c`, `clients/uil/UilP2Out.c`, `clients/uil/UilDiags.c`,
+  `clients/uil/UilLstLst.c`, `tests/fuzz/fuzz-xmstring-ct.c`,
+  `tests/fuzz/fuzz-image-cache.c`, `tests/fuzz/fuzz-uil-grammar.c`,
+  `tests/fuzz/xm-stubs.c`, `tests/fuzz/run-fuzz.py`, `tests/fuzz/make-seeds.py`,
+  `tests/fuzz/README`, `tests/fuzz/corpus/{xmstring-ct,image-cache,uil-grammar}/`,
+  `tests/automated/check-fuzz-targets-wp44.py`, `docs/hardening.md`:
+  - Add three sanitized (`-fsanitize=fuzzer,address,undefined`) `libFuzzer`
+    harnesses and seed corpora: `xmstring-ct` (`XmCvtCTToXmString`,
+    `XmCvtTextToXmString`, `XmCvtXmStringToCT`, `XmStringParseText`, and
+    `XmStringUnparse`), `image-cache` (`_XmReadImageAndHotSpotFromFile` XBM
+    parser, `_XmPutScaledImage`, `_XmGetScaledPixmap`, and `XmGetPixmapByDepth`
+    symbolic XPM/XBM caching), and `uil-grammar` (callable `Uil()` lexer, YACC
+    grammar, semantic validator, and UID emitter).
+  - Fix a multibyte GL/GR heap buffer over-read past `ctx->lastoctet` / NUL on
+    truncated multibyte segments (e.g. `ESC $ ( B` followed by an odd byte count)
+    and suppress post-error `outputXmString` emission in `XmCvtCTToXmString` and
+    `cvtTextToXmString` (`lib/Xm/ResEncod.c`).
+  - Fix five defects uncovered by `fuzz-uil-grammar` in `clients/uil`:
+    `0.0 / 0.0 -> (int)NaN` undefined behavior on 0-byte `.uil` inputs in
+    `yylex` (`UilLexAna.c`), dangling `sym_az_error_value_entry` / `UrmPlist`
+    heap-use-after-free across repeated callable `Uil()` invocations
+    (`UilSymStor.c`), EOF source-buffer self-cycle / leak cleanup and missing
+    empty `out_az_queue` allocation (`UilSrcSrc.c`, `UilP2Out.c`), multi-entry
+    `translation_table(...)` heap buffer underflow (`N - 1` missing newline
+    bytes in `value_size`, `UilP2Out.c`), and a 1–2 byte stack buffer overflow
+    in `diag_issue_diagnostic` / `lst_output_listing` `src_retrieve_source`
+    line buffers (`UilDiags.c`, `UilLstLst.c`).
+
 Add shared A8 glyph-atlas caching, SIMD compositing fast paths, and zero-copy buffered-paint blits in WaylandRender (2026-11-27)
 ================================================================================================================================
 

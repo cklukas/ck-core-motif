@@ -247,3 +247,125 @@ write("wayland-x11-server", "extensions-bigreq-randr-shape-xfixes",
       + x11_req(136, 5, b""))
 
 
+# ---- ISO-2022 Compound Text & XmStringParseText (xmstring-ct) ------------------
+
+write("xmstring-ct", "latin1-and-newlines",
+      b"\x1b(B\x1b-AHello Motif\nSecond\tLine\nThird")
+write("xmstring-ct", "direction-and-charset-switches",
+      b"\x9b1]" + b"\x1b(BLeft-to-right " + b"\x9b2]" + b"\x1b-FRight-to-left\x9b]" + b"\nEnd")
+write("xmstring-ct", "extended-segment-utf8",
+      b"\x1b%/2\x80\x8eUTF-8\x02Caf\xc3\xa9\n\tTab")
+write("xmstring-ct", "multibyte-cjk-designators",
+      b"\x1b$(B\x24\x22\x24\x24\x1b(B ASCII \t\nLine2")
+write("xmstring-ct", "truncated-jis-multibyte",
+      b"\x1b$(B1")
+
+
+# ---- ImageCache & ReadImage XBM / symbolic XPM / scaled pixmap -----------------
+
+write("image-cache", "xbm-hotspot-16x8",
+      b"#define icon_width 16\n"
+      b"#define icon_height 8\n"
+      b"#define icon_x_hot 3\n"
+      b"#define icon_y_hot 4\n"
+      b"static unsigned char icon_bits[] = {\n"
+      b"  0xff, 0x00, 0x81, 0x7e, 0x99, 0x66, 0xbd, 0x42,\n"
+      b"  0xbd, 0x42, 0x99, 0x66, 0x81, 0x7e, 0xff, 0x00 };\n")
+write("image-cache", "xbm-short-hex",
+      b"#define s_width 8\n#define s_height 4\n"
+      b"static char s_bits[] = { 0x3c, 0x42, 0x81, 0xff };\n")
+write("image-cache", "xpm-symbolic-colors-and-mask",
+      b'/* XPM */\nstatic char *sym[] = {\n'
+      b'"4 4 5 1 1 1",\n'
+      b'". c None s mask",\n'
+      b'"# c #112233 s foreground",\n'
+      b'"b c #ddeeff s background",\n'
+      b'"t c #ffffff s topShadowColor",\n'
+      b'"s c #222222 s bottomShadowColor",\n'
+      b'".tt.",\n"t##s",\n"tbb#",\n".ss."\n};\n')
+write("image-cache", "xpm2-opaque-4x4",
+      b"! XPM2\n4 4 2 1\na c #102030\nb c #f0e0d0\naabb\naabb\nbbaa\nbbaa\n")
+
+
+# ---- UIL source grammar & callable compiler (uil-grammar) ----------------------
+
+write("uil-grammar", "minimal-module-button",
+      b"module demo_mod\n"
+      b"version = 'v1.0'\n"
+      b"names = case_sensitive\n"
+      b"procedure on_activate();\n"
+      b"value\n"
+      b"    k_label : compound_string('Click Me', separate = true) & 'Now';\n"
+      b"    k_pad   : 12 + 4 * 2;\n"
+      b"object main_box : XmForm {\n"
+      b"    controls {\n"
+      b"        XmPushButton ok_btn;\n"
+      b"    };\n"
+      b"    arguments {\n"
+      b"        XmNmarginWidth = k_pad;\n"
+      b"    };\n"
+      b"};\n"
+      b"object ok_btn : XmPushButton {\n"
+      b"    arguments {\n"
+      b"        XmNlabelString = k_label;\n"
+      b"    };\n"
+      b"    callbacks {\n"
+      b"        XmNactivateCallback = procedure on_activate();\n"
+      b"    };\n"
+      b"};\n"
+      b"end module;\n")
+write("uil-grammar", "include-colors-icons-fonts",
+      b"module rich_mod\n"
+      b"names = case_insensitive\n"
+      b"include file 'helper.uil';\n"
+      b"value\n"
+      b"    c_bg : color('#203040', background);\n"
+      b"    c_fg : color('#f0f4f8', foreground);\n"
+      b"    ct_1 : color_table(c_bg = '.', c_fg = '#');\n"
+      b"    ic_1 : icon(color_table = ct_1, '..##', '.##.', '##..', '#...');\n"
+      b"    f_1  : font('-*-helvetica-bold-r-normal--14-*');\n"
+      b"object lbl : XmLabel {\n"
+      b"    arguments {\n"
+      b"        XmNlabelType = XmPIXMAP;\n"
+      b"        XmNlabelPixmap = ic_1;\n"
+      b"        XmNrecomputeSize = true;\n"
+      b"    };\n"
+      b"};\n"
+      b"end module;\n")
+write("uil-grammar", "lists-tables-and-identifiers",
+      b"module list_mod\n"
+      b"identifier app_context_ptr;\n"
+      b"list shared_args : arguments {\n"
+      b"    XmNwidth = 240;\n"
+      b"    XmNheight = 160;\n"
+      b"};\n"
+      b"value\n"
+      b"    str_arr : string_table('Alpha', 'Beta', 'Gamma');\n"
+      b"    xlate   : translation_table('#override', '<Btn1Down>: Arm()');\n"
+      b"object lst : XmList {\n"
+      b"    arguments {\n"
+      b"        arguments shared_args;\n"
+      b"        XmNitems = str_arr;\n"
+      b"        XmNitemCount = 3;\n"
+      b"        XmNtranslations = xlate;\n"
+      b"    };\n"
+      b"};\n"
+      b"end module;\n")
+write("uil-grammar", "forward-refs-and-gadgets",
+      b"module fwd_mod\n"
+      b"object rc : XmRowColumn {\n"
+      b"    controls {\n"
+      b"        XmPushButtonGadget g1;\n"
+      b"        XmSeparatorGadget sep;\n"
+      b"        XmToggleButtonGadget g2;\n"
+      b"    };\n"
+      b"};\n"
+      b"object g1 : XmPushButtonGadget { arguments { XmNlabelString = 'One'; }; };\n"
+      b"object sep : XmSeparatorGadget {};\n"
+      b"object g2 : XmToggleButtonGadget { arguments { XmNset = true; }; };\n"
+      b"end module;\n")
+write("uil-grammar", "empty-source", b"")
+write("uil-grammar", "control-char-diag", b"\x01")
+
+
+

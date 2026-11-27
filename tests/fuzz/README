@@ -111,10 +111,13 @@ Seeds
 
 tests/fuzz/corpus/NAME holds small valid inputs and regression inputs per target.
 
-  - editres-wire, xmstring-stream, xm-converters, xpm-image, mwm-parsers,
-    uil-wmd: make-seeds.py writes them (requests built byte by byte from the
-    protocol, compound string streams, one string per converter, XPM1/2/3
-    buffers, WSM wire messages and .mwmrc lines, and binary .wmd databases).
+  - editres-wire, xmstring-stream, xmstring-ct, xm-converters, xpm-image,
+    image-cache, mwm-parsers, uil-wmd, uil-grammar, wayland-x11-server:
+    make-seeds.py writes them (requests built byte by byte from the
+    protocol, compound string streams, ISO-2022 Compound Text sequences, one
+    string per converter, XPM1/2/3 buffers, XBM bitmaps and symbolic-color XPM
+    icons, WSM wire messages and .mwmrc lines, binary .wmd databases, and .uil
+    modules).
   - mrm-uid: the seeds are UID files written by the resource manager's own
     writer, with mrm-make-seeds.c, so they are valid for the revision under
     test.  A UID file is made of 4096-byte records, more than libFuzzer may
@@ -166,6 +169,18 @@ Targets
                    (clients/uil/UilDB.c): globals, table headers, byte, short,
                    integer, bitmask and string tables loaded via
                    db_incorporate().
+  uil-grammar      UIL source grammar, lexical analyzer, semantic validator,
+                   forward-reference resolver, and UID emitter via callable
+                   Uil() (clients/uil/Uil*.c, tools/wml/Uil.y, lib/Mrm,
+                   compiled unchanged).
+  xmstring-ct      ISO-2022 Compound Text decoder/encoder (XmCvtCTToXmString,
+                   XmCvtXmStringToCT) and XmStringParseText / XmStringUnparse
+                   (lib/Xm/ResEncod.c, lib/Xm/XmString.c, compiled unchanged).
+  image-cache      ImageCache and ReadImage XBM bitmap, symbolic-color XPM,
+                   embedded mask installation, and HiDPI _XmPutScaledImage /
+                   XmGetScaledPixmap pipeline (lib/Xm/ImageCache.c,
+                   lib/Xm/ReadImage.c, lib/Xm/Hash.c, lib/Xm/Xpm*.c, compiled
+                   unchanged).
   wayland-x11-server
                    native Wayland backend X11r11 and XRender wire protocol
                    server (lib/Xm/WaylandX11Server.c, lib/Xm/WaylandRender.c,

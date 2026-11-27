@@ -169,6 +169,7 @@ src_initialize_source(void)
 
     src_az_current_source_buffer = NULL;
     src_az_avail_source_buffer = NULL;
+    src_az_orphan_messages = NULL;
     src_l_last_source_file_number = -1;
     src_az_first_source_record = NULL;
     src_az_current_source_record =
@@ -235,10 +236,10 @@ Uil_src_cleanup_source(void)
 {
 
     int				i;		    /* index over fcbs */
-    src_source_buffer_type	*buffer_to_free;   
     src_source_record_type	*record_to_free;
     src_machine_code_type	*first_code_item; 
     src_machine_code_type	*code_item_to_free; 
+    src_message_item_type	*msg_to_free;
     status			l_close_status;
 
     /*
@@ -260,20 +261,66 @@ Uil_src_cleanup_source(void)
 	_free_memory ((char*)src_az_source_file_table [i]);
 	src_az_source_file_table[i] = NULL;
 	}
+    src_l_last_source_file_number = -1;
 
     /*
-    **  Loop through list of current source buffers, freeing them
+    **  Collect and free unique current and reusable source buffers
+    **  (at main-file EOF, src_az_current_source_buffer also resides on
+    **  src_az_avail_source_buffer so the lexer can still read its column).
     */
-    while (src_az_current_source_buffer != NULL)
+    {
+	src_source_buffer_type *static_bufs[64];
+	src_source_buffer_type **buf_list = static_bufs;
+	size_t buf_cap = 64;
+	size_t buf_cnt = 0;
+	size_t b_idx;
+	int pass;
+
+	for (pass = 0; pass < 2; pass++)
 	{
-    	buffer_to_free = src_az_current_source_buffer;
-    	src_az_current_source_buffer = 
-	    src_az_current_source_buffer->az_prior_source_buffer;
-	_free_memory ((char*)buffer_to_free);
+	    src_source_buffer_type *cur = (pass == 0)
+		? src_az_current_source_buffer
+		: src_az_avail_source_buffer;
+	    while (cur != NULL)
+	    {
+		boolean seen = FALSE;
+		for (b_idx = 0; b_idx < buf_cnt; b_idx++)
+		{
+		    if (buf_list[b_idx] == cur)
+		    {
+			seen = TRUE;
+			break;
+		    }
+		}
+		if (seen)
+		    break;
+		if (buf_cnt == buf_cap)
+		{
+		    size_t new_cap = buf_cap * 2;
+		    src_source_buffer_type **grown = (src_source_buffer_type **)
+			XtMalloc(new_cap * sizeof(*grown));
+		    if (grown == NULL)
+			break;
+		    memcpy(grown, buf_list, buf_cnt * sizeof(*grown));
+		    if (buf_list != static_bufs)
+			XtFree((char *)buf_list);
+		    buf_list = grown;
+		    buf_cap = new_cap;
+		}
+		buf_list[buf_cnt++] = cur;
+		cur = cur->az_prior_source_buffer;
+	    }
 	}
+	src_az_current_source_buffer = NULL;
+	src_az_avail_source_buffer = NULL;
+	for (b_idx = 0; b_idx < buf_cnt; b_idx++)
+	    _free_memory((char *)buf_list[b_idx]);
+	if (buf_list != static_bufs)
+	    XtFree((char *)buf_list);
+    }
 
     /*
-    **  Loop through list of source records, freeing them
+    **  Loop through list of source records and orphan messages, freeing them
     */
     while (src_az_first_source_record != NULL)
 	{
@@ -286,10 +333,22 @@ Uil_src_cleanup_source(void)
 	    first_code_item = first_code_item->az_next_machine_code;
 	    _free_memory((char *)code_item_to_free);
 	  }
+	while (record_to_free->az_message_list != NULL)
+	  {
+	    msg_to_free = record_to_free->az_message_list;
+	    record_to_free->az_message_list = msg_to_free->az_next_message;
+	    _free_memory((char *)msg_to_free);
+	  }
 	
 	src_az_first_source_record =
 	    src_az_first_source_record->az_next_source_record;
 	_free_memory ((char*)record_to_free);
+	}
+    while (src_az_orphan_messages != NULL)
+	{
+	msg_to_free = src_az_orphan_messages;
+	src_az_orphan_messages = msg_to_free->az_next_message;
+	_free_memory((char *)msg_to_free);
 	}
 
     /*
@@ -299,6 +358,7 @@ Uil_src_cleanup_source(void)
     /* Memory pointed to by main_fcb already freed. */
 /* END OSF FIX pir 2240 */
     _free_memory (include_dir);
+    include_dir = NULL;
 
     return;
 }
@@ -559,6 +619,15 @@ src_get_source_line(void)
     if (l_read_status == src_k_end_source)
     {
 	src_source_buffer_type	*az_prior_source_buffer;
+	src_source_buffer_type	*scan_buf;
+
+	for (scan_buf = src_az_avail_source_buffer;
+	     scan_buf != NULL;
+	     scan_buf = scan_buf->az_prior_source_buffer)
+	{
+	    if (scan_buf == src_az_current_source_buffer)
+		return src_k_end_source;
+	}
 	
 	/* get prior source buffer */
 
@@ -1119,7 +1188,9 @@ boolean	src_retrieve_source
     **	in which case we don't need to reread the source 
     */
 
-    if ((az_src_rec->b_file_number == 
+    if ((src_az_current_source_buffer != NULL)
+	 &&
+	(az_src_rec->b_file_number == 
 	 src_az_current_source_buffer->b_file_number)
 	 &&
 	(az_src_rec->w_line_number ==

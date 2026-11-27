@@ -19,11 +19,14 @@ fuzz_readme = read("tests/fuzz/README")
 
 expected_targets = (
     "editres-wire",
+    "image-cache",
     "mrm-uid",
     "mwm-parsers",
+    "uil-grammar",
     "uil-wmd",
     "wayland-x11-server",
     "xm-converters",
+    "xmstring-ct",
     "xmstring-stream",
     "xpm-image",
 )
@@ -46,8 +49,28 @@ for target in expected_targets:
     assert len(seeds) >= 3, f"expected >= 3 seeds in {corpus}, found {len(seeds)}"
     assert target in fuzz_readme, f"{target} missing from tests/fuzz/README"
 
-for new_target in ("xpm-image", "mwm-parsers", "uil-wmd"):
+for new_target in (
+    "xpm-image",
+    "mwm-parsers",
+    "uil-wmd",
+    "wayland-x11-server",
+    "xmstring-ct",
+    "image-cache",
+    "uil-grammar",
+):
     assert f'write("{new_target}"' in make_seeds, f"{new_target} missing from make-seeds.py"
+
+uil_lex = read("clients/uil/UilLexAna.c")
+assert "if (Uil_file_size > 0 && Uil_characters_read > 0)" in uil_lex
+uil_sym = read("clients/uil/UilSymStor.c")
+assert "sym_az_error_value_entry = NULL;" in uil_sym
+assert "sym_az_allocated_nodes = NULL;" in uil_sym
+uil_p2out = read("clients/uil/UilP2Out.c")
+assert "if (offset < segment_size)" in uil_p2out
+uil_diags = read("clients/uil/UilDiags.c")
+assert "#define buf_size (src_k_max_source_line_length + 4)" in uil_diags
+resencod = read("lib/Xm/ResEncod.c")
+assert "if (step == 0 || (size_t)(ctx->lastoctet - ctx->octet) < step)" in resencod
 
 # 2. Verify XPM parser hardening found by fuzz-xpm-image
 xpmparse = read("lib/Xm/Xpmparse.c")

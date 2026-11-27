@@ -221,7 +221,7 @@ void    diag_store_handlers
 **--
 **/
 
-#define buf_size (src_k_max_source_line_length + 1)
+#define buf_size (src_k_max_source_line_length + 4)
 
 void	diag_issue_diagnostic
 	    ( int d_message_number, src_source_record_type *az_src_rec, 

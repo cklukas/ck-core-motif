@@ -161,6 +161,8 @@ sym_az_val_forward_ref_chain = NULL;
 sym_az_external_def_chain = NULL;
 sym_az_entry_list_header = NULL;
 sym_az_module_entry = NULL;
+sym_az_root_entry = NULL;
+sym_az_current_section_entry = NULL;
 
 /*
  * Acquire pointer lists to access allocated and freed nodes
@@ -174,9 +176,8 @@ UrmPlistInit (100, &sym_az_freed_nodes);
  * conflict with a user name.
  */
 
-if ( sym_az_error_value_entry == NULL )
-    sym_az_error_value_entry = (sym_value_entry_type *)
-	sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
+sym_az_error_value_entry = (sym_value_entry_type *)
+    sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
 
 sym_az_error_value_entry->b_type = sym_k_error_value;
 sym_az_error_value_entry->obj_header.b_flags = 
@@ -228,11 +229,25 @@ if ( freealloc )
     else
       if ( sym_az_freed_nodes != NULL )
 	 UrmPlistFreeContents (sym_az_freed_nodes);
+    sym_az_root_entry = NULL;
+    sym_az_current_section_entry = NULL;
+    sym_az_module_entry = NULL;
+    sym_az_entry_list_header = NULL;
+    sym_az_forward_ref_chain = NULL;
+    sym_az_val_forward_ref_chain = NULL;
+    sym_az_external_def_chain = NULL;
   }
+sym_az_error_value_entry = NULL;
 if ( sym_az_allocated_nodes != NULL )
+  {
     UrmPlistFree (sym_az_allocated_nodes);
+    sym_az_allocated_nodes = NULL;
+  }
 if ( sym_az_freed_nodes != NULL )
+  {
     UrmPlistFree (sym_az_freed_nodes);
+    sym_az_freed_nodes = NULL;
+  }
 }
 
 

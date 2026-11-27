@@ -1,0 +1,17 @@
+module rich_mod
+names = case_insensitive
+include file 'helper.uil';
+value
+    c_bg : color('#203040', background);
+    c_fg : color('#f0f4f8', foreground);
+    ct_1 : color_table(c_bg = '.', c_fg = '#');
+    ic_1 : icon(color_table = ct_1, '..##', '.##.', '##..', '#...');
+    f_1  : font('-*-helvetica-bold-r-normal--14-*');
+object lbl : XmLabel {
+    arguments {
+        XmNlabelType = XmPIXMAP;
+        XmNlabelPixmap = ic_1;
+        XmNrecomputeSize = true;
+    };
+};
+end module;

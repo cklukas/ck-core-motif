@@ -1,0 +1,12 @@
+module fwd_mod
+object rc : XmRowColumn {
+    controls {
+        XmPushButtonGadget g1;
+        XmSeparatorGadget sep;
+        XmToggleButtonGadget g2;
+    };
+};
+object g1 : XmPushButtonGadget { arguments { XmNlabelString = 'One'; }; };
+object sep : XmSeparatorGadget {};
+object g2 : XmToggleButtonGadget { arguments { XmNset = true; }; };
+end module;

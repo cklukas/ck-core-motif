@@ -74,17 +74,19 @@ A component is *audited* when a topic commit records a review of its complete
 input path, not when a compiler is quiet. The commit activity below is a weaker
 signal: it shows which files have been touched at all since 2026-10-22. Fuzz
 targets exist for `lib/Mrm` (`fuzz-mrm-uid` and the reproducible damaged-UID
-test, [UID files as untrusted input](mrm-uid-input.md)) and for `lib/Xm`
-(`fuzz-editres-wire`, `fuzz-xm-converters`, `fuzz-xmstring-stream`; see
-[Known limits](#known-limits)); the Editres handler and the
+test, [UID files as untrusted input](mrm-uid-input.md)), for `clients/uil`
+(`fuzz-uil-grammar`, `fuzz-uil-wmd`), for `clients/mwm` (`fuzz-mwm-parsers`),
+and for `lib/Xm` (`fuzz-editres-wire`, `fuzz-image-cache`, `fuzz-wayland-x11-server`,
+`fuzz-xm-converters`, `fuzz-xmstring-ct`, `fuzz-xmstring-stream`,
+`fuzz-xpm-image`; see [Known limits](#known-limits)); the Editres handler and the
 D-Bus adapter also have compiled behavioural tests under the sanitizers
 ([Editres protocol handler](editres-wire-protocol.md),
 [Accessibility D-Bus reply building](accessibility-dbus-reply-building.md)).
 
 | Component | Exposure | Prior hardening | Unique warnings | Defect-class | cppcheck errors | Fuzz targets |
 |---|---|---|---:|---:|---:|---|
-| `lib/Xm` | toolkit library; clipboard, selection, text, string and image paths; editres protocol; native Wayland X11/XRender server | hardening commits since 2026-10-22; WP-42 defect-warning & cppcheck ratchet, WP-43 legacy/modern subsystem audit ([WP-43 audit](untrusted-input-audit-wp43.md)), WP-44 XPM fuzzer & bounds fixes (2026-11-16), Wayland backend ASan/UBSan/TSan + wire fuzzer qualification, and Phase 2 `-Wsign-compare` / `-Wmissing-field-initializers` ratchet (2026-11-26) | 270 | 0 | 0 | `fuzz-editres-wire`, `fuzz-wayland-x11-server`, `fuzz-xm-converters`, `fuzz-xmstring-stream`, `fuzz-xpm-image` |
-| `clients/uil` | UIL compiler; parses source and `.wmd` files | WP-42 defect-warning & cppcheck ratchet; WP-43 WMD binary database and parser bounds audit ([WP-43 audit](untrusted-input-audit-wp43.md)); WP-44 `.wmd` fuzzer (2026-11-16); Phase 2 initializer & signedness ratchet (2026-11-26) | 18 | 0 | 0 | `fuzz-uil-wmd`, `check-wmd.py` |
+| `lib/Xm` | toolkit library; clipboard, selection, text, string and image paths; editres protocol; native Wayland X11/XRender server | hardening commits since 2026-10-22; WP-42 defect-warning & cppcheck ratchet, WP-43 legacy/modern subsystem audit ([WP-43 audit](untrusted-input-audit-wp43.md)), WP-44 XPM fuzzer & bounds fixes (2026-11-16), Wayland backend ASan/UBSan/TSan + wire fuzzer qualification, Phase 2 `-Wsign-compare` / `-Wmissing-field-initializers` ratchet (2026-11-26), and ISO-2022 Compound Text / `ImageCache` fuzzing & multibyte bounds fixes (2026-11-27) | 270 | 0 | 0 | `fuzz-editres-wire`, `fuzz-image-cache`, `fuzz-wayland-x11-server`, `fuzz-xm-converters`, `fuzz-xmstring-ct`, `fuzz-xmstring-stream`, `fuzz-xpm-image` |
+| `clients/uil` | UIL compiler; parses source and `.wmd` files | WP-42 defect-warning & cppcheck ratchet; WP-43 WMD binary database and parser bounds audit ([WP-43 audit](untrusted-input-audit-wp43.md)); WP-44 `.wmd` fuzzer (2026-11-16); Phase 2 initializer & signedness ratchet (2026-11-26); callable `Uil()` grammar/UID fuzzer and lifetime/bounds fixes (2026-11-27) | 18 | 0 | 0 | `fuzz-uil-grammar`, `fuzz-uil-wmd`, `check-wmd.py` |
 | `clients/mwm` | window manager; resource and property parsers | control flow, initialization and keysym handling (2026-11-01); WP-42 ratchet, WP-43 interactive-placement bounds audit, WP-44 WSM wire & `.mwmrc` fuzzer (2026-11-16), and Phase 2 signedness ratchet (2026-11-26) | 83 | 0 | 0 | `fuzz-mwm-parsers`, `wsm-wire-validation` |
 | `lib/Mrm` | reads and writes binary UID files | hardening commits since 2026-10-22; UID index, literal, icon and compression-table checks (2026-11-10); WP-42 ratchet, WP-43 writer/OS audit, WP-44 `-O1` sanitizer initialization fix (2026-11-16), and Phase 2 signedness ratchet (2026-11-26) | 96 | 0 | 0 | `fuzz-mrm-uid`, `run-mrm-uid-mutations.py` |
 | `tools/wml` | widget meta-language generator; build-time tool | WP-42 format-security & cppcheck ratchet; WP-43 WMD emitter/grammar review; WP-44 sanitized `wmldbcreate` round-trip (2026-11-16); Phase 2 initializer ratchet (2026-11-26) | 29 | 0 | 0 | `check-wmd.py` |
@@ -113,8 +115,9 @@ teardown.
 
 - The sanitized (`--enable-sanitizers=address,undefined` and
   `--enable-sanitizers=thread`) installed-prefix builds, `run-wayland-backend.py`,
-  and all 8 `libFuzzer` replay targets (`editres-wire`, `mrm-uid`,
-  `mwm-parsers`, `uil-wmd`, `wayland-x11-server`, `xm-converters`, `xmstring-stream`, `xpm-image`),
+  and all 11 `libFuzzer` replay targets (`editres-wire`, `image-cache`,
+  `mrm-uid`, `mwm-parsers`, `uil-grammar`, `uil-wmd`, `wayland-x11-server`,
+  `xm-converters`, `xmstring-ct`, `xmstring-stream`, `xpm-image`),
   `check-wmd.py`, `check-xpm-input`, `wsm-wire-validation`, and the 5 sanitized
   parser-bounds suites (`run-xmstring-stream-bounds.py`,
   `run-resconvert-list-bounds.py`, `run-mrm-literal-bounds.py`,

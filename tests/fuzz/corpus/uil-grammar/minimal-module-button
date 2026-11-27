@@ -1,0 +1,24 @@
+module demo_mod
+version = 'v1.0'
+names = case_sensitive
+procedure on_activate();
+value
+    k_label : compound_string('Click Me', separate = true) & 'Now';
+    k_pad   : 12 + 4 * 2;
+object main_box : XmForm {
+    controls {
+        XmPushButton ok_btn;
+    };
+    arguments {
+        XmNmarginWidth = k_pad;
+    };
+};
+object ok_btn : XmPushButton {
+    arguments {
+        XmNlabelString = k_label;
+    };
+    callbacks {
+        XmNactivateCallback = procedure on_activate();
+    };
+};
+end module;

@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include <X11/Intrinsic.h>
+#include <X11/Xutil.h>
 #include <X11/StringDefs.h>
 #include <X11/Shell.h>
 #include <Xm/Xm.h>
@@ -65,6 +66,30 @@ Status XInternAtoms(Display *d, char **names, int n, Bool only, Atom *out)
     (void) d; (void) only;
     for (int i = 0; i < n; i++) out[i] = names[i] ? (Atom) (1 + (unsigned char) names[i][0]) : None;
     return 1;
+}
+int XmbTextPropertyToTextList(Display *d, const XTextProperty *tp, char ***list_return, int *count_return)
+{
+    (void) d;
+    if (list_return) *list_return = NULL;
+    if (count_return) *count_return = 0;
+    if (tp && tp->value && tp->nitems > 0) {
+        volatile unsigned char sink = 0;
+        for (unsigned long i = 0; i < tp->nitems; ++i)
+            sink ^= tp->value[i];
+        (void) sink;
+    }
+    return XConverterNotFound;
+}
+int XmbTextListToTextProperty(Display *d, char **list, int count, XICCEncodingStyle style, XTextProperty *text_prop_return)
+{
+    (void) d; (void) style;
+    if (text_prop_return)
+        memset(text_prop_return, 0, sizeof(*text_prop_return));
+    for (int i = 0; list && i < count; ++i) {
+        if (list[i])
+            (void) strlen(list[i]);
+    }
+    return XConverterNotFound;
 }
 /* ---- Intrinsics: calls that need a display or a widget ---- */
 
@@ -122,10 +147,15 @@ int _XmGetFontUnit(Display *d, int dim) { (void) d; return dim ? dim : 10; }
 void XmeWarning(Widget w, char *m) { (void) w; (void) m; fuzz_warnings++; }
 const char *XME_WARNING = "warning";
 void _XmAppearanceNoteFontDefault(Widget w, Widget p, unsigned char k) { (void) w; (void) p; (void) k; }
-void XmParseMappingFree(XmParseMapping m) { free(m); }
 Boolean _XmRepTypeInstallConverters(void) { return True; }
+XmFontList XmFontListCreate(XFontStruct *f, XmStringCharSet c) { (void) f; (void) c; return (XmFontList) calloc(1, 16); }
+XmFontList XmFontListAdd(XmFontList old, XFontStruct *f, XmStringCharSet c)
+{ (void) f; (void) c; return old ? old : (XmFontList) calloc(1, 16); }
+XmFontListEntry XmFontListEntryCreate(char *t, XmFontType ty, XtPointer f)
+{ (void) t; (void) ty; (void) f; return (XmFontListEntry) calloc(1, 16); }
 XmFontListEntry XmFontListEntryLoad(Display *d, char *name, XmFontType type, char *tag)
 { (void) d; (void) name; (void) type; (void) tag; return NULL; }
 void XmFontListEntryFree(XmFontListEntry *e) { if (e) { free(*e); *e = NULL; } }
-XmFontList XmFontListAppendEntry(XmFontList old, XmFontListEntry e) { (void) e; return old; }
+XmFontList XmFontListAppendEntry(XmFontList old, XmFontListEntry e)
+{ (void) e; return old ? old : (XmFontList) calloc(1, 16); }
 void XmFontListFree(XmFontList l) { free(l); }

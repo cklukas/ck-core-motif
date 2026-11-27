@@ -1,0 +1,13 @@
+/* XPM */
+static char *sym[] = {
+"4 4 5 1 1 1",
+". c None s mask",
+"# c #112233 s foreground",
+"b c #ddeeff s background",
+"t c #ffffff s topShadowColor",
+"s c #222222 s bottomShadowColor",
+".tt.",
+"t##s",
+"tbb#",
+".ss."
+};

@@ -425,7 +425,7 @@ void	lst_output_listing()
 
 {
     src_source_record_type  *az_src_rec;
-    char		    src_buffer[ src_k_max_source_line_length+12 ];
+    char		    src_buffer[ src_k_max_source_line_length+32 ];
     char		    *src_ptr;
     int			    i;
 

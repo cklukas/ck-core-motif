@@ -257,6 +257,13 @@ void	sem_output_uid_file()
     */
 
     out_l_next_offset = 0;
+    if (src_az_avail_source_buffer == NULL)
+    {
+	src_az_avail_source_buffer =
+	    (src_source_buffer_type *)
+		_get_memory( sizeof( src_source_buffer_type ) );
+	src_az_avail_source_buffer->az_prior_source_buffer = NULL;
+    }
     out_az_queue = (out_queue_type *)src_az_avail_source_buffer;
     out_az_queue->az_prior_queue = NULL;
     src_az_avail_source_buffer = 
@@ -1588,13 +1595,21 @@ void	out_emit_value(sym_value_entry_type *value_entry)
 
 	    /*
 	     **  Determine the length of the translation table by adding
-	     **  together the length of the component strings.
+	     **  together the length of the component strings plus one
+	     **  newline/NUL byte per segment (or 1 byte when empty).
 	     */
-	    for (value_segment = value_entry->az_first_table_value;  
-		 value_segment != NULL;  
-		 value_segment = value_segment->az_next_table_value)
-		out_add_value_size(&value_size, value_segment->w_length);
-	    out_add_value_size(&value_size, 1);
+	    if (value_entry->az_first_table_value == NULL)
+		out_add_value_size(&value_size, 1);
+	    else
+		{
+		for (value_segment = value_entry->az_first_table_value;  
+		     value_segment != NULL;  
+		     value_segment = value_segment->az_next_table_value)
+		    {
+		    out_add_value_size(&value_size, value_segment->w_length);
+		    out_add_value_size(&value_size, 1);
+		    }
+		}
 	    break;
 	    }
 	
@@ -1956,11 +1971,14 @@ void	out_emit_value(sym_value_entry_type *value_entry)
 		 value_segment != NULL;  
 		 value_segment = value_segment->az_next_table_value)
 		{
-		buffer[offset - 1] = '\n';
 		segment_size = value_segment->w_length + 1;
+		if (offset < segment_size)
+		    break;
+		buffer[offset - 1] = '\n';
 		offset -= segment_size;
-		_move( &(buffer[offset]), 
-		      value_segment->value.c_value, segment_size-1 );
+		if (value_segment->value.c_value != NULL && segment_size > 1)
+		    _move( &(buffer[offset]), 
+			  value_segment->value.c_value, segment_size-1 );
 		}
 	    buffer[value_size - 1] = 0;
 	    break;

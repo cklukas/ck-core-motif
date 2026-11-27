@@ -1,0 +1,18 @@
+module list_mod
+identifier app_context_ptr;
+list shared_args : arguments {
+    XmNwidth = 240;
+    XmNheight = 160;
+};
+value
+    str_arr : string_table('Alpha', 'Beta', 'Gamma');
+    xlate   : translation_table('#override', '<Btn1Down>: Arm()');
+object lst : XmList {
+    arguments {
+        arguments shared_args;
+        XmNitems = str_arr;
+        XmNitemCount = 3;
+        XmNtranslations = xlate;
+    };
+};
+end module;
