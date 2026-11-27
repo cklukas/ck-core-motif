@@ -22,9 +22,360 @@
 #include <string.h>
 #include <strings.h>
 
+#if defined(__aarch64__) || defined(__ARM_NEON)
+#include <arm_neon.h>
+#define XM_WL_HAVE_NEON 1
+#elif defined(__AVX2__)
+#include <immintrin.h>
+#define XM_WL_HAVE_AVX2 1
+#define XM_WL_HAVE_SSE2 1
+#elif defined(__SSE2__)
+#include <emmintrin.h>
+#define XM_WL_HAVE_SSE2 1
+#endif
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+static atomic_bool g_wl_simd_enabled = true;
+static atomic_uint_fast64_t g_stat_atlas_glyphs = 0;
+static atomic_uint_fast64_t g_stat_atlas_pages = 0;
+static atomic_uint_fast64_t g_stat_simd_glyph_blits = 0;
+static atomic_uint_fast64_t g_stat_simd_span_ops = 0;
+
+void
+_XmWaylandRenderSetSimdEnabled(bool enabled)
+{
+    atomic_store_explicit(&g_wl_simd_enabled, enabled, memory_order_relaxed);
+}
+
+bool
+_XmWaylandRenderGetSimdEnabled(void)
+{
+    return atomic_load_explicit(&g_wl_simd_enabled, memory_order_relaxed);
+}
+
+const char *
+_XmWaylandRenderGetSimdBackend(void)
+{
+    if (!atomic_load_explicit(&g_wl_simd_enabled, memory_order_relaxed))
+        return "scalar";
+#if defined(XM_WL_HAVE_NEON)
+    return "neon";
+#elif defined(XM_WL_HAVE_AVX2)
+    return "avx2";
+#elif defined(XM_WL_HAVE_SSE2)
+    return "sse2";
+#else
+    return "scalar";
+#endif
+}
+
+void
+_XmWaylandRenderResetStats(void)
+{
+    atomic_store_explicit(&g_stat_atlas_glyphs, 0, memory_order_relaxed);
+    atomic_store_explicit(&g_stat_atlas_pages, 0, memory_order_relaxed);
+    atomic_store_explicit(&g_stat_simd_glyph_blits, 0, memory_order_relaxed);
+    atomic_store_explicit(&g_stat_simd_span_ops, 0, memory_order_relaxed);
+}
+
+void
+_XmWaylandRenderGetStats(uint64_t *out_atlas_glyphs,
+                         uint64_t *out_atlas_pages,
+                         uint64_t *out_simd_glyph_blits,
+                         uint64_t *out_simd_span_ops)
+{
+    if (out_atlas_glyphs)
+        *out_atlas_glyphs = atomic_load_explicit(&g_stat_atlas_glyphs, memory_order_relaxed);
+    if (out_atlas_pages)
+        *out_atlas_pages = atomic_load_explicit(&g_stat_atlas_pages, memory_order_relaxed);
+    if (out_simd_glyph_blits)
+        *out_simd_glyph_blits = atomic_load_explicit(&g_stat_simd_glyph_blits, memory_order_relaxed);
+    if (out_simd_span_ops)
+        *out_simd_span_ops = atomic_load_explicit(&g_stat_simd_span_ops, memory_order_relaxed);
+}
+
+static inline uint32_t
+wl_div255_u32(uint32_t x)
+{
+    uint32_t t = x + 128u;
+    return (t + (t >> 8)) >> 8;
+}
+
+static inline uint32_t
+wl_over_pixel_scalar(uint32_t sp, uint32_t dp, uint8_t depth)
+{
+    uint32_t sa = sp >> 24;
+    if (sa == 0)
+        return (depth == 24) ? (0xff000000u | (dp & 0x00ffffffu)) : dp;
+    if (sa == 255u)
+        return (depth == 24) ? (0xff000000u | (sp & 0x00ffffffu)) : sp;
+    uint32_t inv_a = 255u - sa;
+    uint32_t b = (sp & 0xffu) + wl_div255_u32((dp & 0xffu) * inv_a);
+    uint32_t g = ((sp >> 8) & 0xffu) + wl_div255_u32(((dp >> 8) & 0xffu) * inv_a);
+    uint32_t r = ((sp >> 16) & 0xffu) + wl_div255_u32(((dp >> 16) & 0xffu) * inv_a);
+    uint32_t a = (depth == 24) ? 255u : (sa + wl_div255_u32((dp >> 24) * inv_a));
+    return (a << 24) | (r << 16) | (g << 8) | b;
+}
+
+static inline uint32_t
+wl_scale_pixel_mask_scalar(uint32_t pm_src, uint8_t m)
+{
+    if (m == 0)
+        return 0;
+    if (m == 255u)
+        return pm_src;
+    uint32_t b = wl_div255_u32((pm_src & 0xffu) * m);
+    uint32_t g = wl_div255_u32(((pm_src >> 8) & 0xffu) * m);
+    uint32_t r = wl_div255_u32(((pm_src >> 16) & 0xffu) * m);
+    uint32_t a = wl_div255_u32((pm_src >> 24) * m);
+    return (a << 24) | (r << 16) | (g << 8) | b;
+}
+
+#if defined(XM_WL_HAVE_NEON)
+static inline uint16x8_t
+wl_neon_div255_u16(uint16x8_t prod)
+{
+    uint16x8_t t = vaddq_u16(prod, vdupq_n_u16(128));
+    return vshrq_n_u16(vaddq_u16(t, vshrq_n_u16(t, 8)), 8);
+}
+#endif
+
+#if defined(XM_WL_HAVE_SSE2)
+static inline __m128i
+wl_sse2_div255_u16(__m128i prod)
+{
+    __m128i t = _mm_add_epi16(prod, _mm_set1_epi16(128));
+    return _mm_srli_epi16(_mm_add_epi16(t, _mm_srli_epi16(t, 8)), 8);
+}
+#endif
+
+#if defined(XM_WL_HAVE_AVX2)
+static inline __m256i
+wl_avx2_div255_u16(__m256i prod)
+{
+    __m256i t = _mm256_add_epi16(prod, _mm256_set1_epi16(128));
+    return _mm256_srli_epi16(_mm256_add_epi16(t, _mm256_srli_epi16(t, 8)), 8);
+}
+#endif
+
+void
+_XmWaylandSimdFillRow32(uint32_t *dst, uint32_t pixel, size_t count)
+{
+    size_t i = 0;
+    if (count == 0 || !dst)
+        return;
+    if (atomic_load_explicit(&g_wl_simd_enabled, memory_order_relaxed)) {
+#if defined(XM_WL_HAVE_NEON)
+        uint32x4_t vp = vdupq_n_u32(pixel);
+        for (; i + 8 <= count; i += 8) {
+            vst1q_u32(dst + i, vp);
+            vst1q_u32(dst + i + 4, vp);
+        }
+        for (; i + 4 <= count; i += 4)
+            vst1q_u32(dst + i, vp);
+#elif defined(XM_WL_HAVE_AVX2)
+        __m256i vp8 = _mm256_set1_epi32((int)pixel);
+        for (; i + 8 <= count; i += 8)
+            _mm256_storeu_si256((__m256i *)(dst + i), vp8);
+#elif defined(XM_WL_HAVE_SSE2)
+        __m128i vp4 = _mm_set1_epi32((int)pixel);
+        for (; i + 4 <= count; i += 4)
+            _mm_storeu_si128((__m128i *)(dst + i), vp4);
+#endif
+    }
+    for (; i < count; ++i)
+        dst[i] = pixel;
+}
+
+void
+_XmWaylandSimdOverSpanSolid(uint32_t *dst, uint32_t pm_src, size_t count, uint8_t depth)
+{
+    if (count == 0 || !dst)
+        return;
+    uint32_t sa = pm_src >> 24;
+    if (sa == 0)
+        return;
+    if (sa == 255u) {
+        uint32_t px = (depth == 24) ? (0xff000000u | (pm_src & 0x00ffffffu)) : pm_src;
+        _XmWaylandSimdFillRow32(dst, px, count);
+        return;
+    }
+
+    size_t i = 0;
+    uint32_t inv_a = 255u - sa;
+    if (atomic_load_explicit(&g_wl_simd_enabled, memory_order_relaxed)) {
+#if defined(XM_WL_HAVE_NEON)
+        uint8x16_t vs8 = vreinterpretq_u8_u32(vdupq_n_u32(pm_src));
+        uint8x8_t vinv = vdup_n_u8((uint8_t)inv_a);
+        uint32x4_t alpha_force = vdupq_n_u32(depth == 24 ? 0xff000000u : 0u);
+        for (; i + 4 <= count; i += 4) {
+            uint8x16_t vd8 = vreinterpretq_u8_u32(vld1q_u32(dst + i));
+            uint16x8_t d_lo = wl_neon_div255_u16(vmull_u8(vget_low_u8(vd8), vinv));
+            uint16x8_t d_hi = wl_neon_div255_u16(vmull_u8(vget_high_u8(vd8), vinv));
+            uint8x16_t dp8 = vcombine_u8(vmovn_u16(d_lo), vmovn_u16(d_hi));
+            uint32x4_t res = vreinterpretq_u32_u8(vaddq_u8(vs8, dp8));
+            if (depth == 24)
+                res = vorrq_u32(res, alpha_force);
+            vst1q_u32(dst + i, res);
+        }
+#elif defined(XM_WL_HAVE_AVX2)
+        __m256i zero = _mm256_setzero_si256();
+        __m256i vs8 = _mm256_set1_epi32((int)pm_src);
+        __m256i vinv16 = _mm256_set1_epi16((short)inv_a);
+        __m256i alpha_force = _mm256_set1_epi32(depth == 24 ? (int)0xff000000u : 0);
+        for (; i + 8 <= count; i += 8) {
+            __m256i vd8 = _mm256_loadu_si256((const __m256i *)(dst + i));
+            __m256i d_lo = wl_avx2_div255_u16(_mm256_mullo_epi16(_mm256_unpacklo_epi8(vd8, zero), vinv16));
+            __m256i d_hi = wl_avx2_div255_u16(_mm256_mullo_epi16(_mm256_unpackhi_epi8(vd8, zero), vinv16));
+            __m256i dp8 = _mm256_packus_epi16(d_lo, d_hi);
+            __m256i res = _mm256_add_epi8(vs8, dp8);
+            if (depth == 24)
+                res = _mm256_or_si256(res, alpha_force);
+            _mm256_storeu_si256((__m256i *)(dst + i), res);
+        }
+#elif defined(XM_WL_HAVE_SSE2)
+        __m128i zero = _mm_setzero_si128();
+        __m128i vs8 = _mm_set1_epi32((int)pm_src);
+        __m128i vinv16 = _mm_set1_epi16((short)inv_a);
+        __m128i alpha_force = _mm_set1_epi32(depth == 24 ? (int)0xff000000u : 0);
+        for (; i + 4 <= count; i += 4) {
+            __m128i vd8 = _mm_loadu_si128((const __m128i *)(dst + i));
+            __m128i d_lo = wl_sse2_div255_u16(_mm_mullo_epi16(_mm_unpacklo_epi8(vd8, zero), vinv16));
+            __m128i d_hi = wl_sse2_div255_u16(_mm_mullo_epi16(_mm_unpackhi_epi8(vd8, zero), vinv16));
+            __m128i dp8 = _mm_packus_epi16(d_lo, d_hi);
+            __m128i res = _mm_add_epi8(vs8, dp8);
+            if (depth == 24)
+                res = _mm_or_si128(res, alpha_force);
+            _mm_storeu_si128((__m128i *)(dst + i), res);
+        }
+#endif
+    }
+    for (; i < count; ++i)
+        dst[i] = wl_over_pixel_scalar(pm_src, dst[i], depth);
+}
+
+void
+_XmWaylandSimdBlitGlyphA8Over(uint32_t *dst, int dst_stride_px,
+                              const uint8_t *mask, int mask_stride,
+                              int w, int h, uint32_t pm_src, uint8_t depth)
+{
+    if (!dst || !mask || w <= 0 || h <= 0 || (pm_src >> 24) == 0)
+        return;
+
+    bool use_simd = atomic_load_explicit(&g_wl_simd_enabled, memory_order_relaxed);
+    uint32_t sa = pm_src >> 24;
+    uint32_t opaque_px = (depth == 24) ? (0xff000000u | (pm_src & 0x00ffffffu)) : pm_src;
+
+    for (int r = 0; r < h; ++r) {
+        uint32_t *drow = dst + (size_t)r * (size_t)dst_stride_px;
+        const uint8_t *mrow = mask + (size_t)r * (size_t)mask_stride;
+        int c = 0;
+
+        if (use_simd) {
+#if defined(XM_WL_HAVE_NEON)
+            uint8x16_t vs8 = vreinterpretq_u8_u32(vdupq_n_u32(pm_src));
+            uint32x4_t vopaque = vdupq_n_u32(opaque_px);
+            uint32x4_t alpha_force = vdupq_n_u32(depth == 24 ? 0xff000000u : 0u);
+            for (; c + 4 <= w; c += 4) {
+                uint32_t m4;
+                memcpy(&m4, mrow + c, 4);
+                if (m4 == 0)
+                    continue;
+                if (m4 == 0xffffffffu && sa == 255u) {
+                    vst1q_u32(drow + c, vopaque);
+                    continue;
+                }
+                uint32_t rep[4] = {
+                    (uint32_t)mrow[c + 0] * 0x01010101u,
+                    (uint32_t)mrow[c + 1] * 0x01010101u,
+                    (uint32_t)mrow[c + 2] * 0x01010101u,
+                    (uint32_t)mrow[c + 3] * 0x01010101u,
+                };
+                uint8x16_t vm8 = vreinterpretq_u8_u32(vld1q_u32(rep));
+                uint16x8_t sp_lo = wl_neon_div255_u16(vmull_u8(vget_low_u8(vs8), vget_low_u8(vm8)));
+                uint16x8_t sp_hi = wl_neon_div255_u16(vmull_u8(vget_high_u8(vs8), vget_high_u8(vm8)));
+                uint8x16_t sp8 = vcombine_u8(vmovn_u16(sp_lo), vmovn_u16(sp_hi));
+
+                uint32x4_t sp32 = vreinterpretq_u32_u8(sp8);
+                uint32x4_t sa_rep = vmulq_n_u32(vshrq_n_u32(sp32, 24), 0x01010101u);
+                uint8x16_t inv_a8 = vmvnq_u8(vreinterpretq_u8_u32(sa_rep));
+
+                uint8x16_t vd8 = vreinterpretq_u8_u32(vld1q_u32(drow + c));
+                uint16x8_t dp_lo = wl_neon_div255_u16(vmull_u8(vget_low_u8(vd8), vget_low_u8(inv_a8)));
+                uint16x8_t dp_hi = wl_neon_div255_u16(vmull_u8(vget_high_u8(vd8), vget_high_u8(inv_a8)));
+                uint8x16_t dp8 = vcombine_u8(vmovn_u16(dp_lo), vmovn_u16(dp_hi));
+
+                uint32x4_t res = vreinterpretq_u32_u8(vaddq_u8(sp8, dp8));
+                if (depth == 24)
+                    res = vorrq_u32(res, alpha_force);
+                uint8x16_t zero_mask = vceqq_u8(vm8, vdupq_n_u8(0));
+                res = vreinterpretq_u32_u8(vbslq_u8(zero_mask, vd8, vreinterpretq_u8_u32(res)));
+                vst1q_u32(drow + c, res);
+            }
+#elif defined(XM_WL_HAVE_SSE2)
+            __m128i zero = _mm_setzero_si128();
+            __m128i vs8 = _mm_set1_epi32((int)pm_src);
+            __m128i vs16 = _mm_unpacklo_epi8(vs8, zero);
+            __m128i vopaque = _mm_set1_epi32((int)opaque_px);
+            __m128i v255 = _mm_set1_epi16(255);
+            __m128i alpha_force = _mm_set1_epi32(depth == 24 ? (int)0xff000000u : 0);
+            for (; c + 4 <= w; c += 4) {
+                uint32_t m4;
+                memcpy(&m4, mrow + c, 4);
+                if (m4 == 0)
+                    continue;
+                if (m4 == 0xffffffffu && sa == 255u) {
+                    _mm_storeu_si128((__m128i *)(drow + c), vopaque);
+                    continue;
+                }
+                __m128i vm_lo = _mm_set_epi16(
+                    mrow[c + 1], mrow[c + 1], mrow[c + 1], mrow[c + 1],
+                    mrow[c + 0], mrow[c + 0], mrow[c + 0], mrow[c + 0]);
+                __m128i vm_hi = _mm_set_epi16(
+                    mrow[c + 3], mrow[c + 3], mrow[c + 3], mrow[c + 3],
+                    mrow[c + 2], mrow[c + 2], mrow[c + 2], mrow[c + 2]);
+                __m128i sp_lo = wl_sse2_div255_u16(_mm_mullo_epi16(vs16, vm_lo));
+                __m128i sp_hi = wl_sse2_div255_u16(_mm_mullo_epi16(vs16, vm_hi));
+
+                /* Replicate alpha lane (lane 3 & lane 7 in each 8x16) across its 4 channels */
+                __m128i sa_lo = _mm_shufflelo_epi16(_mm_shufflehi_epi16(sp_lo, 0xff), 0xff);
+                __m128i sa_hi = _mm_shufflelo_epi16(_mm_shufflehi_epi16(sp_hi, 0xff), 0xff);
+                __m128i inv_lo = _mm_sub_epi16(v255, sa_lo);
+                __m128i inv_hi = _mm_sub_epi16(v255, sa_hi);
+
+                __m128i vd8 = _mm_loadu_si128((const __m128i *)(drow + c));
+                __m128i dp_lo = wl_sse2_div255_u16(_mm_mullo_epi16(_mm_unpacklo_epi8(vd8, zero), inv_lo));
+                __m128i dp_hi = wl_sse2_div255_u16(_mm_mullo_epi16(_mm_unpackhi_epi8(vd8, zero), inv_hi));
+
+                __m128i sp8 = _mm_packus_epi16(sp_lo, sp_hi);
+                __m128i dp8 = _mm_packus_epi16(dp_lo, dp_hi);
+                __m128i res = _mm_add_epi8(sp8, dp8);
+                if (depth == 24)
+                    res = _mm_or_si128(res, alpha_force);
+                __m128i vm8 = _mm_packus_epi16(vm_lo, vm_hi);
+                __m128i zmask = _mm_cmpeq_epi8(vm8, zero);
+                res = _mm_or_si128(_mm_and_si128(zmask, vd8), _mm_andnot_si128(zmask, res));
+                _mm_storeu_si128((__m128i *)(drow + c), res);
+            }
+#endif
+        }
+
+        for (; c < w; ++c) {
+            uint8_t m = mrow[c];
+            if (m == 0)
+                continue;
+            if (m == 255u && sa == 255u) {
+                drow[c] = opaque_px;
+                continue;
+            }
+            uint32_t sp = wl_scale_pixel_mask_scalar(pm_src, m);
+            drow[c] = wl_over_pixel_scalar(sp, drow[c], depth);
+        }
+    }
+}
 
 static inline uint16_t rd_u16(const uint8_t *p) { uint16_t v; memcpy(&v, p, 2); return v; }
 static inline int16_t  rd_i16(const uint8_t *p) { int16_t v;  memcpy(&v, p, 2); return v; }
@@ -100,8 +451,14 @@ void
 _XmWlFreeGlyphSetData(XmWlGlyphSet *gs)
 {
     if (!gs) return;
-    for (int i = 0; i < 64; ++i) {
-        XmWlGlyph *g = gs->buckets[i];
+    XmWlGlyphSetStore *store = gs->store;
+    gs->store = NULL;
+    if (!store) return;
+    if (--store->ref_count > 0)
+        return;
+
+    for (size_t i = 0; i < sizeof(store->buckets) / sizeof(store->buckets[0]); ++i) {
+        XmWlGlyph *g = store->buckets[i];
         while (g) {
             XmWlGlyph *next = g->next;
             if (g->img) pixman_image_unref(g->img);
@@ -109,8 +466,17 @@ _XmWlFreeGlyphSetData(XmWlGlyphSet *gs)
             free(g);
             g = next;
         }
-        gs->buckets[i] = NULL;
+        store->buckets[i] = NULL;
     }
+    XmWlGlyphAtlasPage *pg = store->atlas_head;
+    while (pg) {
+        XmWlGlyphAtlasPage *next = pg->next;
+        if (pg->img) pixman_image_unref(pg->img);
+        free(pg->bits);
+        free(pg);
+        pg = next;
+    }
+    free(store);
 }
 
 /* ---------- Target Surface + Visible Clip Region Resolution ---------- */
@@ -381,11 +747,12 @@ fill_box_gc(XmWlServer *srv, DrawTarget *dt, const XmWlGC *gc, int x1, int y1, i
             _XmWlDamageTop(dt->top_win, bx1, by1, bx2 - bx1, by2 - by1);
 
         if (fill_style == 0 && func == 3 && (!gc || gc->clip_mask_pixmap == 0)) {
+            size_t span_len = (size_t)(bx2 - bx1);
             for (int py = by1; py < by2; ++py) {
                 uint32_t *row = dt->pixels + (size_t)py * (size_t)dt->stride_px + (size_t)bx1;
-                for (int px = bx1; px < bx2; ++px)
-                    *row++ = fg_px;
+                _XmWaylandSimdFillRow32(row, fg_px, span_len);
             }
+            atomic_fetch_add_explicit(&g_stat_simd_span_ops, 1, memory_order_relaxed);
             continue;
         }
 
@@ -983,27 +1350,85 @@ _XmWlRenderCopyArea(XmWlServer *srv, XmWlClient *cli, uint32_t src_d, uint32_t d
     bool ok_dst = resolve_draw_target(srv, dst_d, gc, &dst_dt);
     if (ok_src && ok_dst && w > 0 && h > 0 &&
         w <= 8192 && h <= 8192 && (size_t)w * (size_t)h <= (16u * 1024u * 1024u)) {
-        uint32_t *tmp = (uint32_t *)calloc((size_t)w * (size_t)h, 4u);
-        if (tmp) {
-            for (uint16_t r = 0; r < h; ++r) {
-                int rsy = src_dt.dy + sy + r;
-                if (rsy < 0 || rsy >= src_dt.height) continue;
-                for (uint16_t c = 0; c < w; ++c) {
-                    int rsx = src_dt.dx + sx + c;
-                    if (rsx < 0 || rsx >= src_dt.width) continue;
-                    tmp[(size_t)r * (size_t)w + (size_t)c] =
-                        src_dt.pixels[(size_t)rsy * (size_t)src_dt.stride_px + (size_t)rsx];
+        int s0x = src_dt.dx + (int)sx;
+        int s0y = src_dt.dy + (int)sy;
+        int d0x = dst_dt.dx + (int)dx;
+        int d0y = dst_dt.dy + (int)dy;
+
+        /* Zero-allocation clipped-scanline fast path for non-overlapping GXcopy
+         * blits (such as _XmBufferedPaint copying Pixmap backbuffers to windows). */
+        if (src_dt.pixels != dst_dt.pixels &&
+            (!gc || (gc->function == 3 && gc->clip_mask_pixmap == 0)) &&
+            src_dt.depth >= 24 && dst_dt.depth >= 24 &&
+            s0x >= 0 && s0y >= 0 &&
+            s0x + (int)w <= src_dt.width && s0y + (int)h <= src_dt.height) {
+            pixman_region32_t cpy_reg;
+            pixman_region32_init_rect(&cpy_reg, d0x, d0y, w, h);
+            pixman_region32_intersect(&cpy_reg, &cpy_reg, &dst_dt.clip);
+            int nboxes = 0;
+            pixman_box32_t *boxes = pixman_region32_rectangles(&cpy_reg, &nboxes);
+            bool force_alpha = (dst_dt.depth == 24 && src_dt.depth != 24);
+            bool use_simd = atomic_load_explicit(&g_wl_simd_enabled, memory_order_relaxed);
+            for (int bi = 0; bi < nboxes; ++bi) {
+                int bx1 = boxes[bi].x1, by1 = boxes[bi].y1;
+                int bx2 = boxes[bi].x2, by2 = boxes[bi].y2;
+                int span_w = bx2 - bx1;
+                if (span_w <= 0)
+                    continue;
+                for (int py = by1; py < by2; ++py) {
+                    int rsy = s0y + (py - d0y);
+                    int rsx = s0x + (bx1 - d0x);
+                    const uint32_t *srow = src_dt.pixels + (size_t)rsy * (size_t)src_dt.stride_px + (size_t)rsx;
+                    uint32_t *drow = dst_dt.pixels + (size_t)py * (size_t)dst_dt.stride_px + (size_t)bx1;
+                    if (!force_alpha) {
+                        memcpy(drow, srow, (size_t)span_w * 4u);
+                    } else {
+                        int c = 0;
+                        if (use_simd) {
+#if defined(XM_WL_HAVE_NEON)
+                            uint32x4_t va = vdupq_n_u32(0xff000000u);
+                            for (; c + 4 <= span_w; c += 4)
+                                vst1q_u32(drow + c, vorrq_u32(vld1q_u32(srow + c), va));
+#elif defined(XM_WL_HAVE_SSE2)
+                            __m128i va = _mm_set1_epi32((int)0xff000000u);
+                            for (; c + 4 <= span_w; c += 4)
+                                _mm_storeu_si128((__m128i *)(drow + c),
+                                                 _mm_or_si128(_mm_loadu_si128((const __m128i *)(srow + c)), va));
+#endif
+                        }
+                        for (; c < span_w; ++c)
+                            drow[c] = 0xff000000u | (srow[c] & 0x00ffffffu);
+                    }
                 }
+                if (dst_dt.top_win)
+                    _XmWlDamageTop(dst_dt.top_win, bx1, by1, bx2 - bx1, by2 - by1);
             }
-            for (uint16_t r = 0; r < h; ++r) {
-                for (uint16_t c = 0; c < w; ++c) {
-                    uint32_t spx = format_gc_pixel(dst_dt.depth, tmp[(size_t)r * (size_t)w + (size_t)c]);
-                    put_clipped_pixel(srv, &dst_dt, gc, dst_dt.dx + dx + c, dst_dt.dy + dy + r, spx);
+            if (nboxes > 0)
+                atomic_fetch_add_explicit(&g_stat_simd_span_ops, 1, memory_order_relaxed);
+            pixman_region32_fini(&cpy_reg);
+        } else {
+            uint32_t *tmp = (uint32_t *)calloc((size_t)w * (size_t)h, 4u);
+            if (tmp) {
+                for (uint16_t r = 0; r < h; ++r) {
+                    int rsy = src_dt.dy + sy + r;
+                    if (rsy < 0 || rsy >= src_dt.height) continue;
+                    for (uint16_t c = 0; c < w; ++c) {
+                        int rsx = src_dt.dx + sx + c;
+                        if (rsx < 0 || rsx >= src_dt.width) continue;
+                        tmp[(size_t)r * (size_t)w + (size_t)c] =
+                            src_dt.pixels[(size_t)rsy * (size_t)src_dt.stride_px + (size_t)rsx];
+                    }
                 }
+                for (uint16_t r = 0; r < h; ++r) {
+                    for (uint16_t c = 0; c < w; ++c) {
+                        uint32_t spx = format_gc_pixel(dst_dt.depth, tmp[(size_t)r * (size_t)w + (size_t)c]);
+                        put_clipped_pixel(srv, &dst_dt, gc, dst_dt.dx + dx + c, dst_dt.dy + dy + r, spx);
+                    }
+                }
+                free(tmp);
+                if (dst_dt.top_win)
+                    _XmWlDamageTop(dst_dt.top_win, dst_dt.dx + dx, dst_dt.dy + dy, w, h);
             }
-            free(tmp);
-            if (dst_dt.top_win)
-                _XmWlDamageTop(dst_dt.top_win, dst_dt.dx + dx, dst_dt.dy + dy, w, h);
         }
     }
     if (ok_src) pixman_region32_fini(&src_dt.clip);
@@ -1592,11 +2017,149 @@ resolve_picture_image(XmWlServer *srv, XmWlPicture *pic, bool is_dst,
 static XmWlGlyph *
 find_glyph(XmWlGlyphSet *gs, uint32_t gid)
 {
-    if (!gs) return NULL;
-    for (XmWlGlyph *g = gs->buckets[gid & 63u]; g; g = g->next) {
+    if (!gs || !gs->store) return NULL;
+    for (XmWlGlyph *g = gs->store->buckets[gid & 127u]; g; g = g->next) {
         if (g->glyph_id == gid) return g;
     }
     return NULL;
+}
+
+static bool
+glyph_atlas_alloc(XmWlGlyphSetStore *store, uint16_t gw, uint16_t gh,
+                  XmWlGlyphAtlasPage **out_page, uint16_t *out_x, uint16_t *out_y)
+{
+    if (!store || gw == 0 || gh == 0 || gw > 256 || gh > 256)
+        return false;
+
+    uint16_t pad_w = (uint16_t)(gw + 1u);
+    uint16_t pad_h = (uint16_t)(gh + 1u);
+
+    for (XmWlGlyphAtlasPage *pg = store->atlas_head; pg; pg = pg->next) {
+        if ((uint32_t)pg->shelf_x + pad_w <= XM_WL_GLYPH_ATLAS_DIM &&
+            (uint32_t)pg->shelf_y + gh <= XM_WL_GLYPH_ATLAS_DIM &&
+            (pg->shelf_h == 0 || gh <= pg->shelf_h)) {
+            *out_page = pg;
+            *out_x = pg->shelf_x;
+            *out_y = pg->shelf_y;
+            pg->shelf_x = (uint16_t)(pg->shelf_x + pad_w);
+            if (pad_h > pg->shelf_h)
+                pg->shelf_h = pad_h;
+            return true;
+        }
+        uint32_t next_y = (uint32_t)pg->shelf_y + pg->shelf_h;
+        if (next_y + gh <= XM_WL_GLYPH_ATLAS_DIM && pad_w <= XM_WL_GLYPH_ATLAS_DIM) {
+            pg->shelf_y = (uint16_t)next_y;
+            pg->shelf_x = pad_w;
+            pg->shelf_h = pad_h;
+            *out_page = pg;
+            *out_x = 0;
+            *out_y = (uint16_t)next_y;
+            return true;
+        }
+    }
+
+    XmWlGlyphAtlasPage *npg = (XmWlGlyphAtlasPage *)calloc(1, sizeof(*npg));
+    if (!npg)
+        return false;
+    npg->bits = (uint8_t *)calloc((size_t)XM_WL_GLYPH_ATLAS_DIM * XM_WL_GLYPH_ATLAS_DIM, 1u);
+    if (!npg->bits) {
+        free(npg);
+        return false;
+    }
+    npg->img = pixman_image_create_bits(
+        PIXMAN_a8, XM_WL_GLYPH_ATLAS_DIM, XM_WL_GLYPH_ATLAS_DIM,
+        (uint32_t *)npg->bits, XM_WL_GLYPH_ATLAS_DIM);
+    if (!npg->img) {
+        free(npg->bits);
+        free(npg);
+        return false;
+    }
+    npg->shelf_x = pad_w;
+    npg->shelf_y = 0;
+    npg->shelf_h = pad_h;
+    npg->next = store->atlas_head;
+    store->atlas_head = npg;
+    atomic_fetch_add_explicit(&g_stat_atlas_pages, 1, memory_order_relaxed);
+
+    *out_page = npg;
+    *out_x = 0;
+    *out_y = 0;
+    return true;
+}
+
+static inline uint32_t
+pixman_color_to_pm_argb32(const pixman_color_t *col)
+{
+    uint32_t a = (uint32_t)(col->alpha >> 8);
+    uint32_t r = (uint32_t)(col->red >> 8);
+    uint32_t g = (uint32_t)(col->green >> 8);
+    uint32_t b = (uint32_t)(col->blue >> 8);
+    if (r > a) r = a;
+    if (g > a) g = a;
+    if (b > a) b = a;
+    return (a << 24) | (r << 16) | (g << 8) | b;
+}
+
+static bool
+picture_extract_solid_argb32(XmWlServer *srv, const XmWlPicture *pic, uint32_t *out_pm_argb)
+{
+    if (!pic || pic->component_alpha)
+        return false;
+    if (pic->has_solid_argb) {
+        *out_pm_argb = pic->solid_pm_argb;
+        return true;
+    }
+    if (!pic->has_transform && pic->repeat == 1 && pic->drawable_id != 0) {
+        XmWlPixmap *px = _XmWlFindPixmap(srv, pic->drawable_id);
+        if (px && px->bits && px->width == 1 && px->height == 1) {
+            uint32_t raw = px->bits[0];
+            if (pic->format_id == XM_WL_PICTFMT_RGB24) {
+                *out_pm_argb = 0xff000000u | (raw & 0x00ffffffu);
+                return true;
+            }
+            if (pic->format_id == XM_WL_PICTFMT_ARGB32) {
+                uint32_t a = raw >> 24;
+                uint32_t r = (raw >> 16) & 0xffu;
+                uint32_t g = (raw >> 8) & 0xffu;
+                uint32_t b = raw & 0xffu;
+                if (r <= a && g <= a && b <= a) {
+                    *out_pm_argb = raw;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+static bool
+picture_resolve_raw_pixels(XmWlServer *srv, const XmWlPicture *dst,
+                           uint32_t **out_pixels, int *out_stride_px, uint8_t *out_depth)
+{
+    if (!dst || dst->component_alpha)
+        return false;
+    if (dst->format_id != XM_WL_PICTFMT_RGB24 && dst->format_id != XM_WL_PICTFMT_ARGB32)
+        return false;
+    uint8_t fmt_depth = (dst->format_id == XM_WL_PICTFMT_RGB24) ? 24u : 32u;
+
+    XmWlPixmap *px = _XmWlFindPixmap(srv, dst->drawable_id);
+    if (px && px->bits && px->depth >= 24) {
+        *out_pixels = px->bits;
+        *out_stride_px = px->stride / 4;
+        *out_depth = fmt_depth;
+        return true;
+    }
+    XmWlWindow *win = _XmWlFindWindow(srv, dst->drawable_id);
+    if (!win || win == srv->root)
+        return false;
+    int dx = 0, dy = 0;
+    XmWlWindow *top = _XmWlEnclosingTopLevel(srv, win, &dx, &dy);
+    if (!top || !top->canvas_bits)
+        return false;
+    *out_pixels = top->canvas_bits;
+    *out_stride_px = top->canvas_stride / 4;
+    *out_depth = (top->depth == 32 && fmt_depth == 32) ? 32u : 24u;
+    return true;
 }
 
 void
@@ -1972,11 +2535,18 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         uint32_t gsid = rd_u32(req + 4);
         if (gsid == 0 || _XmWlFindGlyphSet(srv, gsid)) break;
         uint32_t fmt = rd_u32(req + 8);
+        XmWlGlyphSetStore *store = (XmWlGlyphSetStore *)calloc(1, sizeof(*store));
+        if (!store) break;
         XmWlGlyphSet *gs = (XmWlGlyphSet *)calloc(1, sizeof(*gs));
-        if (!gs) break;
+        if (!gs) {
+            free(store);
+            break;
+        }
+        store->format_id = fmt;
+        store->ref_count = 1;
         gs->id = gsid;
         gs->format_id = fmt;
-        gs->ref_count = 1;
+        gs->store = store;
         uint32_t b = gsid & 63u;
         gs->hash_next = srv->gs_buckets[b];
         srv->gs_buckets[b] = gs;
@@ -1987,12 +2557,13 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         uint32_t new_id = rd_u32(req + 4);
         if (new_id == 0 || _XmWlFindGlyphSet(srv, new_id)) break;
         XmWlGlyphSet *orig = _XmWlFindGlyphSet(srv, rd_u32(req + 8));
-        if (orig) {
+        if (orig && orig->store) {
             XmWlGlyphSet *gs = (XmWlGlyphSet *)calloc(1, sizeof(*gs));
             if (gs) {
+                orig->store->ref_count++;
                 gs->id = new_id;
                 gs->format_id = orig->format_id;
-                gs->ref_count = 1;
+                gs->store = orig->store;
                 uint32_t b = new_id & 63u;
                 gs->hash_next = srv->gs_buckets[b];
                 srv->gs_buckets[b] = gs;
@@ -2022,8 +2593,9 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         XmWlGlyphSet *gs = _XmWlFindGlyphSet(srv, rd_u32(req + 4));
         uint32_t nglyphs = rd_u32(req + 8);
         size_t headers_end = 12u + (size_t)nglyphs * 4u + (size_t)nglyphs * 12u;
-        if (!gs || nglyphs > 65536 || headers_end > req_len) break;
+        if (!gs || !gs->store || nglyphs > 65536 || headers_end > req_len) break;
 
+        XmWlGlyphSetStore *store = gs->store;
         const uint8_t *gids = req + 12;
         const uint8_t *ginfos = gids + (size_t)nglyphs * 4u;
         const uint8_t *img_bytes = ginfos + (size_t)nglyphs * 12u;
@@ -2041,6 +2613,8 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
                 src_stride = (size_t)gw * 4u;
             else if (gs->format_id == XM_WL_PICTFMT_A1)
                 src_stride = (((size_t)gw + 31u) / 32u) * 4u;
+            else if (gs->format_id == XM_WL_PICTFMT_A4)
+                src_stride = (((((size_t)gw + 1u) / 2u) + 3u) / 4u) * 4u;
             else
                 src_stride = (((size_t)gw + 3u) / 4u) * 4u; /* A8 */
 
@@ -2052,15 +2626,20 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
                 glyph_bytes = img_rem;
 
             XmWlGlyph *g = find_glyph(gs, gid);
+            bool reuse_atlas_slot = false;
             if (!g) {
                 g = (XmWlGlyph *)calloc(1, sizeof(*g));
                 if (!g) break;
                 g->glyph_id = gid;
-                g->next = gs->buckets[gid & 63u];
-                gs->buckets[gid & 63u] = g;
+                g->next = store->buckets[gid & 127u];
+                store->buckets[gid & 127u] = g;
             } else {
                 if (g->img) { pixman_image_unref(g->img); g->img = NULL; }
                 free(g->bits); g->bits = NULL;
+                if (g->atlas_page && g->width == (int16_t)gw && g->height == (int16_t)gh)
+                    reuse_atlas_slot = true;
+                else
+                    g->atlas_page = NULL;
             }
             g->width = (int16_t)gw;
             g->height = (int16_t)gh;
@@ -2070,26 +2649,63 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
             g->y_off = gy_off;
 
             if (gw > 0 && gh > 0) {
-                g->bits = (uint32_t *)calloc((size_t)gw * (size_t)gh, 4u);
-                if (g->bits) {
+                bool can_atlas = (gs->format_id != XM_WL_PICTFMT_ARGB32 && gw <= 256 && gh <= 256);
+                XmWlGlyphAtlasPage *apg = reuse_atlas_slot ? g->atlas_page : NULL;
+                uint16_t ax = reuse_atlas_slot ? g->atlas_x : 0;
+                uint16_t ay = reuse_atlas_slot ? g->atlas_y : 0;
+                if (can_atlas && (apg || glyph_atlas_alloc(store, gw, gh, &apg, &ax, &ay))) {
+                    g->atlas_page = apg;
+                    g->atlas_x = ax;
+                    g->atlas_y = ay;
                     for (uint16_t r = 0; r < gh; ++r) {
                         if ((size_t)r * src_stride + src_stride > img_rem) break;
                         const uint8_t *srow = img_bytes + (size_t)r * src_stride;
-                        for (uint16_t c = 0; c < gw; ++c) {
-                            uint32_t argb = 0;
-                            if (gs->format_id == XM_WL_PICTFMT_ARGB32) {
-                                argb = rd_u32(srow + (size_t)c * 4u);
-                            } else if (gs->format_id == XM_WL_PICTFMT_A1) {
-                                bool on = ((srow[c >> 3] >> (c & 7u)) & 1u) != 0;
-                                argb = on ? 0xffffffffu : 0x00000000u;
-                            } else {
-                                uint8_t a = srow[c];
-                                argb = ((uint32_t)a << 24) | ((uint32_t)a << 16) | ((uint32_t)a << 8) | a;
+                        uint8_t *arow = apg->bits + (size_t)(ay + r) * XM_WL_GLYPH_ATLAS_DIM + ax;
+                        if (gs->format_id == XM_WL_PICTFMT_A8) {
+                            memcpy(arow, srow, gw);
+                        } else if (gs->format_id == XM_WL_PICTFMT_A4) {
+                            for (uint16_t c = 0; c < gw; ++c) {
+                                uint8_t nib = (c & 1u) ? (uint8_t)(srow[c >> 1] >> 4)
+                                                       : (uint8_t)(srow[c >> 1] & 0x0fu);
+                                arow[c] = (uint8_t)(nib * 17u);
                             }
-                            g->bits[(size_t)r * (size_t)gw + (size_t)c] = argb;
+                        } else { /* A1 */
+                            for (uint16_t c = 0; c < gw; ++c) {
+                                bool on = ((srow[c >> 3] >> (c & 7u)) & 1u) != 0;
+                                arow[c] = on ? 0xffu : 0x00u;
+                            }
                         }
                     }
-                    g->img = pixman_image_create_bits(PIXMAN_a8r8g8b8, gw, gh, g->bits, (int)gw * 4);
+                    if (!reuse_atlas_slot)
+                        atomic_fetch_add_explicit(&g_stat_atlas_glyphs, 1, memory_order_relaxed);
+                } else {
+                    g->atlas_page = NULL;
+                    g->bits = (uint32_t *)calloc((size_t)gw * (size_t)gh, 4u);
+                    if (g->bits) {
+                        for (uint16_t r = 0; r < gh; ++r) {
+                            if ((size_t)r * src_stride + src_stride > img_rem) break;
+                            const uint8_t *srow = img_bytes + (size_t)r * src_stride;
+                            for (uint16_t c = 0; c < gw; ++c) {
+                                uint32_t argb = 0;
+                                if (gs->format_id == XM_WL_PICTFMT_ARGB32) {
+                                    argb = rd_u32(srow + (size_t)c * 4u);
+                                } else if (gs->format_id == XM_WL_PICTFMT_A1) {
+                                    bool on = ((srow[c >> 3] >> (c & 7u)) & 1u) != 0;
+                                    argb = on ? 0xffffffffu : 0x00000000u;
+                                } else if (gs->format_id == XM_WL_PICTFMT_A4) {
+                                    uint8_t nib = (c & 1u) ? (uint8_t)(srow[c >> 1] >> 4)
+                                                           : (uint8_t)(srow[c >> 1] & 0x0fu);
+                                    uint8_t a = (uint8_t)(nib * 17u);
+                                    argb = ((uint32_t)a << 24) | ((uint32_t)a << 16) | ((uint32_t)a << 8) | a;
+                                } else {
+                                    uint8_t a = srow[c];
+                                    argb = ((uint32_t)a << 24) | ((uint32_t)a << 16) | ((uint32_t)a << 8) | a;
+                                }
+                                g->bits[(size_t)r * (size_t)gw + (size_t)c] = argb;
+                            }
+                        }
+                        g->img = pixman_image_create_bits(PIXMAN_a8r8g8b8, gw, gh, g->bits, (int)gw * 4);
+                    }
                 }
             }
             img_bytes += glyph_bytes;
@@ -2097,8 +2713,28 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         }
         break;
     }
-    case 22: /* RenderFreeGlyphs */
+    case 22: { /* RenderFreeGlyphs */
+        if (req_len < 8) break;
+        XmWlGlyphSet *gs = _XmWlFindGlyphSet(srv, rd_u32(req + 4));
+        if (!gs || !gs->store) break;
+        size_t ngids = (req_len - 8u) / 4u;
+        for (size_t i = 0; i < ngids; ++i) {
+            uint32_t gid = rd_u32(req + 8u + i * 4u);
+            XmWlGlyph **pp = &gs->store->buckets[gid & 127u];
+            while (*pp) {
+                if ((*pp)->glyph_id == gid) {
+                    XmWlGlyph *dead = *pp;
+                    *pp = dead->next;
+                    if (dead->img) pixman_image_unref(dead->img);
+                    free(dead->bits);
+                    free(dead);
+                    break;
+                }
+                pp = &(*pp)->next;
+            }
+        }
         break;
+    }
     case 23: /* RenderCompositeGlyphs8 */
     case 24: /* RenderCompositeGlyphs16 */
     case 25: { /* RenderCompositeGlyphs32 */
@@ -2119,13 +2755,30 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
             if (dimg) pixman_region32_fini(&dclip);
             break;
         }
-        pixman_image_set_clip_region32(dimg, &dclip);
+        if (!pixman_region32_not_empty(&dclip)) {
+            pixman_region32_fini(&dclip);
+            break;
+        }
+
+        uint32_t solid_pm_argb = 0;
+        uint32_t *dst_pixels = NULL;
+        int dst_stride_px = 0;
+        uint8_t dst_depth = 24;
+        bool can_simd_a8 = (op == 3 /* PictOpOver */) &&
+                           picture_extract_solid_argb32(srv, src, &solid_pm_argb) &&
+                           picture_resolve_raw_pixels(srv, dst, &dst_pixels, &dst_stride_px, &dst_depth);
+        int nclip_boxes = 0;
+        pixman_box32_t *clip_boxes = pixman_region32_rectangles(&dclip, &nclip_boxes);
+        bool clip_set_on_dimg = false;
 
         size_t elem_size = (minor_op == 23) ? 1u : (minor_op == 24 ? 2u : 4u);
         size_t pos = 28;
         int pen_x = 0, pen_y = 0;
         bool first_elt = true;
         int origin_x = 0, origin_y = 0;
+        bool any_damage = false;
+        int dmg_x1 = INT32_MAX, dmg_y1 = INT32_MAX;
+        int dmg_x2 = INT32_MIN, dmg_y2 = INT32_MIN;
 
         while (pos + 8 <= req_len) {
             uint8_t len_elt = req[pos];
@@ -2157,18 +2810,61 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
                                                : rd_u32(req + pos + (size_t)gi * 4u));
                 XmWlGlyph *g = find_glyph(gs, gid);
                 if (g) {
-                    if (g->img && g->width > 0 && g->height > 0) {
+                    if (g->width > 0 && g->height > 0 && (g->atlas_page || g->img)) {
                         int gx = pen_x - g->x;
                         int gy = pen_y - g->y;
-                        if (gs->format_id == XM_WL_PICTFMT_ARGB32 && !src->component_alpha) {
-                            /* Color emoji or subpixel ARGB glyph */
-                            pixman_image_set_component_alpha(g->img, true);
+                        int tx1 = ddx + gx;
+                        int ty1 = ddy + gy;
+                        int tx2 = tx1 + g->width;
+                        int ty2 = ty1 + g->height;
+
+                        if (can_simd_a8 && g->atlas_page) {
+                            const uint8_t *abase = g->atlas_page->bits +
+                                                   (size_t)g->atlas_y * XM_WL_GLYPH_ATLAS_DIM +
+                                                   g->atlas_x;
+                            for (int bi = 0; bi < nclip_boxes; ++bi) {
+                                int cx1 = tx1 > clip_boxes[bi].x1 ? tx1 : clip_boxes[bi].x1;
+                                int cy1 = ty1 > clip_boxes[bi].y1 ? ty1 : clip_boxes[bi].y1;
+                                int cx2 = tx2 < clip_boxes[bi].x2 ? tx2 : clip_boxes[bi].x2;
+                                int cy2 = ty2 < clip_boxes[bi].y2 ? ty2 : clip_boxes[bi].y2;
+                                if (cx2 > cx1 && cy2 > cy1) {
+                                    uint32_t *dsub = dst_pixels + (size_t)cy1 * (size_t)dst_stride_px + (size_t)cx1;
+                                    const uint8_t *msub = abase + (size_t)(cy1 - ty1) * XM_WL_GLYPH_ATLAS_DIM + (size_t)(cx1 - tx1);
+                                    _XmWaylandSimdBlitGlyphA8Over(
+                                        dsub, dst_stride_px, msub, XM_WL_GLYPH_ATLAS_DIM,
+                                        cx2 - cx1, cy2 - cy1, solid_pm_argb, dst_depth);
+                                    if (cx1 < dmg_x1) dmg_x1 = cx1;
+                                    if (cy1 < dmg_y1) dmg_y1 = cy1;
+                                    if (cx2 > dmg_x2) dmg_x2 = cx2;
+                                    if (cy2 > dmg_y2) dmg_y2 = cy2;
+                                    any_damage = true;
+                                }
+                            }
+                            atomic_fetch_add_explicit(&g_stat_simd_glyph_blits, 1, memory_order_relaxed);
+                        } else {
+                            if (!clip_set_on_dimg) {
+                                pixman_image_set_clip_region32(dimg, &dclip);
+                                clip_set_on_dimg = true;
+                            }
+                            if (g->atlas_page && g->atlas_page->img) {
+                                pixman_image_composite32(
+                                    pict_op_to_pixman(op), simg, g->atlas_page->img, dimg,
+                                    sdx + x_src + (gx - origin_x), sdy + y_src + (gy - origin_y),
+                                    g->atlas_x, g->atlas_y, tx1, ty1, g->width, g->height);
+                            } else if (g->img) {
+                                if (gs->format_id == XM_WL_PICTFMT_ARGB32 && !src->component_alpha)
+                                    pixman_image_set_component_alpha(g->img, true);
+                                pixman_image_composite32(
+                                    pict_op_to_pixman(op), simg, g->img, dimg,
+                                    sdx + x_src + (gx - origin_x), sdy + y_src + (gy - origin_y),
+                                    0, 0, tx1, ty1, g->width, g->height);
+                            }
+                            if (tx1 < dmg_x1) dmg_x1 = tx1;
+                            if (ty1 < dmg_y1) dmg_y1 = ty1;
+                            if (tx2 > dmg_x2) dmg_x2 = tx2;
+                            if (ty2 > dmg_y2) dmg_y2 = ty2;
+                            any_damage = true;
                         }
-                        pixman_image_composite32(
-                            pict_op_to_pixman(op), simg, g->img, dimg,
-                            sdx + x_src + (gx - origin_x), sdy + y_src + (gy - origin_y),
-                            0, 0, ddx + gx, ddy + gy, g->width, g->height);
-                        if (dtop) _XmWlDamageTop(dtop, ddx + gx, ddy + gy, g->width, g->height);
                     }
                     pen_x += g->x_off;
                     pen_y += g->y_off;
@@ -2176,7 +2872,10 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
             }
             pos += padded_bytes;
         }
-        pixman_image_set_clip_region32(dimg, NULL);
+        if (clip_set_on_dimg)
+            pixman_image_set_clip_region32(dimg, NULL);
+        if (dtop && any_damage && dmg_x2 > dmg_x1 && dmg_y2 > dmg_y1)
+            _XmWlDamageTop(dtop, dmg_x1, dmg_y1, dmg_x2 - dmg_x1, dmg_y2 - dmg_y1);
         pixman_region32_fini(&dclip);
         break;
     }
@@ -2198,19 +2897,75 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         pixman_region32_t dclip;
         pixman_image_t *dimg = resolve_picture_image(srv, dst, true, &ddx, &ddy, &dtop, &dclip);
         if (dimg) {
-            pixman_rectangle16_t *prects = (pixman_rectangle16_t *)calloc(nrects, sizeof(*prects));
-            if (prects) {
+            uint32_t *dst_pixels = NULL;
+            int dst_stride_px = 0;
+            uint8_t dst_depth = 24;
+            bool can_simd_fill = (op == 1 /* PictOpSrc */ || op == 3 /* PictOpOver */) &&
+                                 picture_resolve_raw_pixels(srv, dst, &dst_pixels, &dst_stride_px, &dst_depth);
+            if (can_simd_fill && pixman_region32_not_empty(&dclip)) {
+                uint32_t pm_px = pixman_color_to_pm_argb32(&col);
+                int nclip_boxes = 0;
+                pixman_box32_t *clip_boxes = pixman_region32_rectangles(&dclip, &nclip_boxes);
+                int dmg_x1 = INT32_MAX, dmg_y1 = INT32_MAX;
+                int dmg_x2 = INT32_MIN, dmg_y2 = INT32_MIN;
+                bool any_dmg = false;
+
                 for (size_t i = 0; i < nrects; ++i) {
-                    prects[i].x = (int16_t)(ddx + rd_i16(req + 20 + i * 8 + 0));
-                    prects[i].y = (int16_t)(ddy + rd_i16(req + 20 + i * 8 + 2));
-                    prects[i].width = rd_u16(req + 20 + i * 8 + 4);
-                    prects[i].height = rd_u16(req + 20 + i * 8 + 6);
-                    if (dtop) _XmWlDamageTop(dtop, prects[i].x, prects[i].y, prects[i].width, prects[i].height);
+                    int rx1 = ddx + rd_i16(req + 20 + i * 8 + 0);
+                    int ry1 = ddy + rd_i16(req + 20 + i * 8 + 2);
+                    int rx2 = rx1 + (int)rd_u16(req + 20 + i * 8 + 4);
+                    int ry2 = ry1 + (int)rd_u16(req + 20 + i * 8 + 6);
+                    if (rx2 <= rx1 || ry2 <= ry1)
+                        continue;
+                    for (int bi = 0; bi < nclip_boxes; ++bi) {
+                        int bx1 = rx1 > clip_boxes[bi].x1 ? rx1 : clip_boxes[bi].x1;
+                        int by1 = ry1 > clip_boxes[bi].y1 ? ry1 : clip_boxes[bi].y1;
+                        int bx2 = rx2 < clip_boxes[bi].x2 ? rx2 : clip_boxes[bi].x2;
+                        int by2 = ry2 < clip_boxes[bi].y2 ? ry2 : clip_boxes[bi].y2;
+                        if (bx2 <= bx1 || by2 <= by1)
+                            continue;
+                        size_t span_len = (size_t)(bx2 - bx1);
+                        if (op == 1) {
+                            uint32_t raw_px = (dst_depth == 24) ? (0xff000000u | (pm_px & 0x00ffffffu)) : pm_px;
+                            for (int py = by1; py < by2; ++py)
+                                _XmWaylandSimdFillRow32(dst_pixels + (size_t)py * (size_t)dst_stride_px + (size_t)bx1,
+                                                        raw_px, span_len);
+                        } else {
+                            for (int py = by1; py < by2; ++py)
+                                _XmWaylandSimdOverSpanSolid(dst_pixels + (size_t)py * (size_t)dst_stride_px + (size_t)bx1,
+                                                            pm_px, span_len, dst_depth);
+                        }
+                        if (bx1 < dmg_x1) dmg_x1 = bx1;
+                        if (by1 < dmg_y1) dmg_y1 = by1;
+                        if (bx2 > dmg_x2) dmg_x2 = bx2;
+                        if (by2 > dmg_y2) dmg_y2 = by2;
+                        any_dmg = true;
+                    }
                 }
-                pixman_image_set_clip_region32(dimg, &dclip);
-                pixman_image_fill_rectangles(pict_op_to_pixman(op), dimg, &col, (int)nrects, prects);
-                pixman_image_set_clip_region32(dimg, NULL);
-                free(prects);
+                if (any_dmg) {
+                    atomic_fetch_add_explicit(&g_stat_simd_span_ops, 1, memory_order_relaxed);
+                    if (dtop)
+                        _XmWlDamageTop(dtop, dmg_x1, dmg_y1, dmg_x2 - dmg_x1, dmg_y2 - dmg_y1);
+                }
+            } else {
+                pixman_rectangle16_t stack_rects[64];
+                pixman_rectangle16_t *prects = (nrects <= 64)
+                    ? stack_rects
+                    : (pixman_rectangle16_t *)calloc(nrects, sizeof(*prects));
+                if (prects) {
+                    for (size_t i = 0; i < nrects; ++i) {
+                        prects[i].x = (int16_t)(ddx + rd_i16(req + 20 + i * 8 + 0));
+                        prects[i].y = (int16_t)(ddy + rd_i16(req + 20 + i * 8 + 2));
+                        prects[i].width = rd_u16(req + 20 + i * 8 + 4);
+                        prects[i].height = rd_u16(req + 20 + i * 8 + 6);
+                        if (dtop) _XmWlDamageTop(dtop, prects[i].x, prects[i].y, prects[i].width, prects[i].height);
+                    }
+                    pixman_image_set_clip_region32(dimg, &dclip);
+                    pixman_image_fill_rectangles(pict_op_to_pixman(op), dimg, &col, (int)nrects, prects);
+                    pixman_image_set_clip_region32(dimg, NULL);
+                    if (prects != stack_rects)
+                        free(prects);
+                }
             }
             pixman_region32_fini(&dclip);
         }
@@ -2284,6 +3039,8 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         if (pic) {
             pic->id = pid;
             pic->repeat = 1;
+            pic->has_solid_argb = true;
+            pic->solid_pm_argb = pixman_color_to_pm_argb32(&col);
             pic->source_img = pixman_image_create_solid_fill(&col);
             uint32_t b = pid & 255u;
             pic->hash_next = srv->pic_buckets[b];

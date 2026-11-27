@@ -90,7 +90,15 @@ process environment when the native Wayland backend is active.
   `wl_surface_damage_buffer` commits, `wl_surface_set_opaque_region` culling, lower-Z sibling
   uncover repainting across `ConfigureWindow`/`UnmapWindow`, deduplicated
   `xdg_toplevel` metadata updates, `pthread_atfork` child descriptor cleanup,
-  and exact subwindow destination and first-vertex `xSrc`/`ySrc` alignment. Legacy core X11 font requests (`OpenFont`, `QueryFont`,
+  and exact subwindow destination and first-vertex `xSrc`/`ySrc` alignment.
+  Shaped `A8`, `A4`, and `A1` `GlyphSet` masks pack into refcounted `512x512`
+  `A8` shelf-packed glyph-atlas pages shared across `RenderReferenceGlyphSet`
+  handles (with per-ID `RenderFreeGlyphs` eviction and batched per-string
+  damage bounds), while solid/translucent `PictOpOver` / `GXcopy` span fills
+  (used by modern rounded/translucent bevels), `A8` glyph-atlas blits, and
+  non-overlapping `CopyArea` buffered-paint (`_XmBufferedPaint`) backbuffer
+  transfers accelerate via bit-exact ARM NEON and x86 AVX2/SSE2 SIMD fast paths.
+  Legacy core X11 font requests (`OpenFont`, `QueryFont`,
   `ListFonts`, `ListFontsWithInfo`, `PolyText8/16`, `ImageText8/16`) expose
   scalable and multi-size XLFDs across standard Latin-1 and Unicode families and
   rasterize directly through Fontconfig and FreeType without server-side PCF/BDF

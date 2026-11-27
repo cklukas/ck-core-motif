@@ -1,3 +1,23 @@
+Add shared A8 glyph-atlas caching, SIMD compositing fast paths, and zero-copy buffered-paint blits in WaylandRender (2026-11-27)
+================================================================================================================================
+
+- `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandRender.c`,
+  `tests/automated/check-wayland-render-simd.c`,
+  `tests/automated/run-wayland-render-simd.py`, `docs/wayland-backend.md`:
+  - Pack shaped `A8`, `A4`, and `A1` XRender glyphs (`<= 256x256`) into
+    shelf-allocated `512x512` `A8` glyph-atlas pages inside a refcounted
+    `XmWlGlyphSetStore` shared across `RenderReferenceGlyphSet`, implement
+    `RenderFreeGlyphs` eviction, and coalesce `RenderCompositeGlyphs8/16/32`
+    surface damage into a single bounding update per string.
+  - Add bit-exact ARM NEON, x86 AVX2/SSE2, and scalar fast paths for solid
+    32-bit span fills (`fill_box_gc` / rounded bevels), premultiplied
+    translucent `PictOpOver` `RenderFillRectangles` spans, and clipped solid
+    `PictOpOver` `A8` glyph-atlas blitting.
+  - Add a zero-allocation clipped-scanline `CopyArea` fast path in
+    `_XmWlRenderCopyArea` so `_XmBufferedPaint` offscreen `Pixmap` blits copy
+    clipped scanlines directly without temporary heap buffers or per-pixel
+    region containment checks.
+
 Add XInput2 smooth-scroll valuators, Wayland finger-flick kinetic momentum, and sub-row DataGrid pixel scrolling (2026-11-27)
 =============================================================================================================================
 

@@ -354,6 +354,8 @@ struct XmWlPicture {
     uint32_t format_id;
     uint8_t repeat;
     bool component_alpha;
+    bool has_solid_argb;
+    uint32_t solid_pm_argb; /* premultiplied ARGB32 when created via RenderCreateSolidFill */
     int16_t clip_x_origin;
     int16_t clip_y_origin;
     uint32_t clip_mask_pixmap;
@@ -367,21 +369,40 @@ struct XmWlPicture {
     XmWlPicture *hash_next;
 };
 
+#define XM_WL_GLYPH_ATLAS_DIM 512
+
+typedef struct XmWlGlyphAtlasPage {
+    uint8_t *bits;          /* XM_WL_GLYPH_ATLAS_DIM * XM_WL_GLYPH_ATLAS_DIM A8 mask */
+    pixman_image_t *img;    /* PIXMAN_a8 wrapper over bits for general Pixman ops */
+    uint16_t shelf_x;
+    uint16_t shelf_y;
+    uint16_t shelf_h;
+    struct XmWlGlyphAtlasPage *next;
+} XmWlGlyphAtlasPage;
+
 typedef struct XmWlGlyph {
     uint32_t glyph_id;
     int16_t x, y;         /* hotspot origin inside glyph image */
     int16_t width, height;
     int16_t x_off, y_off; /* advance */
-    pixman_image_t *img;
+    XmWlGlyphAtlasPage *atlas_page; /* non-NULL when packed in shared A8 atlas */
+    uint16_t atlas_x, atlas_y;
+    pixman_image_t *img;  /* fallback for ARGB32 / oversized glyphs */
     uint32_t *bits;
     struct XmWlGlyph *next;
 } XmWlGlyph;
 
+typedef struct XmWlGlyphSetStore {
+    uint32_t format_id;
+    int ref_count;
+    XmWlGlyph *buckets[128];
+    XmWlGlyphAtlasPage *atlas_head;
+} XmWlGlyphSetStore;
+
 struct XmWlGlyphSet {
     uint32_t id;
     uint32_t format_id;
-    int ref_count;
-    XmWlGlyph *buckets[64];
+    XmWlGlyphSetStore *store;
     XmWlGlyphSet *hash_next;
 };
 
@@ -845,6 +866,21 @@ XM_WL_INTERNAL void _XmWlRenderImageText(XmWlServer *srv, uint32_t drawable, XmW
 XM_WL_INTERNAL void _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, const uint8_t *req, size_t req_len);
 XM_WL_INTERNAL bool _XmWlBuildIconPixels(XmWlServer *srv, uint32_t icon_pixmap, uint32_t icon_mask,
                                          uint32_t **out_argb, int *out_w, int *out_h);
+
+/* WaylandRender.c SIMD & glyph-atlas diagnostics/entrypoints */
+void _XmWaylandRenderSetSimdEnabled(bool enabled);
+bool _XmWaylandRenderGetSimdEnabled(void);
+const char *_XmWaylandRenderGetSimdBackend(void);
+void _XmWaylandRenderResetStats(void);
+void _XmWaylandRenderGetStats(uint64_t *out_atlas_glyphs,
+                              uint64_t *out_atlas_pages,
+                              uint64_t *out_simd_glyph_blits,
+                              uint64_t *out_simd_span_ops);
+void _XmWaylandSimdFillRow32(uint32_t *dst, uint32_t pixel, size_t count);
+void _XmWaylandSimdOverSpanSolid(uint32_t *dst, uint32_t pm_src, size_t count, uint8_t depth);
+void _XmWaylandSimdBlitGlyphA8Over(uint32_t *dst, int dst_stride_px,
+                                   const uint8_t *mask, int mask_stride,
+                                   int w, int h, uint32_t pm_src, uint8_t depth);
 
 /* WaylandData.c selections & DnD */
 XM_WL_INTERNAL void _XmWlDataBindSeat(XmWlServer *srv);
